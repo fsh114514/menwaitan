@@ -1,6 +1,6 @@
 # 门外谈 · Menwai Tan
 
-**An AI thinkers' debate club — talk, argue, and clash with 25 distilled personas.**
+**An AI thinkers' debate club — talk, argue, and clash with a roster of distilled personas.**
 
 [English](README.en.md) · **中文** ([中文版](README.md))
 
@@ -10,7 +10,7 @@
 
 ## Features
 
-- **25 personas** — one SKILL.md per thinker, distilled by the open-source community
+- **Roster of thinkers** — one SKILL.md per persona, distilled by the open-source community
 - **One-on-one or round table** — chat solo, or pit several thinkers against each other in turns
 - **Scene system** — Casual / Serious / Heated control answer length & tone, with auto-escalation
 - **Streaming replies** — SSE with a typewriter effect
