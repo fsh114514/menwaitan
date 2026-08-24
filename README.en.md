@@ -8,6 +8,8 @@
 
 > Pick a seat, throw a question, and watch Zhang Xuefeng, Luo Xiang, Marx and Confucius argue it out — in a revolutionary editorial aesthetic of paper and ink red.
 
+![Menwai Tan screenshot](docs/screenshot.png)
+
 ## Features
 
 - **Roster of thinkers** — one SKILL.md per persona, distilled by the open-source community
