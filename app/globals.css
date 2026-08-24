@@ -1,0 +1,71 @@
+@import "tailwindcss";
+
+/* 革命报纸 · 复古学术 · 科技丝滑 配色
+   墨黑 + 真红 + 山吹金 + 生成纸色 + 铁灰
+   参考 nipponcolors.com 日本传统色 */
+:root {
+  /* 主色 */
+  --ink: #1a1a1a;          /* 墨 */
+  --paper: #f0e8d5;        /* 生成纸(米白) */
+  --paper-dim: #e3d9c0;    /* 旧纸 */
+  --crimson: #b22222;      /* 真红(革命) */
+  --crimson-bright: #d3381c; /* 緋(亮红) */
+  --gold: #c8a951;         /* 山吹金 */
+  --iron: #3c4a4a;         /* 铁色(科技冷) */
+  --kuro: #2a2a2a;         /* 墨灰 */
+}
+
+@theme inline {
+  --color-ink: var(--ink);
+  --color-paper: var(--paper);
+  --color-paper-dim: var(--paper-dim);
+  --color-crimson: var(--crimson);
+  --color-crimson-bright: var(--crimson-bright);
+  --color-gold: var(--gold);
+  --color-iron: var(--iron);
+  --color-kuro: var(--kuro);
+  --font-display: var(--font-smiley);
+  --font-body: system-ui, sans-serif;
+}
+
+/* 得意黑字体 */
+@font-face {
+  font-family: 'SmileySans';
+  src: url('/fonts/smiley-sans.woff2') format('woff2');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+:root {
+  --font-smiley: 'SmileySans', system-ui, sans-serif;
+}
+
+body {
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--font-body);
+}
+
+/* 印刷质感:轻微噪点纹理 */
+.paper-grain {
+  background-image:
+    radial-gradient(circle at 20% 30%, rgba(178, 34, 34, 0.04) 0, transparent 40%),
+    radial-gradient(circle at 80% 70%, rgba(200, 169, 81, 0.06) 0, transparent 50%);
+}
+
+/* 丝滑过渡 */
+.smooth {
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* 报纸标题风格 */
+.rev-headline {
+  font-family: var(--font-smiley);
+  letter-spacing: 0.05em;
+}
+
+/* 细线装饰 */
+.hairline {
+  border-color: rgba(26, 26, 26, 0.15);
+}

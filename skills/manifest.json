@@ -1,0 +1,211 @@
+[
+  {
+    "id": "plato-skill",
+    "zhName": "柏拉图视角 Skill",
+    "name": "plato-perspective",
+    "initial": "柏",
+    "school": "导入角色",
+    "tag": "skill",
+    "color": "#c0392b",
+    "skillDir": "plato-skill",
+    "imported": true
+  },
+  {
+    "id": "kongzi-skill",
+    "zhName": "孔子",
+    "name": "kongzi-perspective",
+    "initial": "孔",
+    "school": "儒学 · 仁礼",
+    "tag": "君子不器",
+    "color": "#6b5a3e",
+    "skillDir": "kongzi-skill",
+    "imported": true
+  },
+  {
+    "id": "marx-skill",
+    "zhName": "马克思",
+    "name": "marx-perspective",
+    "initial": "马",
+    "school": "历史唯物主义 · 政治经济学",
+    "tag": "改变世界",
+    "color": "#7d1f1f",
+    "skillDir": "marx-skill",
+    "imported": true
+  },
+  {
+    "id": "steve-jobs-skill",
+    "zhName": "乔布斯",
+    "name": "steve-jobs-perspective",
+    "initial": "乔",
+    "school": "产品 · 设计",
+    "tag": "改变世界",
+    "color": "#4a4a4a",
+    "skillDir": "steve-jobs-skill",
+    "imported": true
+  },
+  {
+    "id": "elon-musk-skill",
+    "zhName": "马斯克",
+    "name": "elon-musk-perspective",
+    "initial": "马",
+    "school": "工程 · 第一性原理",
+    "tag": "火星计划",
+    "color": "#6b4f8a",
+    "skillDir": "elon-musk-skill",
+    "imported": true
+  },
+  {
+    "id": "nietzsche-skill",
+    "zhName": "尼采",
+    "name": "nietzsche-perspective",
+    "initial": "尼",
+    "school": "超人哲学 · 权力意志",
+    "tag": "上帝死了",
+    "color": "#3a3a3a",
+    "skillDir": "nietzsche-skill",
+    "imported": true
+  },
+  {
+    "id": "foucault-skill",
+    "zhName": "福柯",
+    "name": "foucault-perspective",
+    "initial": "福",
+    "school": "权力 · 知识",
+    "tag": "规训与惩罚",
+    "color": "#2e5d8a",
+    "skillDir": "foucault-skill",
+    "imported": true
+  },
+  {
+    "id": "socrates-skill",
+    "zhName": "苏格拉底",
+    "name": "socrates-perspective",
+    "initial": "苏",
+    "school": "提问术 · 批判思维",
+    "tag": "认识你自己",
+    "color": "#8a6a2e",
+    "skillDir": "socrates-skill",
+    "imported": true
+  },
+  {
+    "id": "wittgenstein-skill",
+    "zhName": "维特根斯坦",
+    "name": "wittgenstein-perspective",
+    "initial": "维",
+    "school": "语言哲学 · 逻辑",
+    "tag": "沉默",
+    "color": "#4a5d6a",
+    "skillDir": "wittgenstein-skill",
+    "imported": true
+  },
+  {
+    "id": "einstein-skill",
+    "zhName": "爱因斯坦",
+    "name": "einstein-perspective",
+    "initial": "爱",
+    "school": "相对论 · 思维实验",
+    "tag": "想象力",
+    "color": "#2e8a5e",
+    "skillDir": "einstein-skill",
+    "imported": true
+  },
+  {
+    "id": "turing-skill",
+    "zhName": "图灵",
+    "name": "turing-perspective",
+    "initial": "图",
+    "school": "计算 · 人工智能",
+    "tag": "机器会思考",
+    "color": "#8a2e5d",
+    "skillDir": "turing-skill",
+    "imported": true
+  },
+  {
+    "id": "leijun-skill",
+    "zhName": "雷军",
+    "name": "leijun-perspective",
+    "initial": "雷",
+    "school": "极致性价比",
+    "tag": "Are you OK",
+    "color": "#5d8a2e",
+    "skillDir": "leijun-skill",
+    "imported": true
+  },
+  {
+    "id": "huangrenxun-skill",
+    "zhName": "黄仁勋",
+    "name": "huangrenxun-perspective",
+    "initial": "黄",
+    "school": "算力 · 加速计算",
+    "tag": "显卡教父",
+    "color": "#2e8a8a",
+    "skillDir": "huangrenxun-skill",
+    "imported": true
+  },
+  {
+    "id": "buffett-skill",
+    "zhName": "巴菲特",
+    "name": "buffett-perspective",
+    "initial": "巴",
+    "school": "价值投资",
+    "tag": "长期主义",
+    "color": "#8a7a2e",
+    "skillDir": "buffett-skill",
+    "imported": true
+  },
+  {
+    "id": "dalio-skill",
+    "zhName": "达利欧",
+    "name": "dalio-perspective",
+    "initial": "达",
+    "school": "原则 · 算法决策",
+    "tag": "极度透明",
+    "color": "#7a5d3a",
+    "skillDir": "dalio-skill",
+    "imported": true
+  },
+  {
+    "id": "trump-skill",
+    "zhName": "特朗普",
+    "name": "trump-perspective",
+    "initial": "特",
+    "school": "商业 · 政治",
+    "tag": "MAGA",
+    "color": "#8a2e2e",
+    "skillDir": "trump-skill",
+    "imported": true
+  },
+  {
+    "id": "ace-taffy-skill",
+    "zhName": "永雏塔菲",
+    "name": "ace-taffy",
+    "initial": "塔",
+    "school": "虚拟主播 · 乐子人",
+    "tag": "啊？",
+    "color": "#c9a24a",
+    "skillDir": "ace-taffy-skill",
+    "imported": true
+  },
+  {
+    "id": "luo-xiang-skill",
+    "zhName": "罗翔",
+    "name": "luo-xiang-perspective",
+    "initial": "罗",
+    "school": "刑法 · 普法",
+    "tag": "法外狂徒张三",
+    "color": "#a0582e",
+    "skillDir": "luo-xiang-skill",
+    "imported": true
+  },
+  {
+    "id": "huchenfeng-skill",
+    "zhName": "户晨风",
+    "name": "huchenfeng-perspective",
+    "initial": "户",
+    "school": "真实主义 · 反差",
+    "tag": "全网最穷？",
+    "color": "#b0452e",
+    "skillDir": "huchenfeng-skill",
+    "imported": true
+  }
+]

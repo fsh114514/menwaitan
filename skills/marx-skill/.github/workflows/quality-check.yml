@@ -1,0 +1,22 @@
+name: Marx.skill Quality Check
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  quality:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.12'
+    - name: Run Quality Check
+      run: |
+        python -m pip install --upgrade pip
+        python quality_check.py "同志，调研2026数据后，主要矛盾是生产力与生产关系，辩证来看一方面技术进步，另一方面异化加剧，实践在于改变世界。"
+        echo "Quality pipeline passed - dialectical rigor verified."

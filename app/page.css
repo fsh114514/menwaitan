@@ -1,0 +1,85 @@
+/* ===== 门外谈 · 主站补充样式 ===== */
+
+.pg-brand { font-family: var(--font-display); font-size: clamp(3.2rem, 7.5vw, 6.5rem); line-height: 1; font-weight: 900; color: var(--ink); letter-spacing: 0.04em; margin: var(--sp-lg) 0 var(--sp-sm); }
+.pg-slogan { font-family: var(--font-display); font-size: clamp(1.15rem, 2.4vw, 1.6rem); color: var(--accent); letter-spacing: 0.12em; margin: 0; }
+.pg-sub { color: var(--ink-soft); font-size: 0.95rem; line-height: 1.8; margin: var(--sp-sm) 0 var(--sp-lg); max-width: 34em; }
+
+/* tabs */
+.pg-tabs { display: flex; gap: var(--sp-lg); margin: 0 0 var(--sp-xl); border-bottom: 1px solid var(--rule-strong); }
+.pg-tab { border: 0; background: none; font-family: var(--font-display); font-weight: 900; font-size: 1.02rem; letter-spacing: 0.14em; color: var(--ink-soft); padding: 0.7em 0.2em; cursor: pointer; position: relative; }
+.pg-tab.active { color: var(--ink); }
+.pg-tab.active::after { content: ""; position: absolute; left: 0; right: 0; bottom: -1px; height: 3px; background: var(--accent); }
+
+/* 双栏主体 */
+.pg-main { display: grid; grid-template-columns: 248px 1fr; gap: var(--sp-2xl); align-items: start; }
+.pg-avatars { position: sticky; top: var(--sp-xl); display: flex; flex-direction: column; gap: var(--sp-xs); }
+.pg-av-label { font-size: 0.68rem; letter-spacing: 0.24em; color: var(--ink-faint); margin: 0 0 var(--sp-xs); }
+.pg-avatar { display: flex; align-items: center; gap: var(--sp-sm); border: 1px solid var(--rule); background: var(--card); padding: 0.55em 0.7em; cursor: pointer; transition: transform 0.12s var(--ease-out), border-color 0.2s, box-shadow 0.2s; color: var(--ink); text-align: left; font-family: var(--font-body); }
+.pg-avatar:hover { transform: translateY(-1px); border-color: var(--rule-strong); }
+.pg-avatar .av { width: 34px; height: 34px; border-radius: 999px; display: grid; place-items: center; color: #fff; font-weight: 800; font-family: var(--font-display); flex: none; }
+.pg-avatar .nm { font-size: 0.92rem; font-weight: 700; }
+.pg-avatar .sc { font-size: 0.66rem; color: var(--ink-soft); display: block; }
+.pg-avatar.active { border-color: var(--accent); box-shadow: inset 3px 0 0 var(--accent); }
+
+/* 模式切换 */
+.pg-mode { display: flex; gap: 6px; margin-top: var(--sp-lg); }
+.pg-mode button { border: 1px solid var(--rule-strong); background: var(--card); font-size: 0.78rem; padding: 0.45em 0.85em; cursor: pointer; color: var(--ink-soft); font-family: var(--font-body); }
+.pg-mode button.active { border-color: var(--ink); background: var(--ink); color: var(--paper); }
+.pg-rounds { display: flex; gap: 6px; margin-top: var(--sp-sm); }
+.pg-rounds button { border: 1px solid var(--rule); background: var(--card); font-size: 0.72rem; padding: 0.35em 0.7em; cursor: pointer; color: var(--ink-soft); font-family: var(--font-body); }
+.pg-rounds button.active { border-color: var(--accent); color: var(--accent); }
+
+/* 致谢（低调） + 免责 */
+.pg-thanks { opacity: 0.55; font-size: 0.68rem; letter-spacing: 0.06em; }
+.pg-foot-note { font-size: 0.66rem; color: var(--ink-faint); line-height: 1.9; max-width: 60em; margin: var(--sp-sm) auto 0; text-align: center; }
+.px-btn:disabled { opacity: 0.5; cursor: default; }
+
+@media (max-width: 860px) {
+  .pg-main { grid-template-columns: 1fr; }
+  .pg-avatars { position: static; flex-direction: row; flex-wrap: wrap; }
+  .pg-avatar { width: calc(33.33% - 6px); }
+}
+
+/* 输入框强制可读（覆盖任何继承/纹理问题） */
+.px-shell .px-content .pg-main .px-chat-input input { background: #f6f0e2; color: #231e15; caret-color: #b02a22; -webkit-text-fill-color: #231e15; }
+/* Hero 右侧平衡元素 */
+.pg-hero-top { display: grid; grid-template-columns: 1fr auto; gap: var(--sp-2xl); align-items: end; }
+.pg-hero-side { text-align: right; }
+.pg-date { font-size: 0.72rem; letter-spacing: 0.14em; color: var(--ink-soft); line-height: 1.9; margin-top: var(--sp-sm); }
+@media (max-width: 860px) {
+  .pg-hero-top { grid-template-columns: 1fr; }
+  .pg-hero-side { display: none; }
+}
+
+
+.pg-send { flex: none; width: 138px; }
+/* Aurora 浅色氛围背景 */
+.pg-aurora { position: fixed; inset: 0; z-index: 0; opacity: 0.45; pointer-events: none; }
+/* TiltedCard 人物志网格 */
+.pg-tilt-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 28px; position: relative; z-index: 1; }
+.pg-card-info { position: absolute; inset: 0; display: flex; flex-direction: column; justify-content: flex-end; padding: 18px; background: linear-gradient(180deg, transparent 30%, rgba(20,14,8,0.74) 100%); color: #fff; }
+.pg-card-name { font-family: var(--font-display); font-size: 1.5rem; font-weight: 900; letter-spacing: 0.03em; }
+.pg-card-school { font-size: 0.8rem; opacity: 0.88; margin-top: 4px; }
+.pg-card-tag { font-size: 0.72rem; opacity: 0.72; margin-top: 2px; }
+.pg-card-enter { margin-top: 12px; align-self: flex-start; border: 1px solid rgba(255,255,255,0.85); background: transparent; color: #fff; padding: 6px 14px; cursor: pointer; font-size: 0.8rem; font-family: var(--font-body); letter-spacing: 0.1em; }
+.pg-card-enter.on { background: var(--accent); border-color: var(--accent); }
+/* 创意工坊 */
+.pg-workshop { max-width: 36em; }
+.pg-workshop input { width: 100%; border: 1px solid var(--rule-strong); background: var(--card); color: var(--ink); padding: 0.8em 1em; font-size: 0.95rem; outline: none; font-family: var(--font-body); }
+.pg-workshop input:focus { border-color: var(--accent); }
+.pg-ws-status { font-size: 0.85rem; color: var(--ink-soft); margin-top: var(--sp-sm); line-height: 1.7; }
+.pg-ws-row { display: flex; gap: var(--sp-sm); margin-top: var(--sp-md); }
+.pg-ws-row input { flex: 1; min-width: 0; }
+
+/* 人物志 · 小卡多排 */
+.pg-char-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(148px, 1fr)); gap: 14px; position: relative; z-index: 1; }
+.pg-char-card { position: relative; background: var(--card); border: 1px solid var(--rule-strong); padding: 12px 13px; cursor: pointer; text-align: left; transition: transform 0.15s var(--ease-out), border-color 0.2s, box-shadow 0.2s; font-family: var(--font-body); color: var(--ink); }
+.pg-char-card:hover { transform: translateY(-3px); border-color: var(--accent); box-shadow: 0 10px 24px var(--shadow); }
+.pg-char-card .av { width: 40px; height: 40px; display: grid; place-items: center; color: #fff; font-family: var(--font-display); font-weight: 900; font-size: 1.2rem; }
+.pg-char-card .nm { display: block; font-family: var(--font-display); font-weight: 900; font-size: 1.08rem; margin-top: 9px; }
+.pg-char-card .sc { display: block; font-size: 0.7rem; color: var(--ink-soft); margin-top: 2px; }
+.pg-char-card .tg { display: block; font-size: 0.66rem; color: var(--ink-soft); margin-top: 2px; opacity: 0.82; }
+.pg-char-card .enter { display: block; margin-top: 10px; font-size: 0.72rem; letter-spacing: 0.14em; color: var(--accent); font-weight: 700; }
+.pg-char-card.active { border-color: var(--accent); box-shadow: inset 3px 0 0 var(--accent), 0 10px 24px var(--shadow); }
+.pg-char-card.active::after { content: "已入席"; position: absolute; top: -9px; right: -4px; background: var(--accent); color: #fff; font-size: 0.6rem; letter-spacing: 0.12em; padding: 3px 8px; }
+
