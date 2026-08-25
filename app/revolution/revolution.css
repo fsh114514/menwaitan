@@ -267,7 +267,7 @@ html, body { overflow-x: clip; }
 @keyframes rvWord { 0% { opacity: 0; transform: translateY(6px); } 10%, 30% { opacity: 1; transform: none; } 40%, 100% { opacity: 0; transform: translateY(-6px); } }
 
 /* ===== tab 切换转场 ===== */
-.rv-panel { animation: rvTabIn 0.45s var(--ease-out); }
+.rv-panel { animation: rvTabIn 0.45s var(--ease-out); scroll-margin-top: 120px; }
 @keyframes rvTabIn { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
 
 @media (max-width: 860px) { .rv-duel { display: none; } }

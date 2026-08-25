@@ -764,7 +764,7 @@ export default function RevolutionPreview() {
               <h1 className="rv-brand">{(lang === "zh" ? "门外谈" : "Menwai Tan").split("").map((ch, i) => (<span key={i} className="rv-brand-char" style={{ animationDelay: (0.08 * i + 0.15) + "s" }}>{ch}</span>))}</h1>
               <SplitText key={lang} text={t.slogan} tag="p" className="rv-slogan" splitType="chars" textAlign="left" />
               <p className="rv-sub">{t.sub}</p>
-              <div className="rv-hero-cta"><button className="rv-btn" onClick={() => { setTab("debate"); setTimeout(() => { document.querySelector(".rv-main")?.scrollIntoView({ behavior: "smooth", block: "start" }); }, 80); }}>{t.cta}</button></div>
+              <div className="rv-hero-cta"><button className="rv-btn" onClick={() => { setTab("debate"); setTimeout(() => { document.querySelector(".rv-panel")?.scrollIntoView({ behavior: "smooth", block: "start" }); }, 80); }}>{t.cta}</button></div>
             </div>
             <div className="rv-hero-side">
               <div className="rv-type" aria-hidden="true"><span className="tp-caret"></span>{typed}</div>
