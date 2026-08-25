@@ -304,6 +304,13 @@ export default function RevolutionPreview() {
   const [rounds, setRounds] = useState(2);
   const [typing, setTyping] = useState(false);
   const [paused, setPaused] = useState(false);
+  const [uid] = useState(() => {
+    try {
+      let u = localStorage.getItem("mw_uid") || "";
+      if (!u) { u = (typeof crypto !== "undefined" && crypto.randomUUID) ? crypto.randomUUID() : Math.random().toString(36).slice(2) + Date.now().toString(36); localStorage.setItem("mw_uid", u); }
+      return u;
+    } catch { return "anon"; }
+  });
   const pausedRef = useRef(false);
   const bumpRef = useRef<() => void>(() => {});
   const abortRef = useRef<AbortController | null>(null);
@@ -642,6 +649,7 @@ export default function RevolutionPreview() {
         apiKey: localStorage.getItem("mw_api_key") || "",
         baseURL: localStorage.getItem("mw_base_url") || "",
         model: localStorage.getItem("mw_model") || "",
+        userId: uid,
       }),
     });
     if (!res.ok) {

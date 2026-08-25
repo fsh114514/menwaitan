@@ -13,7 +13,7 @@ const SCENE_RULES: Record<string, string> = {
 
 export async function POST(req: Request) {
   try {
-    const { characters: charIds, messages, mode, apiKey = "", baseURL = "", model = "", scene = "casual" } = await req.json();
+    const { characters: charIds, messages, mode, apiKey = "", baseURL = "", model = "", scene = "casual", userId = "" } = await req.json();
 
     if (charIds === undefined || Array.isArray(charIds) === false || charIds.length === 0) {
       return Response.json({ error: "请选择至少一位人物" }, { status: 400 });
@@ -79,12 +79,14 @@ export async function POST(req: Request) {
           return text;
         };
 
+        const replies: { who: string; text: string }[] = [];
         try {
         if (selected.length === 1) {
-          await ask(selected[0], [
+          const singleText = await ask(selected[0], [
             { role: "system", content: getSkillSystem(selected[0].id) + (SCENE_RULES[scene] || SCENE_RULES.casual) },
             ...history,
           ]);
+          replies.push({ who: selected[0].id, text: singleText });
         } else {
           const turns: { who: string; text: string }[] = [];
           for (const speaker of selected) {
@@ -115,17 +117,21 @@ export async function POST(req: Request) {
             turns.push({ who: speaker.id, text });
             history.push({ role: "assistant", content: text });
           }
+          replies.push(...turns);
         }
         send({ type: "end" });
         } catch (err: any) {
           try { send({ type: "error", message: err?.message || "调用 AI 失败" }); } catch { /* ignore */ }
         }
         try {
+          const lastUser = [...messages].reverse().find((m: any) => m.role !== "assistant");
           const rec = {
             ts: new Date().toISOString(),
+            userId: userId || "anon",
             mode,
             characters: selected.map((sp) => sp.zhName),
-            messages: messages.map((m: any) => ({ role: m.role, who: m.who || null, content: String(m.content ?? "") })),
+            user: lastUser ? String(lastUser.content ?? "") : "",
+            replies,
           };
           const dir = join(process.cwd(), "data");
           if (!existsSync(dir)) mkdirSync(dir, { recursive: true });
