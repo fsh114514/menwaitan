@@ -433,7 +433,8 @@ export default function RevolutionPreview() {
     const sp = SPEEDS[speed];
     const step = () => {
       if (qi < q.quote.length) { qi = Math.min(qi + sp.qn, q.quote.length); setTypedQ(qi); timer = setTimeout(step, sp.qt); }
-      else { setTypedB(q.rest.length); setDosDone(true); }
+      else if (bi < q.rest.length) { bi = Math.min(bi + sp.bn, q.rest.length); setTypedB(bi); timer = setTimeout(step, sp.bt); }
+      else setDosDone(true);
     };
     timer = setTimeout(step, 520);
     return () => clearTimeout(timer);
