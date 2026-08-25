@@ -2,7 +2,7 @@
 
 **An AI thinkers' debate club — talk, argue, and clash with a roster of distilled personas.**
 
-[English](README.en.md) · **中文** ([中文版](README.md)) · 🌐 [Live Demo](https://licensed-cartoons-anne-petite.trycloudflare.com)
+[English](README.en.md) · **中文** ([中文版](README.md)) · 🌐 [Live Demo](https://little-resolve-debut-barbara.trycloudflare.com)
 
 ![Next.js](https://img.shields.io/badge/Next.js-16-black) ![React](https://img.shields.io/badge/React-19-61dafb) ![TypeScript](https://img.shields.io/badge/TypeScript-5-blue) ![License](https://img.shields.io/badge/License-MIT-green)
 
