@@ -303,6 +303,11 @@ export default function RevolutionPreview() {
   const [mode, setMode] = useState<"chat" | "debate">("chat");
   const [rounds, setRounds] = useState(2);
   const [typing, setTyping] = useState(false);
+  const [paused, setPaused] = useState(false);
+  const pausedRef = useRef(false);
+  const bumpRef = useRef<() => void>(() => {});
+  const abortRef = useRef<AbortController | null>(null);
+  const sendSeqRef = useRef(0);
   const [importUrl, setImportUrl] = useState("");
   const [importing, setImporting] = useState(false);
   const [importMsg, setImportMsg] = useState("");
@@ -611,10 +616,24 @@ export default function RevolutionPreview() {
     }
   };
 
+  const togglePause = () => {
+    if (pausedRef.current) {
+      pausedRef.current = false;
+      setPaused(false);
+      bumpRef.current();
+    } else {
+      pausedRef.current = true;
+      setPaused(true);
+    }
+  };
+
   const streamChat = async (current: Msg[]): Promise<Msg[]> => {
+    const ctrl = new AbortController();
+    abortRef.current = ctrl;
     const res = await fetch("/api/chat", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
+      signal: ctrl.signal,
       body: JSON.stringify({
         characters: selected,
         messages: current.map((m) => ({ role: m.role, content: m.content, who: m.who })),
@@ -643,6 +662,8 @@ export default function RevolutionPreview() {
       if (live) setMessages([...out, { ...live, content: live.content || "…" }]);
       else setMessages([...out]);
     };
+    bumpRef.current = bump;
+    try {
     while (true) {
       const { done, value } = await reader.read();
       if (done) break;
@@ -658,33 +679,37 @@ export default function RevolutionPreview() {
         if (ev.type === "who") {
           pushLive();
           live = { role: "assistant", who: ev.name, color: ev.color, content: "" };
-          bump();
+          if (!pausedRef.current) bump();
         } else if (ev.type === "delta" && live) {
           live.content += ev.text;
-          bump();
+          if (!pausedRef.current) bump();
         } else if (ev.type === "done") {
-          pushLive();
-          setMessages([...out]);
+          if (!pausedRef.current) { pushLive(); setMessages([...out]); }
         } else if (ev.type === "error") {
           pushLive();
           out = [...out, { role: "assistant", content: "⚠️ " + (ev.message || (lang === "zh" ? "调用失败" : "Request failed")) }];
           setMessages([...out]);
           break;
         } else if (ev.type === "end") {
-          pushLive();
-          setMessages([...out]);
+          if (!pausedRef.current) { pushLive(); setMessages([...out]); }
           break;
         }
       }
     }
-    pushLive();
-    setMessages([...out]);
+    } catch (e: any) {
+      if (abortRef.current?.signal.aborted) return out;
+      throw e;
+    }
+    if (!pausedRef.current) { pushLive(); setMessages([...out]); }
     return out;
   };
 
   const send = async () => {
     const v = input.trim();
-    if (v === "" || loading) return;
+    if (v === "") return;
+    if (loading && !pausedRef.current) return;
+    const mySeq = ++sendSeqRef.current;
+    if (loading) abortRef.current?.abort();
     if (selected.length === 0) {
       setMessages((prev) => [...prev, { role: "assistant", content: "⚠️ " + t.avEmpty }]);
       setInput("");
@@ -704,9 +729,11 @@ export default function RevolutionPreview() {
     } catch (e: any) {
       setMessages((prev) => [...prev, { role: "assistant", content: "⚠️ " + (lang === "zh" ? "连接中断：" : "Connection interrupted: ") + (e?.message || (lang === "zh" ? "请稍后再试" : "try again")) }]);
     } finally {
-      setLoading(false); setTyping(false);
-      saveChat(current);
-      inputRef.current?.focus();
+      if (sendSeqRef.current === mySeq) {
+        setLoading(false); setTyping(false);
+        saveChat(current);
+        inputRef.current?.focus();
+      }
     }
   };
 
@@ -869,6 +896,7 @@ export default function RevolutionPreview() {
                 <span className="rv-chat-head-right">
                   <span className="rv-chat-mode">{mode === "debate" ? t.round : t.chat}</span>
                   <button className="rv-chat-tool" onClick={() => setHistoryOpen(!historyOpen)}>{historyOpen ? t.history : t.history}</button>
+                  {typing && <button className={"rv-chat-tool" + (paused ? " active" : "")} onClick={togglePause}>{paused ? "▶ 继续" : "⏸ 暂停"}</button>}
                   <button className="rv-chat-tool" onClick={clearChat} title={t.newChat}>＋</button>
                 </span>
               </div>
