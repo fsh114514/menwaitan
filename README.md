@@ -2,7 +2,7 @@
 
 **一座 AI 思想家辩论场——与多位被蒸馏的人格对谈、交锋、上头。**
 
-[English](README.en.md) · **中文** · 🌐 [在线体验](https://players-adding-fragrances-livecam.trycloudflare.com)
+[English](README.en.md) · **中文** · 🌐 [在线体验](https://kbonhopftimt.sealosbja.site)
 
 ![Next.js](https://img.shields.io/badge/Next.js-16-black) ![React](https://img.shields.io/badge/React-19-61dafb) ![TypeScript](https://img.shields.io/badge/TypeScript-5-blue) ![License](https://img.shields.io/badge/License-MIT-green)
 
