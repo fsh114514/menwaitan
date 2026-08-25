@@ -15,6 +15,15 @@ function clean(md: string): string {
     .trim();
 }
 
+function collectMd(dir: string, out: string[] = []): string[] {
+  for (const f of readdirSync(dir, { withFileTypes: true })) {
+    const full = join(dir, f.name);
+    if (f.isDirectory()) collectMd(full, out);
+    else if (f.name.endsWith(".md")) out.push(full);
+  }
+  return out;
+}
+
 function skillDesc(dir: string): string {
   const sk = readFileSync(join(dir, "SKILL.md"), "utf-8");
   const fm = sk.match(/^---\n([\s\S]*?)\n---/);
@@ -34,33 +43,47 @@ function bioFor(c: { id: string; skillDir: string }): string {
   if (c1 && c1.index > 60) md = md.slice(0, c1.index);
   parts.push(md);
   const total = () => parts.join("\n\n").length;
-  if (total() < 400) {
+  if (total() < 500) {
     const refDir = join(dir, "references");
     if (existsSync(refDir)) {
-      for (const f of readdirSync(refDir)) {
-        if (!f.endsWith(".md")) continue;
-        let ref = clean(read(join(refDir, f)));
+      for (const f of collectMd(refDir)) {
+        let ref = clean(read(f));
         const c2 = techCut.exec(ref);
         if (c2 && c2.index > 60) ref = ref.slice(0, c2.index);
         parts.push(ref);
-        if (total() > 700) break;
+        if (total() > 900) break;
       }
     }
   }
-  if (total() < 450) {
+  if (total() < 650) {
     const desc = skillDesc(dir);
     if (desc.length > 30) parts.push(desc);
   }
   let bio = parts.join("\n\n").replace(/\n{3,}/g, "\n\n").trim();
-  return bio.length > 900 ? bio.slice(0, 900) + "…" : bio;
+  const MAX = 1100;
+  if (bio.length <= MAX) return bio;
+  const cut = bio.slice(0, MAX);
+  const ends: number[] = [];
+  for (let i = 0; i < cut.length; i++) {
+    if (/[。！？!?；;]/.test(cut[i])) ends.push(i + 1);
+  }
+  const last = ends.length ? ends[ends.length - 1] : 0;
+  if (last > MAX * 0.55) return bio.slice(0, last) + "…";
+  return cut + "…";
 }
 
 function repoFor(c: { skillDir: string }): string {
-  const p = join(process.cwd(), "skills", c.skillDir, ".git", "config");
-  if (!existsSync(p)) return "";
-  const cfg = readFileSync(p, "utf-8");
-  const m = cfg.match(/url\s*=\s*(\S+)/);
-  return m ? m[1] : "";
+  const readmePath = join(process.cwd(), "skills", c.skillDir, "README.md");
+  try {
+    const readme = readFileSync(readmePath, "utf-8");
+    // 1. full owner/repo link (strip .git/trailing slash)
+    const m = readme.match(/https?:\/\/(?:www\.)?github\.com\/([\w.-]+\/[\w.-]+?)(?:\.git)?(?:\/|$|\s|[)"'])/);
+    if (m) return "https://github.com/" + m[1].replace(/\.git$/, "");
+    // 2. owner-only link -> assume repo named after skillDir
+    const m2 = readme.match(/https?:\/\/(?:www\.)?github\.com\/([\w.-]+)/);
+    if (m2) return "https://github.com/" + m2[1] + "/" + c.skillDir;
+  } catch { /* no readme */ }
+  return "";
 }
 
 export async function GET() {
