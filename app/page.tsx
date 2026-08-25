@@ -30,7 +30,7 @@ const EFFECT: Record<string, number> = {
   "steve-jobs-skill": 28, "elon-musk-skill": 27, "trump-skill": 26,
   "huchenfeng-skill": 24, "leijun-skill": 20, "huangrenxun-skill": 19, "ace-taffy-skill": 16,
   "buffett-skill": 14, "dalio-skill": 13,
-  "nietzsche-skill": 8, "foucault-skill": 7, "socrates-skill": 6, "wittgenstein-skill": 5,
+  "nietzsche-skill": 8, "foucault-skill": 7, "beauvoir-skill": 7, "socrates-skill": 6, "wittgenstein-skill": 5,
   "einstein-skill": 4, "turing-skill": 3, hayek: 2, keynes: 2, "plato-skill": 1,
 };
 

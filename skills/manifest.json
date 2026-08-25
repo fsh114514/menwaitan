@@ -207,5 +207,16 @@
     "color": "#b0452e",
     "skillDir": "huchenfeng-skill",
     "imported": true
+  },
+  {
+    "id": "beauvoir-skill",
+    "zhName": "波伏娃",
+    "name": "beauvoir-perspective",
+    "initial": "波",
+    "school": "存在主义 · 女性主义",
+    "tag": "第二性",
+    "color": "#8a5a8a",
+    "skillDir": "beauvoir-skill",
+    "imported": true
   }
 ]
