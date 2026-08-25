@@ -697,7 +697,10 @@ export default function RevolutionPreview() {
       }
     }
     } catch (e: any) {
-      if (abortRef.current?.signal.aborted) return out;
+      if (abortRef.current?.signal.aborted) {
+        if (live && live.content.trim()) out = [...out, live];
+        return out;
+      }
       throw e;
     }
     if (!pausedRef.current) { pushLive(); setMessages([...out]); }
@@ -709,7 +712,11 @@ export default function RevolutionPreview() {
     if (v === "") return;
     if (loading && !pausedRef.current) return;
     const mySeq = ++sendSeqRef.current;
-    if (loading) abortRef.current?.abort();
+    if (loading) {
+      abortRef.current?.abort();
+      pausedRef.current = false;
+      setPaused(false);
+    }
     if (selected.length === 0) {
       setMessages((prev) => [...prev, { role: "assistant", content: "⚠️ " + t.avEmpty }]);
       setInput("");
@@ -730,6 +737,7 @@ export default function RevolutionPreview() {
       setMessages((prev) => [...prev, { role: "assistant", content: "⚠️ " + (lang === "zh" ? "连接中断：" : "Connection interrupted: ") + (e?.message || (lang === "zh" ? "请稍后再试" : "try again")) }]);
     } finally {
       if (sendSeqRef.current === mySeq) {
+        if (pausedRef.current) { pausedRef.current = false; setPaused(false); bumpRef.current(); }
         setLoading(false); setTyping(false);
         saveChat(current);
         inputRef.current?.focus();
@@ -896,7 +904,6 @@ export default function RevolutionPreview() {
                 <span className="rv-chat-head-right">
                   <span className="rv-chat-mode">{mode === "debate" ? t.round : t.chat}</span>
                   <button className="rv-chat-tool" onClick={() => setHistoryOpen(!historyOpen)}>{historyOpen ? t.history : t.history}</button>
-                  {typing && <button className={"rv-chat-tool" + (paused ? " active" : "")} onClick={togglePause}>{paused ? "▶ 继续" : "⏸ 暂停"}</button>}
                   <button className="rv-chat-tool" onClick={clearChat} title={t.newChat}>＋</button>
                 </span>
               </div>
@@ -939,7 +946,7 @@ export default function RevolutionPreview() {
                 <input ref={inputRef} value={input} onChange={(e) => setInput(e.target.value)} onKeyDown={(e) => { if (e.key === "Enter" && !(e.nativeEvent as any).isComposing) send(); }} placeholder={t.ph} />
                 <div className="rv-send">
                   <ClickSpark sparkColor="#fff" sparkSize={10} sparkRadius={26} sparkCount={8}>
-                    <button className="rv-btn" onClick={send} disabled={loading}>{t.send}</button>
+                    <button className="rv-btn" onClick={loading ? togglePause : send} disabled={paused && !input.trim()}>{loading ? (paused ? "▶ 继续" : "⏸") : t.send}</button>
                   </ClickSpark>
                 </div>
               </div>
