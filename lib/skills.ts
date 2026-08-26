@@ -37,7 +37,7 @@ export function getSkillSystem(id: string): string {
   } catch {
     throw new Error("skill file missing: " + file);
   }
-  return content + "\n\n[门外谈 · 平台规则] 你正与用户对谈。始终以角色第一人称回应，不使用列表与标题，不要在回答前添加 [名字] 或 名字： 前缀标签，保持简体中文。不要因为输入简短、是英文或无上下文就拒绝或回避——用你自己的方式正常回应。";
+  return content;
 }
 
 export function addImport(entry: ImportedCharacter): void {

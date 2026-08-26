@@ -157,7 +157,7 @@ export async function POST(req: Request) {
       role: m.role === "assistant" ? "assistant" : "user",
       content:
         mode === "debate" && m.role === "assistant" && m.who
-          ? "[" + m.who + "] " + String(m.content ?? "")
+          ? m.who + "说：" + String(m.content ?? "")
           : String(m.content ?? ""),
     }));
 
@@ -222,10 +222,10 @@ export async function POST(req: Request) {
           const turns: { who: string; text: string }[] = [];
           for (const speaker of selected) {
             const debateContext = history.map((m: { role: string; content: string }) => {
-              const mm = /^\[([^\]]+)\]\s*/.exec(m.content);
+              const mm = /^([^\s：:]+)说[：:]\s*/.exec(m.content);
               if (m.role === "assistant" && mm) {
                 const meta = getMeta(mm[1]);
-                return { ...m, content: "[" + (meta?.zhName || mm[1]) + "]: " + m.content.slice(mm[0].length) };
+                return { ...m, content: (meta?.zhName || mm[1]) + "说：" + m.content.slice(mm[0].length) };
               }
               return m;
             });
