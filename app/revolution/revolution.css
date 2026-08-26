@@ -866,8 +866,8 @@ html, body { overflow-x: clip; }
 
 /* top-right recent-updates card (newspaper style) */
 .rv-news { position: relative; width: fit-content; margin-left: auto; margin-bottom: 16px; z-index: 45; display: flex; flex-direction: column; align-items: flex-end; gap: 6px; }
-.rv-news-gh { font-family: var(--font-serif); font-size: 0.62rem; letter-spacing: 0.1em; color: var(--ink-faint); text-decoration: none; padding: 2px 2px 0; transition: color 0.2s; }
-.rv-news-gh:hover { color: var(--red); }
+.rv-news-gh { font-family: var(--font-display); font-size: 0.78rem; font-weight: 700; letter-spacing: 0.16em; color: var(--red); text-decoration: none; padding: 3px 2px 1px; border-bottom: 1.5px solid var(--red); transition: color 0.2s, border-color 0.2s; }
+.rv-news-gh:hover { color: var(--ink); border-color: var(--ink); }
 .rv-news-trigger { display: inline-flex; align-items: center; gap: 6px; border: 1px solid color-mix(in srgb, var(--red) 55%, transparent); background: transparent; color: var(--red); font-family: var(--font-display); font-size: 0.64rem; font-weight: 600; letter-spacing: 0.22em; padding: 5px 12px; cursor: pointer; transition: background 0.2s, color 0.2s; }
 .rv-news-trigger:hover { background: var(--red); color: var(--paper); }
 .rv-news-panel { position: absolute; top: calc(100% + 8px); right: 0; width: 240px; background: var(--paper); border: 1px solid var(--ink-faint); padding: 12px 14px 10px; box-shadow: 0 12px 28px -18px rgba(23, 18, 13, 0.3); }
