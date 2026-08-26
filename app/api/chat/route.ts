@@ -11,41 +11,124 @@ const SCENE_RULES: Record<string, string> = {
   heated: "\n\n【本回合为「上头」模式】放开辩论：可以充分展开论证，层层推进，激烈交锋，展示完整的思想。",
 };
 
-// ---- 触发式查梗（必应 RSS，免费无 key；失败静默跳过，不影响聊天）----
-const MEME_TRIGGER = /(什么(意思|梗)|是啥|啥意思|什么意思|什么意思啊|什么梗|求(解释|科普)|解释一下|科普一下|现在(流行|火|刷屏)|最近(流行|火|刷屏)|网络(梗|词|热词)|不懂|没听过|没看懂)/;
+// ---- 触发式查梗（多源免费检索，失败静默跳过，不影响聊天）----
+const MEME_TRIGGER = /(什么(意思|梗)|是谁|是什么|是啥|啥意思|什么意思|什么意思啊|什么梗|求(解释|科普)|解释一下|科普一下|讲讲|知道吗|了解吗|听说过吗|认识吗|你懂吗|懂吗|查(一下|查)|搜(一下|搜)|上网(查|搜)|网上(都在说|说)|都在(说|刷|传)|最近(流行|火|刷屏)|现在(流行|火|刷屏)|网络(梗|词|热词|流行语)|热梗|热词|流行语|不懂|没听过|没看懂|不知道)/;
+
+function shouldSearch(text: string): boolean {
+  if (text.length > 120) return false;
+  if (MEME_TRIGGER.test(text)) return true;
+  if (text.length <= 60 && /梗/.test(text)) return true;
+  if (text.length <= 40 && /(谁|啥|吗|呢|呀|嘛)[。？!?\s]*$/.test(text)) return true;
+  return false;
+}
 
 function extractKeyword(q: string): string {
-  const k = q.replace(/(这个|那个)?(网络)?(梗|词|热词|是什么|是啥|啥意思|什么意思|什么意思啊|是什么意思|是什么意思啊|什么梗|求(解释|科普)|解释一下|科普一下|讲讲|现在|最近|流行|刷屏|不懂|没听过|没看懂)[。！？!?\s]*/g, "").trim();
+  const k = q.replace(/(这个|那个|请问|帮我)?(网络)?(梗|词|热词|流行语|是谁|是什么|是啥|啥意思|什么意思|什么意思啊|是什么意思|是什么意思啊|什么梗|求(解释|科普)|解释一下|科普一下|讲讲|查(一下|查)|搜(一下|搜)|上网(查|搜)|现在|最近|流行|火|刷屏|知道吗|了解吗|听说过吗|认识吗|不懂|没听过|没看懂|不知道)[。！？!?\s]*/g, "").trim();
   return k || q;
 }
 
-async function fetchMemeInfo(q: string): Promise<{ brief: string; detail: string } | null> {
+// 每用户节流：1 分钟最多 2 次搜索（防免费源被高频请求限流）
+const searchBuckets = new Map<string, number[]>();
+function allowSearch(uid: string): boolean {
+  const now = Date.now();
+  const keep = (searchBuckets.get(uid) || []).filter((t) => now - t < 60000);
+  if (keep.length >= 2) { searchBuckets.set(uid, keep); return false; }
+  keep.push(now);
+  searchBuckets.set(uid, keep);
+  return true;
+}
+
+async function fetchText(url: string, timeoutMs: number): Promise<string | null> {
   try {
     const ctrl = new AbortController();
-    const timer = setTimeout(() => ctrl.abort(), 1500);
-    const url = "https://cn.bing.com/search?format=rss&q=" + encodeURIComponent(q);
+    const timer = setTimeout(() => ctrl.abort(), timeoutMs);
     const res = await fetch(url, {
-      headers: { "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0 Safari/537.36" },
+      headers: { "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0 Safari/537.36", "Accept-Language": "zh-CN,zh;q=0.9" },
       signal: ctrl.signal,
     });
     clearTimeout(timer);
     if (!res.ok) return null;
-    const xml = await res.text();
-    const items = [...xml.matchAll(/<item>([\s\S]*?)<\/item>/g)].slice(0, 3).map((m) => {
-      const body = m[1];
-      const title = (body.match(/<title>(.*?)<\/title>/) || [])[1] || "";
-      const desc = (body.match(/<description>(.*?)<\/description>/) || [])[1] || "";
-      const clean = (x: string) => x.replace(/<[^>]+>/g, "").replace(/&amp;/g, "&").replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&quot;/g, '"').replace(/&#39;/g, "'").replace(/&#39;/g, "'").trim();
-      return { title: clean(title).slice(0, 40), desc: clean(desc).slice(0, 90) };
-    }).filter((it) => it.title);
-    if (!items.length) return null;
-    return {
-      brief: (items[0].title + "：" + items[0].desc).slice(0, 130),
-      detail: items.map((it, i) => "【" + (i + 1) + "】" + it.title + "：" + it.desc).join("\n").slice(0, 360),
-    };
-  } catch {
-    return null;
+    return await res.text();
+  } catch { return null; }
+}
+
+const cleanHtml = (x: string) => x.replace(/<[^>]+>/g, "").replace(/&amp;/g, "&").replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&quot;/g, '"').replace(/&#39;/g, "'").replace(/&nbsp;/g, " ").trim();
+
+type SearchItem = { title: string; desc: string };
+
+async function bingRss(q: string, host: string): Promise<SearchItem[] | null> {
+  const t = await fetchText("https://" + host + "/search?format=rss&q=" + encodeURIComponent(q), 1200);
+  if (!t) return null;
+  const items = [...t.matchAll(/<item>([\s\S]*?)<\/item>/g)].slice(0, 3).map((m) => {
+    const body = m[1];
+    const title = (body.match(/<title>(.*?)<\/title>/) || [])[1] || "";
+    const desc = (body.match(/<description>(.*?)<\/description>/) || [])[1] || "";
+    return { title: cleanHtml(title).slice(0, 40), desc: cleanHtml(desc).slice(0, 90) };
+  }).filter((it) => it.title);
+  return items.length ? items : null;
+}
+
+async function sogouSearch(q: string): Promise<SearchItem[] | null> {
+  const t = await fetchText("https://www.sogou.com/web?query=" + encodeURIComponent(q), 1200);
+  if (!t || /验证码|antispider/i.test(t)) return null;
+  const titles = [...t.matchAll(/<h3 class="vr-title[^"]*"[^>]*>[\s\S]*?<a[^>]*>([\s\S]*?)<\/a>/g)]
+    .map((m) => cleanHtml(m[1]).replace(/\s+/g, " ").trim()).filter(Boolean).slice(0, 3);
+  if (!titles.length) return null;
+  return titles.map((title) => ({ title: title.slice(0, 40), desc: "" }));
+}
+
+async function so360Search(q: string): Promise<SearchItem[] | null> {
+  const t = await fetchText("https://www.so.com/s?q=" + encodeURIComponent(q), 1200);
+  if (!t || /验证码|captcha/i.test(t)) return null;
+  const descs = [...t.matchAll(/<li class="res-list"[\s\S]{0,1500}?<p[^>]*>([\s\S]{0,200}?)<\/p>/g)]
+    .map((m) => cleanHtml(m[1]).replace(/\s+/g, " ").trim())
+    .filter((x) => x.length >= 10 && !/浏览器版本过低|暂无法获取|无法获取|当前浏览器/.test(x));
+  const h3s = [...t.matchAll(/<li class="res-list"[\s\S]{0,900}?<h3[^>]*>([\s\S]*?)<\/h3>/g)]
+    .map((m) => cleanHtml(m[1]).replace(/\s+/g, " ").trim())
+    .filter((x) => x.length >= 4 && !/ai\.so\.com|详情/.test(x));
+  const items: SearchItem[] = [];
+  const n = Math.max(descs.length, h3s.length);
+  for (let i = 0; i < Math.min(3, n); i++) {
+    const desc = descs[i] || "";
+    const title = (h3s[i] || (desc ? desc.slice(0, 22) : "")).slice(0, 40);
+    if (title || desc) items.push({ title, desc: desc.slice(0, 90) });
   }
+  return items.length ? items : null;
+}
+
+async function moegirlSearch(q: string): Promise<SearchItem[] | null> {
+  const t = await fetchText("https://zh.moegirl.org.cn/index.php?search=" + encodeURIComponent(q), 1200);
+  if (!t) return null;
+  const res = [...t.matchAll(/mw-search-result-heading[\s\S]*?<a[^>]*>([^<]+)<\/a>/g)].map((m) => m[1].trim()).filter(Boolean).slice(0, 3);
+  if (res.length) return res.map((title) => ({ title: title.slice(0, 40), desc: "" }));
+  const h1 = t.match(/<h1[^>]*id="firstHeading"[^>]*>([\s\S]*?)<\/h1>/);
+  if (h1) {
+    const title = cleanHtml(h1[1]);
+    const paras = [...t.matchAll(/<p[^>]*>([\s\S]{0,200}?)<\/p>/g)].map((m) => cleanHtml(m[1]).replace(/\s+/g, " ")).filter((x) => x.length >= 15);
+    return [{ title: title.slice(0, 40), desc: (paras[0] || "").slice(0, 90) }];
+  }
+  return null;
+}
+
+async function fetchMemeInfo(q: string): Promise<{ brief: string; detail: string } | null> {
+  const sources = [
+    { fn: () => bingRss(q, "cn.bing.com") },
+    { fn: () => so360Search(q) },
+    { fn: () => bingRss(q, "www.bing.com") },
+    { fn: () => sogouSearch(q) },
+    { fn: () => moegirlSearch(q) },
+  ];
+  const results = await Promise.allSettled(sources.map((s) => s.fn()));
+  let chosen: SearchItem[] | null = null;
+  for (let i = 0; i < sources.length; i++) {
+    const r = results[i];
+    if (r.status === "fulfilled" && r.value && r.value.length) { chosen = r.value; break; }
+  }
+  if (!chosen || !chosen.length) return null;
+  return {
+    brief: (chosen[0].title + "：" + chosen[0].desc).slice(0, 130),
+    detail: chosen.map((it, i) => "【" + (i + 1) + "】" + it.title + "：" + it.desc).join("\n").slice(0, 360),
+  };
 }
 
 export async function POST(req: Request) {
@@ -88,7 +171,7 @@ export async function POST(req: Request) {
         let memeBlock = "";
         const lastMsg = [...messages].reverse().find((m: any) => m.role !== "assistant");
         const lastText = lastMsg ? String(lastMsg.content ?? "") : "";
-        if (lastText.length <= 80 && MEME_TRIGGER.test(lastText)) {
+        if (shouldSearch(lastText) && allowSearch(userId)) {
           const info = await fetchMemeInfo(extractKeyword(lastText));
           if (info) {
             memeBlock = "\n\n【场外情报（网络检索，仅供参考）】\n" + info.detail + "\n以上情报仅供理解话题背景。不要照读或引用原文，用你自己的身份和口吻自然回应；与情报冲突时，保持你自己的立场。";
