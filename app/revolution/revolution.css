@@ -855,3 +855,10 @@ html, body { overflow-x: clip; }
 .rv-chat-wrap { position: relative; }
 .rv-jump-bottom { position: absolute; bottom: 14px; right: 14px; z-index: 5; background: var(--ink); color: var(--paper); border: 1px solid var(--ink); font-family: var(--font-serif); font-size: 0.78rem; letter-spacing: 0.08em; padding: 9px 15px; cursor: pointer; box-shadow: 0 6px 18px -8px rgba(0, 0, 0, 0.45); transition: background 0.2s, color 0.2s; }
 .rv-jump-bottom:hover { background: var(--red); border-color: var(--red); }
+
+/* what's new on about page */
+.rv-changelog { margin-top: 22px; padding-top: 16px; border-top: 1px dashed var(--ink-faint); }
+.rv-changelog-head { display: block; font-family: var(--font-display); font-size: 0.8rem; letter-spacing: 0.18em; color: var(--red); margin-bottom: 10px; }
+.rv-changelog ul { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 7px; }
+.rv-changelog li { font-size: 0.82rem; line-height: 1.75; color: var(--ink-soft); padding-left: 14px; position: relative; }
+.rv-changelog li::before { content: "▍"; position: absolute; left: 0; top: 0; color: var(--red); }

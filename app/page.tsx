@@ -139,6 +139,13 @@ const I18N = {
     a3: "人格来源",
     a3d: "角色人格与人物介绍由开源蒸馏人格社区生成：人格蒸馏自各项目的 SKILL.md，介绍内容摘自各项目 README（版权归原作者所有）——向各位作者致谢。",
     note: "免责声明：本网站角色对话由 AI 基于公开资料生成，不代表任何真实人物本人观点；内容仅供思想交流。",
+    whatsNew: "最近更新",
+    changelog: [
+      "联网查梗：问「XX 是什么意思 / 什么梗」时，自动检索最新网络梗，回复前附一句说明",
+      "自由看历史：辩论进行中也能往上翻看发言，右下角可一键回到最新",
+      "人格校准：10 位思想家回归本人（鲁迅、哈耶克、凯恩斯、柏拉图等），不再被带偏",
+      "细节打磨：模式/交锋说明更醒目，错误提示去 emoji 改红字",
+    ],
     foot1: "跨越时空，让思想交锋",
     foot2: "第壹期 · 公元贰零贰陆",
     thanks: "角色人格由开源蒸馏人格社区生成 · 致谢各位作者",
@@ -258,6 +265,13 @@ const I18N = {
     a3: "Origins",
     a3d: "Personas and intros come from the open-source distilled-persona community: personas are distilled from each project SKILL.md, intros are quoted from each project README (copyright to the original authors) — thanks to all the authors.",
     note: "Disclaimer: character dialogues are AI-generated from public materials and do not represent the views of any real person; for thought exchange only.",
+    whatsNew: "What's new",
+    changelog: [
+      "Meme lookup: ask what a meme or phrase means, and the thinkers search the web for the latest context",
+      "Read while debating: scroll back through the discussion freely, jump back to the latest anytime",
+      "Persona fixes: 10 thinkers now speak as themselves (Lu Xun, Hayek, Keynes, Plato...)",
+      "Polish: clearer mode and clash hints, error messages in red ink",
+    ],
     foot1: "Across time, let ideas clash",
     foot2: "Vol. 1 · AD 2026",
     thanks: "Personas distilled by the open-source community · thanks to all authors",
@@ -1181,6 +1195,14 @@ export default function RevolutionPreview() {
               <div className="rv-about-item"><span className="no">{t.nums[3]}</span><b>{t.a4}</b><p>{t.a4d}</p></div>
             </div>
             <p className="rv-about-note">{t.note}</p>
+            <div className="rv-changelog">
+              <b className="rv-changelog-head">{t.whatsNew}</b>
+              <ul>
+                {t.changelog.map((c: string, ci: number) => (
+                  <li key={ci}>{c}</li>
+                ))}
+              </ul>
+            </div>
           </section>
         )}
 
