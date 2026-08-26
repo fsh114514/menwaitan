@@ -657,6 +657,11 @@ export default function RevolutionPreview() {
     });
   };
   const clearChat = () => {
+    abortRef.current?.abort();
+    pausedRef.current = false;
+    setPaused(false);
+    setLoading(false);
+    setTyping(false);
     setMessages(lang === "zh" ? [WELCOME_ZH] : [WELCOME_EN]);
     setSelected([]);
     setChatId(null);
@@ -681,15 +686,12 @@ export default function RevolutionPreview() {
     }
   };
 
-  const togglePause = () => {
-    if (pausedRef.current) {
-      pausedRef.current = false;
-      setPaused(false);
-      bumpRef.current();
-    } else {
-      pausedRef.current = true;
-      setPaused(true);
-    }
+  const stopChat = () => {
+    abortRef.current?.abort();
+    pausedRef.current = false;
+    setPaused(false);
+    setLoading(false);
+    setTyping(false);
   };
 
   const streamChat = async (current: Msg[]): Promise<Msg[]> => {
@@ -767,6 +769,7 @@ export default function RevolutionPreview() {
     } catch (e: any) {
       if (abortRef.current?.signal.aborted) {
         if (live && live.content.trim()) out = [...out, live];
+        setMessages(out);
         return out;
       }
       throw e;
@@ -780,7 +783,6 @@ export default function RevolutionPreview() {
     if (v === "") return;
     setMemeNote(null);
     setStickBottom(true);
-    if (loading && !pausedRef.current) return;
     const mySeq = ++sendSeqRef.current;
     if (loading) {
       abortRef.current?.abort();
@@ -1025,7 +1027,7 @@ export default function RevolutionPreview() {
                 <input ref={inputRef} value={input} onChange={(e) => setInput(e.target.value)} onKeyDown={(e) => { if (e.key === "Enter" && !(e.nativeEvent as any).isComposing) send(); }} placeholder={t.ph} />
                 <div className="rv-send">
                   <ClickSpark sparkColor="#fff" sparkSize={10} sparkRadius={26} sparkCount={8}>
-                    <button className="rv-btn" onClick={loading ? togglePause : send} disabled={paused && !input.trim()}>{loading ? (paused ? "▶ 继续" : "⏸") : t.send}</button>
+                    <button className="rv-btn" onClick={loading ? stopChat : send} disabled={!loading && !input.trim()}>{loading ? (lang === "zh" ? "⏸ 停止" : "⏸ Stop") : t.send}</button>
                   </ClickSpark>
                 </div>
               </div>
