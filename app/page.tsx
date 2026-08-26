@@ -885,6 +885,19 @@ export default function RevolutionPreview() {
           </div>
         </section>
 
+        <div className={"rv-news" + (newsOpen ? "" : " collapsed")}>
+          <div className="rv-news-head" onClick={() => setNewsOpen((o) => !o)}>
+            <span className="rv-news-title">{t.whatsNew}</span>
+            <span className="rv-news-date">{new Date().toISOString().slice(0, 10).replace(/-/g, ".")}{newsOpen ? " ▴" : " ▾"}</span>
+          </div>
+          <ul className="rv-news-list">
+            {t.changelog.slice(0, 3).map((c: string, i: number) => (
+              <li key={i}>{c}</li>
+            ))}
+          </ul>
+          <button className="rv-news-more" onClick={() => setTab("about")}>{t.viewAll}</button>
+        </div>
+
         <nav className="rv-tabs">
           <button className={"rv-tab" + (tab === "debate" ? " active" : "")} onClick={() => setTab("debate")}>{t.tab1}</button>
           <button className={"rv-tab" + (tab === "personas" ? " active" : "")} onClick={() => setTab("personas")}>{t.tab2}</button>
@@ -1222,18 +1235,6 @@ export default function RevolutionPreview() {
           </section>
         )}
 
-        <div className={"rv-news" + (newsOpen ? "" : " collapsed")}>
-          <div className="rv-news-head" onClick={() => setNewsOpen((o) => !o)}>
-            <span className="rv-news-title">{t.whatsNew}</span>
-            <span className="rv-news-date">{new Date().toISOString().slice(0, 10).replace(/-/g, ".")}{newsOpen ? " ▴" : " ▾"}</span>
-          </div>
-          <ul className="rv-news-list">
-            {t.changelog.slice(0, 3).map((c: string, i: number) => (
-              <li key={i}>{c}</li>
-            ))}
-          </ul>
-          <button className="rv-news-more" onClick={() => setTab("about")}>{t.viewAll}</button>
-        </div>
         <footer className="rv-footer rv-reveal">
           <span><b>{t.aboutName}</b> · {t.foot1}</span>
           <span>{t.foot2}</span>
