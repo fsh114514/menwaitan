@@ -843,3 +843,10 @@ html, body { overflow-x: clip; }
 .rv-ws-recs-list .rv-ws-recs-link { border: 1px dashed var(--red); color: var(--red); padding: 6px 12px; font-size: 0.82rem; text-decoration: none; display: inline-block; transition: background 0.2s, color 0.2s; }
 .rv-ws-recs-list .rv-ws-recs-link:hover { background: var(--red); color: var(--paper); }
 
+
+/* meme lookup note: newspaper-style annotation above replies */
+.rv-meme-note { align-self: flex-start; font-size: 0.72rem; line-height: 1.7; color: var(--ink-soft); background: color-mix(in srgb, var(--paper-2) 55%, transparent); border-left: 2px solid var(--red); padding: 6px 10px; letter-spacing: 0.04em; max-width: 92%; opacity: 0.92; }
+@media (max-width: 560px) { .rv-meme-note { max-width: 100%; } }
+
+/* maintenance notice bar */
+.rv-notice { background: color-mix(in srgb, var(--paper) 92%, var(--red) 8%); border: 1px solid var(--red); color: var(--red); text-align: center; font-size: 0.8rem; letter-spacing: 0.06em; padding: 9px 16px; margin-bottom: 14px; line-height: 1.7; }

@@ -11,6 +11,43 @@ const SCENE_RULES: Record<string, string> = {
   heated: "\n\n【本回合为「上头」模式】放开辩论：可以充分展开论证，层层推进，激烈交锋，展示完整的思想。",
 };
 
+// ---- 触发式查梗（必应 RSS，免费无 key；失败静默跳过，不影响聊天）----
+const MEME_TRIGGER = /(什么(意思|梗)|是啥|啥意思|什么意思|什么意思啊|什么梗|求(解释|科普)|解释一下|科普一下|现在(流行|火|刷屏)|最近(流行|火|刷屏)|网络(梗|词|热词)|不懂|没听过|没看懂)/;
+
+function extractKeyword(q: string): string {
+  const k = q.replace(/(这个|那个)?(网络)?(梗|词|热词|是什么|是啥|啥意思|什么意思|什么意思啊|是什么意思|是什么意思啊|什么梗|求(解释|科普)|解释一下|科普一下|讲讲|现在|最近|流行|刷屏|不懂|没听过|没看懂)[。！？!?\s]*/g, "").trim();
+  return k || q;
+}
+
+async function fetchMemeInfo(q: string): Promise<{ brief: string; detail: string } | null> {
+  try {
+    const ctrl = new AbortController();
+    const timer = setTimeout(() => ctrl.abort(), 1500);
+    const url = "https://cn.bing.com/search?format=rss&q=" + encodeURIComponent(q);
+    const res = await fetch(url, {
+      headers: { "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0 Safari/537.36" },
+      signal: ctrl.signal,
+    });
+    clearTimeout(timer);
+    if (!res.ok) return null;
+    const xml = await res.text();
+    const items = [...xml.matchAll(/<item>([\s\S]*?)<\/item>/g)].slice(0, 3).map((m) => {
+      const body = m[1];
+      const title = (body.match(/<title>(.*?)<\/title>/) || [])[1] || "";
+      const desc = (body.match(/<description>(.*?)<\/description>/) || [])[1] || "";
+      const clean = (x: string) => x.replace(/<[^>]+>/g, "").replace(/&amp;/g, "&").replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&quot;/g, '"').replace(/&#39;/g, "'").replace(/&#39;/g, "'").trim();
+      return { title: clean(title).slice(0, 40), desc: clean(desc).slice(0, 90) };
+    }).filter((it) => it.title);
+    if (!items.length) return null;
+    return {
+      brief: (items[0].title + "：" + items[0].desc).slice(0, 130),
+      detail: items.map((it, i) => "【" + (i + 1) + "】" + it.title + "：" + it.desc).join("\n").slice(0, 360),
+    };
+  } catch {
+    return null;
+  }
+}
+
 export async function POST(req: Request) {
   try {
     const { characters: charIds, messages, mode, apiKey = "", baseURL = "", model = "", scene = "casual", userId = "" } = await req.json();
@@ -47,6 +84,17 @@ export async function POST(req: Request) {
         const send = (obj: Record<string, unknown>) => {
           controller.enqueue(enc.encode("data: " + JSON.stringify(obj) + "\n\n"));
         };
+        // 触发式查梗：命中才搜，失败静默跳过
+        let memeBlock = "";
+        const lastMsg = [...messages].reverse().find((m: any) => m.role !== "assistant");
+        const lastText = lastMsg ? String(lastMsg.content ?? "") : "";
+        if (lastText.length <= 80 && MEME_TRIGGER.test(lastText)) {
+          const info = await fetchMemeInfo(extractKeyword(lastText));
+          if (info) {
+            memeBlock = "\n\n【场外情报（网络检索，仅供参考）】\n" + info.detail + "\n以上情报仅供理解话题背景。不要照读或引用原文，用你自己的身份和口吻自然回应；与情报冲突时，保持你自己的立场。";
+            try { send({ type: "note", text: info.brief }); } catch { /* ignore */ }
+          }
+        }
         const call = async (prompt: any[]): Promise<any> => {
           let lastErr: any = null;
           for (let attempt = 0; attempt < 3; attempt++) {
@@ -83,7 +131,7 @@ export async function POST(req: Request) {
         try {
         if (selected.length === 1) {
           const singleText = await ask(selected[0], [
-            { role: "system", content: getSkillSystem(selected[0].id) + (SCENE_RULES[scene] || SCENE_RULES.casual) },
+            { role: "system", content: getSkillSystem(selected[0].id) + memeBlock + (SCENE_RULES[scene] || SCENE_RULES.casual) },
             ...history,
           ]);
           replies.push({ who: selected[0].id, text: singleText });
@@ -102,7 +150,7 @@ export async function POST(req: Request) {
               {
                 role: "system" as const,
                 content:
-                  getSkillSystem(speaker.id) +
+                  getSkillSystem(speaker.id) + memeBlock +
                   "\n\n你就是" + speaker.zhName + "本人。你是你自己，不是任何其他角色，绝不模仿、转述或引用其他发言者的口癖、自称或语气。你正在参与一场多位思想家的圆桌辩论。先用一句话直接回应上一位发言者的核心观点，再陈述你自己的主张。要用简体中文。不要客套，直接交锋。" +
                   (SCENE_RULES[scene] || SCENE_RULES.casual),
               },

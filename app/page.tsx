@@ -324,6 +324,15 @@ export default function RevolutionPreview() {
   const inputRef = useRef<HTMLInputElement>(null);
   const [loading, setLoading] = useState(false);
   const [mode, setMode] = useState<"chat" | "debate">("chat");
+  const [memeNote, setMemeNote] = useState<string | null>(null);
+  const [notice, setNotice] = useState<string | null>(null);
+
+  useEffect(() => {
+    fetch("/api/notice")
+      .then((r) => r.json())
+      .then((d) => { if (d && d.text) setNotice(String(d.text)); })
+      .catch(() => { /* ignore */ });
+  }, []);
   const [rounds, setRounds] = useState(2);
   const [typing, setTyping] = useState(false);
   const [paused, setPaused] = useState(false);
@@ -714,6 +723,8 @@ export default function RevolutionPreview() {
         } else if (ev.type === "delta" && live) {
           live.content += ev.text;
           if (!pausedRef.current) bump();
+        } else if (ev.type === "note") {
+          setMemeNote(String(ev.text || ""));
         } else if (ev.type === "done") {
           if (!pausedRef.current) { pushLive(); setMessages([...out]); }
         } else if (ev.type === "error") {
@@ -741,6 +752,7 @@ export default function RevolutionPreview() {
   const send = async () => {
     const v = input.trim();
     if (v === "") return;
+    setMemeNote(null);
     if (loading && !pausedRef.current) return;
     const mySeq = ++sendSeqRef.current;
     if (loading) {
@@ -809,6 +821,7 @@ export default function RevolutionPreview() {
       <div className="rv-grain" aria-hidden="true" />
 
       <div className="rv-content">
+        {notice && <div className="rv-notice">{notice}</div>}
         <header className="rv-mast">
           <div className="rv-mast-line">
             <span>{t.mastL}</span>
@@ -960,6 +973,9 @@ export default function RevolutionPreview() {
                 </div>
               ) : (
                 <div className="rv-chat-body" ref={chatBodyRef}>
+                  {memeNote && (
+                    <div className="rv-meme-note">{lang === "zh" ? "注：据网络检索，" : "Note (web): "}{memeNote}</div>
+                  )}
                   {messages.map((m, i) => (
                     m.auto ? (
                       <div key={i} className="rv-msg-auto">{m.content}</div>
