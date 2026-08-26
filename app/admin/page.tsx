@@ -5,6 +5,16 @@ export const dynamic = "force-dynamic";
 
 const ADMIN_KEY = "menwaitan2026";
 
+// 日志时间戳是 UTC，后台统一显示为东八区（北京时间）
+function fmtCST(iso: string): string {
+  if (!iso) return iso;
+  try {
+    const d = new Date(iso);
+    if (isNaN(d.getTime())) return iso;
+    return d.toLocaleString("zh-CN", { timeZone: "Asia/Shanghai", hour12: false, year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit", second: "2-digit" });
+  } catch { return iso; }
+}
+
 const S = {
   font: "system-ui",
   bg: "#f5f2ec",
@@ -70,7 +80,7 @@ export default async function AdminPage({ searchParams }: { searchParams: Promis
             {selected.map((e, i) => (
               <details key={i} style={{ background: S.card, border: "1px solid " + S.border, borderRadius: 8, padding: "12px 16px", marginBottom: 10, fontSize: 14 }}>
                 <summary style={{ cursor: "pointer", color: S.ink }}>
-                  <span style={{ color: S.gray, fontSize: 12, marginRight: 8 }}>{e.ts}</span>
+                  <span style={{ color: S.gray, fontSize: 12, marginRight: 8 }}>{fmtCST(e.ts)}</span>
                   {e.mode} · {(e.characters || []).join(" / ")} · <span style={{ color: S.red }}>{String(e.userText || "").slice(0, 40)}</span>
                 </summary>
                 <div style={{ marginTop: 10, lineHeight: 1.7 }}>
@@ -86,12 +96,12 @@ export default async function AdminPage({ searchParams }: { searchParams: Promis
           </div>
         ) : (
           <div>
-            <h2 style={{ fontSize: 18, margin: "0 0 12px" }}>用户列表（{users.length} 个访客 · 共 {filtered.length} 轮）</h2>
+            <h2 style={{ fontSize: 18, margin: "0 0 12px" }}>用户列表（{users.length} 个访客 · 共 {filtered.length} 轮 · 北京时间）</h2>
             {users.length === 0 ? <p style={{ color: S.gray }}>暂无记录</p> : users.map((u) => (
               <div key={u.id} style={{ background: S.card, border: "1px solid " + S.border, borderRadius: 8, padding: "12px 16px", marginBottom: 8, display: "flex", alignItems: "center", justifyContent: "space-between" }}>
                 <div>
                   <b>{u.id}</b>
-                  <span style={{ color: S.gray, fontSize: 12, marginLeft: 12 }}>{u.count} 轮 · 最后 {u.last}</span>
+                  <span style={{ color: S.gray, fontSize: 12, marginLeft: 12 }}>{u.count} 轮 · 最后 {fmtCST(u.last)}</span>
                 </div>
                 <a href={base + "&uid=" + encodeURIComponent(u.id)} style={{ color: S.red, textDecoration: "none", fontSize: 14 }}>查看 →</a>
               </div>
