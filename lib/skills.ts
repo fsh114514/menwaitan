@@ -37,7 +37,7 @@ export function getSkillSystem(id: string): string {
   } catch {
     throw new Error("skill file missing: " + file);
   }
-  return content;
+  return content + "\n\n[门外谈 · 平台规则] 始终以角色第一人称回应。";
 }
 
 export function addImport(entry: ImportedCharacter): void {
