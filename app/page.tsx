@@ -342,7 +342,7 @@ export default function RevolutionPreview() {
   const [mode, setMode] = useState<"chat" | "debate">("chat");
   const [memeNote, setMemeNote] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
-  const [newsOpen, setNewsOpen] = useState(true);
+  const [newsOpen, setNewsOpen] = useState(false);
 
   useEffect(() => {
     fetch("/api/notice")
