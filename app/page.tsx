@@ -894,6 +894,7 @@ export default function RevolutionPreview() {
         </section>
 
         <div className="rv-news">
+          <a className="rv-news-gh" href="https://github.com/fsh114514/menwaitan" target="_blank" rel="noreferrer">GitHub ↗</a>
           <button className="rv-news-trigger" onClick={() => setNewsOpen((o) => !o)}>{t.whatsNew}{newsOpen ? " ▴" : " ▾"}</button>
           {newsOpen && (
             <div className="rv-news-panel">
