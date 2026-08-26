@@ -850,3 +850,8 @@ html, body { overflow-x: clip; }
 
 /* maintenance notice bar */
 .rv-notice { background: color-mix(in srgb, var(--paper) 92%, var(--red) 8%); border: 1px solid var(--red); color: var(--red); text-align: center; font-size: 0.8rem; letter-spacing: 0.06em; padding: 9px 16px; margin-bottom: 14px; line-height: 1.7; }
+
+/* chat scroll: user can browse history while AI keeps talking */
+.rv-chat-wrap { position: relative; }
+.rv-jump-bottom { position: absolute; bottom: 14px; right: 14px; z-index: 5; background: var(--ink); color: var(--paper); border: 1px solid var(--ink); font-family: var(--font-serif); font-size: 0.78rem; letter-spacing: 0.08em; padding: 9px 15px; cursor: pointer; box-shadow: 0 6px 18px -8px rgba(0, 0, 0, 0.45); transition: background 0.2s, color 0.2s; }
+.rv-jump-bottom:hover { background: var(--red); border-color: var(--red); }

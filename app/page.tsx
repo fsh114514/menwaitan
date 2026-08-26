@@ -454,6 +454,7 @@ export default function RevolutionPreview() {
   const sealRef = useRef<HTMLDivElement | null>(null);
   const suppressClick = useRef(false);
   const chatBodyRef = useRef<HTMLDivElement | null>(null);
+  const [stickBottom, setStickBottom] = useState(true);
   const [draggingId, setDraggingId] = useState<string | null>(null);
   const [dropId, setDropId] = useState<string | null>(null);
   const [bioId, setBioId] = useState<string | null>(null);
@@ -486,8 +487,19 @@ export default function RevolutionPreview() {
 
   useEffect(() => {
     const el = chatBodyRef.current;
+    if (el && stickBottom) el.scrollTop = el.scrollHeight;
+  }, [messages, typing, memeNote, stickBottom]);
+  const handleChatScroll = () => {
+    const el = chatBodyRef.current;
+    if (!el) return;
+    const near = el.scrollHeight - el.scrollTop - el.clientHeight < 80;
+    setStickBottom((prev) => (prev === near ? prev : near));
+  };
+  const jumpToBottom = () => {
+    const el = chatBodyRef.current;
     if (el) el.scrollTop = el.scrollHeight;
-  }, [messages, typing]);
+    setStickBottom(true);
+  };
   const onDragStartCard = (id: string, e: any) => {
     dragId.current = id;
     setDraggingId(id);
@@ -753,6 +765,7 @@ export default function RevolutionPreview() {
     const v = input.trim();
     if (v === "") return;
     setMemeNote(null);
+    setStickBottom(true);
     if (loading && !pausedRef.current) return;
     const mySeq = ++sendSeqRef.current;
     if (loading) {
@@ -972,7 +985,8 @@ export default function RevolutionPreview() {
                   )}
                 </div>
               ) : (
-                <div className="rv-chat-body" ref={chatBodyRef}>
+                <div className="rv-chat-wrap">
+                <div className="rv-chat-body" ref={chatBodyRef} onScroll={handleChatScroll}>
                   {memeNote && (
                     <div className="rv-meme-note">{lang === "zh" ? "注：据网络检索，" : "Note (web): "}{memeNote}</div>
                   )}
@@ -987,6 +1001,10 @@ export default function RevolutionPreview() {
                     )
                   ))}
                   {typing && <div className="rv-msg ai rv-typing"><span></span><span></span><span></span></div>}
+                </div>
+                {!stickBottom && (
+                  <button className="rv-jump-bottom" onClick={jumpToBottom}>{lang === "zh" ? "↓ 回到最新" : "↓ Latest"}</button>
+                )}
                 </div>
               )}
               <div className="rv-chat-input">
