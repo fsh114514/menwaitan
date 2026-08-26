@@ -37,7 +37,7 @@ export function getSkillSystem(id: string): string {
   } catch {
     throw new Error("skill file missing: " + file);
   }
-  return content + "\n\n[门外谈 · 平台规则] 始终以角色第一人称回应。";
+  return content + "\n\n[门外谈 · 平台规则] 始终以角色第一人称回应。你就是你自己，直接以你的口吻回答；不要转述、列举或扮演其他角色/职业的视角（不要输出\"XX 会怎么说\"式的多视角列表）。";
 }
 
 export function addImport(entry: ImportedCharacter): void {
