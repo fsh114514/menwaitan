@@ -6,9 +6,32 @@ import ClickSpark from "@/components/bits/ClickSpark";
 import "./revolution/revolution.css";
 
 type Char = { id: string; zhName: string; name: string; initial: string; school: string; tag: string; color: string; skillDir: string; imported?: boolean; bio?: string; repo?: string };
-type Msg = { role: string; who?: string; color?: string; content: string; auto?: boolean };
+type Msg = { role: string; who?: string; color?: string; content: string; auto?: boolean; err?: boolean };
 type Scene = "casual" | "serious" | "heated";
 type Lang = "zh" | "en";
+
+function HelpDesc({ text, hot }: { text: string; hot: string[] }) {
+  const parts: { s: string; cur: boolean }[] = [];
+  let rest = text;
+  while (rest) {
+    let idx = -1;
+    let len = 0;
+    let hit = "";
+    for (const h of hot) {
+      const i = rest.indexOf(h);
+      if (i >= 0 && (idx === -1 || i < idx)) { idx = i; len = h.length; hit = h; }
+    }
+    if (idx === -1) { parts.push({ s: rest, cur: false }); break; }
+    if (idx > 0) parts.push({ s: rest.slice(0, idx), cur: false });
+    parts.push({ s: hit, cur: true });
+    rest = rest.slice(idx + len);
+  }
+  return (
+    <span className="rv-set-desc">
+      {parts.map((p, i) => (p.cur ? <b key={i} className="rv-cur">{p.s}</b> : <span key={i}>{p.s}</span>))}
+    </span>
+  );
+}
 
 const WELCOME_ZH: Msg = { role: "ai", who: "门外谈", color: "#c8102e", content: "圆桌已备，静候议题。选一位（或几位）人物，抛出一个问题——他们会以各自的方式回应你。" };
 const SCENE_KEY = "mw_scene";
@@ -65,7 +88,7 @@ const I18N = {
     tab4: "关于",
     avLabel: "入席人物",
     avHint: "已入席人物：拖动排序 · 点 × 离席",
-    avEmpty: "尚未入席——去「人物志」点卡片把人请进来",
+    avEmpty: "还没人入席——去「人物志」点卡片把人请进来",
     avGo: "去人物志请人入席 →",
     personasHint: "点卡片 = 入席；已入席的卡片排前面。拖（手机长按）卡片调整顺序，未入席的拖过去会入席；点「介」看人物介绍",
     leave: "离席",
@@ -654,7 +677,7 @@ export default function RevolutionPreview() {
     });
     if (!res.ok) {
       const d = await res.json().catch(() => ({}));
-      return [...current, { role: "assistant", content: "⚠️ " + (d.error || (lang === "zh" ? "请求失败" : "Request failed")) }];
+      return [...current, { role: "assistant", err: true, content: (d.error || (lang === "zh" ? "请求失败" : "Request failed")) }];
     }
     const reader = res.body ? res.body.getReader() : null;
     if (!reader) return current;
@@ -695,7 +718,7 @@ export default function RevolutionPreview() {
           if (!pausedRef.current) { pushLive(); setMessages([...out]); }
         } else if (ev.type === "error") {
           pushLive();
-          out = [...out, { role: "assistant", content: "⚠️ " + (ev.message || (lang === "zh" ? "调用失败" : "Request failed")) }];
+          out = [...out, { role: "assistant", err: true, content: (ev.message || (lang === "zh" ? "调用失败" : "Request failed")) }];
           setMessages([...out]);
           break;
         } else if (ev.type === "end") {
@@ -726,7 +749,7 @@ export default function RevolutionPreview() {
       setPaused(false);
     }
     if (selected.length === 0) {
-      setMessages((prev) => [...prev, { role: "assistant", content: "⚠️ " + t.avEmpty }]);
+      setMessages((prev) => [...prev, { role: "assistant", err: true, content: t.avEmpty }]);
       setInput("");
       return;
     }
@@ -742,7 +765,7 @@ export default function RevolutionPreview() {
         if (r < rn - 1) await new Promise((res) => setTimeout(res, 400));
       }
     } catch (e: any) {
-      setMessages((prev) => [...prev, { role: "assistant", content: "⚠️ " + (lang === "zh" ? "连接中断：" : "Connection interrupted: ") + (e?.message || (lang === "zh" ? "请稍后再试" : "try again")) }]);
+      setMessages((prev) => [...prev, { role: "assistant", err: true, content: (lang === "zh" ? "连接中断，请稍后再试" : "Connection interrupted, try again later") }]);
     } finally {
       if (sendSeqRef.current === mySeq) {
         if (pausedRef.current) { pausedRef.current = false; setPaused(false); bumpRef.current(); }
@@ -865,7 +888,7 @@ export default function RevolutionPreview() {
                     <button className={mode === "chat" ? "active" : ""} onClick={() => setMode("chat")}>{t.chat}</button>
                     <button className={mode === "debate" ? "active" : ""} onClick={() => setMode("debate")}>{t.round}</button>
                   </div>
-                  <span className="rv-set-desc">{t.modeHelp}</span>
+                  <HelpDesc text={t.modeHelp} hot={mode === "chat" ? [t.chat] : [t.round]} />
                 </div>
                 <div className="rv-set-row">
                   <span className="rv-set-tag">{t.sceneTag}</span>
@@ -877,7 +900,7 @@ export default function RevolutionPreview() {
                       </button>
                     ))}
                   </div>
-                  <span className="rv-set-desc">{t.sceneHelp}</span>
+                  <HelpDesc text={t.sceneHelp} hot={[t.sceneLabel[scene]]} />
                 </div>
               </div>
               {mode === "debate" && (
@@ -941,7 +964,7 @@ export default function RevolutionPreview() {
                     m.auto ? (
                       <div key={i} className="rv-msg-auto">{m.content}</div>
                     ) : (
-                      <div key={i} className={"rv-msg " + (m.role === "user" ? "user" : "ai")} style={{ animationDelay: (0.05 * i) + "s" }}>
+                      <div key={i} className={"rv-msg " + (m.role === "user" ? "user" : "ai") + (m.err ? " rv-err" : "")} style={{ animationDelay: (0.05 * i) + "s" }}>
                         {m.who && <div className="rv-msg-who" style={{ color: m.color }}>■ {m.who}</div>}
                         <div>{m.content}</div>
                       </div>

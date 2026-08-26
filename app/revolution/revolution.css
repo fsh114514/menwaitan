@@ -114,6 +114,7 @@ html, body { overflow-x: clip; }
 .rv-msg { max-width: 80%; padding: var(--s-2) var(--s-3); font-size: 0.92rem; line-height: 1.8; opacity: 0; transform: translateY(12px); animation: rvUp 0.4s var(--ease-out) forwards; }
 .rv-msg.user { align-self: flex-end; background: var(--ink); color: var(--paper); }
 .rv-msg.ai { align-self: flex-start; background: var(--paper-2); border: 1px solid var(--line); color: var(--ink); }
+.rv-msg.rv-err { border-color: var(--red); color: var(--red); }
 .rv-msg-who { font-family: var(--font-display); font-size: 0.7rem; font-weight: 900; margin-bottom: var(--s-1); letter-spacing: 0.08em; }
 .rv-chat-input { display: flex; gap: var(--s-2); padding: var(--s-3); border-top: 2px solid var(--ink); }
 .rv-chat-input input { flex: 1; min-width: 0; border: 1px solid var(--line-strong); background: var(--paper); color: var(--ink); padding: 0.9em 1.1em; font-size: 1rem; outline: none; font-family: var(--font-serif); }
@@ -645,7 +646,9 @@ html, body { overflow-x: clip; }
 /* dialog settings: mode + clash together, with ? tooltips */
 .rv-dialog-settings { display: flex; flex-direction: column; gap: 10px; margin-top: var(--s-4); padding-top: var(--s-3); border-top: 1px dashed var(--ink-faint); }
 .rv-set-row { display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap; }
-.rv-set-desc { font-size: 0.62rem; line-height: 1.7; color: var(--ink-faint); letter-spacing: 0.04em; flex: 1 0 100%; }
+.rv-set-desc { font-size: 0.74rem; line-height: 1.8; color: var(--ink-soft); letter-spacing: 0.05em; flex: 1 0 100%; }
+.rv-set-desc::before { content: "▎"; color: var(--red); margin-right: 7px; font-weight: 700; }
+.rv-set-desc .rv-cur { color: var(--red); font-weight: 700; }
 .rv-set-tag { font-size: 0.66rem; letter-spacing: 0.14em; color: var(--ink-soft); display: inline-flex; align-items: center; flex: none; }
 .rv-scene { display: inline-flex; gap: 8px; }
 .rv-scene button { border: none; background: transparent; color: var(--ink-faint); font-family: var(--font-serif); font-size: 0.62rem; letter-spacing: 0.14em; padding: 1px 0; cursor: pointer; transition: color 0.2s; }
@@ -817,7 +820,9 @@ html, body { overflow-x: clip; }
 /* dialog settings: mode + clash together, with ? tooltips */
 .rv-dialog-settings { display: flex; flex-direction: column; gap: 10px; margin-top: var(--s-4); padding-top: var(--s-3); border-top: 1px dashed var(--ink-faint); }
 .rv-set-row { display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap; }
-.rv-set-desc { font-size: 0.62rem; line-height: 1.7; color: var(--ink-faint); letter-spacing: 0.04em; flex: 1 0 100%; }
+.rv-set-desc { font-size: 0.74rem; line-height: 1.8; color: var(--ink-soft); letter-spacing: 0.05em; flex: 1 0 100%; }
+.rv-set-desc::before { content: "▎"; color: var(--red); margin-right: 7px; font-weight: 700; }
+.rv-set-desc .rv-cur { color: var(--red); font-weight: 700; }
 .rv-set-tag { font-size: 0.66rem; letter-spacing: 0.14em; color: var(--ink-soft); display: inline-flex; align-items: center; flex: none; }
 .rv-help { position: relative; display: inline-grid; place-items: center; width: 15px; height: 15px; border: 1px solid var(--ink-faint); border-radius: 50%; font-size: 0.58rem; font-style: normal; color: var(--ink-soft); cursor: help; margin-left: 5px; flex: none; }
 .rv-help::after { content: attr(data-tip); position: absolute; bottom: calc(100% + 9px); left: -8px; width: 210px; background: var(--paper); color: var(--ink); border: 1px solid var(--red); box-shadow: 0 12px 26px -14px rgba(0, 0, 0, 0.35); font-family: var(--font-serif); font-size: 0.74rem; line-height: 1.85; padding: 11px 13px; z-index: 80; opacity: 0; pointer-events: none; transition: opacity 0.2s; letter-spacing: 0.05em; white-space: normal; }
