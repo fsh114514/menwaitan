@@ -91,17 +91,19 @@ export async function POST(req: Request) {
           const turns: { who: string; text: string }[] = [];
           for (const speaker of selected) {
             const debateContext = history.map((m: { role: string; content: string }) => {
-              const whoTag = turns.find((t) => t.text === m.content)?.who;
-              return whoTag
-                ? { ...m, content: "[" + (getMeta(whoTag)?.zhName || whoTag) + "]: " + m.content }
-                : m;
+              const mm = /^\[([^\]]+)\]\s*/.exec(m.content);
+              if (m.role === "assistant" && mm) {
+                const meta = getMeta(mm[1]);
+                return { ...m, content: "[" + (meta?.zhName || mm[1]) + "]: " + m.content.slice(mm[0].length) };
+              }
+              return m;
             });
             const prompt = [
               {
                 role: "system" as const,
                 content:
                   getSkillSystem(speaker.id) +
-                  "\n\n你正在参与一场多位思想家的圆桌辩论。先用一句话直接回应上一位发言者的核心观点，再陈述你自己的主张。要用简体中文。不要客套，直接交锋。" +
+                  "\n\n你就是" + speaker.zhName + "本人。你是你自己，不是任何其他角色，绝不模仿、转述或引用其他发言者的口癖、自称或语气。你正在参与一场多位思想家的圆桌辩论。先用一句话直接回应上一位发言者的核心观点，再陈述你自己的主张。要用简体中文。不要客套，直接交锋。" +
                   (SCENE_RULES[scene] || SCENE_RULES.casual),
               },
               ...debateContext,
