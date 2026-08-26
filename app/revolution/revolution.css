@@ -864,7 +864,7 @@ html, body { overflow-x: clip; }
 .rv-changelog li::before { content: "▍"; position: absolute; left: 0; top: 0; color: var(--red); }
 
 /* top-right recent-updates card (newspaper style) */
-.rv-news { position: fixed; top: 104px; right: 10px; z-index: 45; }
+.rv-news { position: fixed; top: 104px; right: 6px; z-index: 45; }
 .rv-news-trigger { border: none; background: none; font-family: var(--font-display); font-size: 0.66rem; font-weight: 600; letter-spacing: 0.2em; color: var(--ink-faint); cursor: pointer; padding: 4px 2px; transition: color 0.2s; }
 .rv-news-trigger:hover { color: var(--red); }
 .rv-news-panel { position: absolute; top: calc(100% + 8px); right: 0; width: 240px; background: var(--paper); border: 1px solid var(--ink-faint); padding: 12px 14px 10px; box-shadow: 0 12px 28px -18px rgba(23, 18, 13, 0.28); }
