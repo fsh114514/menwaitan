@@ -139,7 +139,8 @@ const I18N = {
     a3: "人格来源",
     a3d: "角色人格与人物介绍由开源蒸馏人格社区生成：人格蒸馏自各项目的 SKILL.md，介绍内容摘自各项目 README（版权归原作者所有）——向各位作者致谢。",
     note: "免责声明：本网站角色对话由 AI 基于公开资料生成，不代表任何真实人物本人观点；内容仅供思想交流。",
-    whatsNew: "最近更新",
+    whatsNew: "近日更新",
+    viewAll: "查看全部 →",
     changelog: [
       "联网查梗：问「XX 是什么意思 / 什么梗」时，自动检索最新网络梗，回复前附一句说明",
       "自由看历史：辩论进行中也能往上翻看发言，右下角可一键回到最新",
@@ -266,6 +267,7 @@ const I18N = {
     a3d: "Personas and intros come from the open-source distilled-persona community: personas are distilled from each project SKILL.md, intros are quoted from each project README (copyright to the original authors) — thanks to all the authors.",
     note: "Disclaimer: character dialogues are AI-generated from public materials and do not represent the views of any real person; for thought exchange only.",
     whatsNew: "What's new",
+    viewAll: "View all →",
     changelog: [
       "Meme lookup: ask what a meme or phrase means, and the thinkers search the web for the latest context",
       "Read while debating: scroll back through the discussion freely, jump back to the latest anytime",
@@ -340,6 +342,7 @@ export default function RevolutionPreview() {
   const [mode, setMode] = useState<"chat" | "debate">("chat");
   const [memeNote, setMemeNote] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
+  const [newsOpen, setNewsOpen] = useState(true);
 
   useEffect(() => {
     fetch("/api/notice")
@@ -1219,6 +1222,18 @@ export default function RevolutionPreview() {
           </section>
         )}
 
+        <div className={"rv-news" + (newsOpen ? "" : " collapsed")}>
+          <div className="rv-news-head" onClick={() => setNewsOpen((o) => !o)}>
+            <span className="rv-news-title">{t.whatsNew}</span>
+            <span className="rv-news-date">{new Date().toISOString().slice(0, 10).replace(/-/g, ".")}{newsOpen ? " ▴" : " ▾"}</span>
+          </div>
+          <ul className="rv-news-list">
+            {t.changelog.slice(0, 3).map((c: string, i: number) => (
+              <li key={i}>{c}</li>
+            ))}
+          </ul>
+          <button className="rv-news-more" onClick={() => setTab("about")}>{t.viewAll}</button>
+        </div>
         <footer className="rv-footer rv-reveal">
           <span><b>{t.aboutName}</b> · {t.foot1}</span>
           <span>{t.foot2}</span>
