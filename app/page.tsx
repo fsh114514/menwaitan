@@ -894,7 +894,6 @@ export default function RevolutionPreview() {
         </section>
 
         <div className="rv-news">
-          <a className="rv-news-gh" href="https://github.com/fsh114514/menwaitan" target="_blank" rel="noreferrer">GitHub ↗</a>
           <button className="rv-news-trigger" onClick={() => setNewsOpen((o) => !o)}>{t.whatsNew}{newsOpen ? " ▴" : " ▾"}</button>
           {newsOpen && (
             <div className="rv-news-panel">
@@ -1252,6 +1251,7 @@ export default function RevolutionPreview() {
         <footer className="rv-footer rv-reveal">
           <span><b>{t.aboutName}</b> · {t.foot1}</span>
           <span>{t.foot2}</span>
+          <span><a className="rv-news-gh" href="https://github.com/fsh114514/menwaitan" target="_blank" rel="noreferrer">GitHub ↗</a></span>
                    </footer>
         <div className="rv-rain" aria-hidden="true">
           {Array.from({ length: 16 }).map((_, c) => {
