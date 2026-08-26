@@ -49,3 +49,6 @@ next-env.d.ts
 # gh cli config written into workspace
 /.config/
 /.local/
+
+# dsh tool artifacts
+.dsh-*/
