@@ -294,7 +294,7 @@ export default function RevolutionPreview() {
   const [historyOpen, setHistoryOpen] = useState(false);
   const [chatId, setChatId] = useState<string | null>(null);
   const [speed, setSpeed] = useState<SpeedLevel>("normal");
-  const [scene, setScene] = useState<Scene>("casual");
+  const [scene, setScene] = useState<Scene>("serious");
 
   const [messages, setMessages] = useState<Msg[]>(lang === "zh" ? [WELCOME_ZH] : [WELCOME_EN]);
   const [input, setInput] = useState("");
