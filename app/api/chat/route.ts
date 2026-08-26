@@ -113,10 +113,10 @@ async function moegirlSearch(q: string): Promise<SearchItem[] | null> {
 async function fetchMemeInfo(q: string): Promise<{ brief: string; detail: string } | null> {
   const sources = [
     { fn: () => bingRss(q, "cn.bing.com") },
+    { fn: () => moegirlSearch(q) },
     { fn: () => so360Search(q) },
     { fn: () => bingRss(q, "www.bing.com") },
     { fn: () => sogouSearch(q) },
-    { fn: () => moegirlSearch(q) },
   ];
   const results = await Promise.allSettled(sources.map((s) => s.fn()));
   let chosen: SearchItem[] | null = null;
