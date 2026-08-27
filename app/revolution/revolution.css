@@ -143,6 +143,9 @@ html, body { overflow-x: clip; }
 .rv-char-card .tg { display: block; font-size: 0.64rem; color: var(--ink-soft); margin-top: 2px; opacity: 0.82; }
 .rv-char-card .enter { display: block; margin-top: 9px; font-size: 0.7rem; letter-spacing: 0.14em; color: var(--red); font-weight: 700; }
 .rv-char-card.active { border-color: var(--red); box-shadow: inset 3px 0 0 var(--red); }
+[data-lang="en"] .rv-char-card.active::after { content: "Seated"; }
+[data-lang="en"] .rv-orbit::after { content: "T"; }
+[data-lang="en"] .rv-dossier-quote::before { content: "Q"; }
 .rv-char-card.active::after { content: "已入席"; position: absolute; top: -9px; right: -4px; background: var(--red); color: #fff; font-size: 0.58rem; letter-spacing: 0.1em; padding: 3px 8px; }
 
 /* ============ 区块标题 ============ */
@@ -945,3 +948,6 @@ html, body { overflow-x: clip; }
 .rv-sponsor-code span { display: block; font-size: 0.68rem; color: var(--ink-soft); margin-top: 6px; letter-spacing: 0.12em; }
 .rv-sponsor-note { margin: 12px 0 0; font-size: 0.7rem; color: var(--ink-faint); line-height: 1.9; letter-spacing: 0.04em; text-align: center; }
 @media (max-width: 560px) { .rv-sponsor-panel { width: 280px; } .rv-sponsor-code img { width: 108px; height: 108px; } }
+
+/* EN brand size */
+[data-lang="en"] .rv-brand { font-size: clamp(3rem, 6vw, 5rem); letter-spacing: 0.04em; white-space: nowrap; }
