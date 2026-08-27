@@ -165,7 +165,6 @@ const I18N = {
       "人格校准：10 位思想家回归本人（鲁迅、哈耶克、凯恩斯、柏拉图、尼采等），不再被带偏或变成旁观者",
       "角色自然化：去掉平台层调教，每个角色用自己的方式说话——峰哥会用峰哥的腔调接你的问候",
       "回复克制：较真模式「宁短勿长」，杜绝长篇大论",
-      "细节打磨：模式/交锋说明更醒目、错误提示改红字、后台时间改北京时间",
     ],
     foot1: "跨越时空，让思想交锋",
     foot2: "第壹期 · 公元贰零贰陆",
@@ -304,8 +303,7 @@ const I18N = {
       "Persona fixes: 10 thinkers now speak as themselves (Lu Xun, Hayek, Keynes, Plato, Nietzsche...)",
       "Natural voices: platform tuning removed, each character answers in their own way",
       "Keep it short: Serious mode is now brief over long",
-      "Polish: clearer hints, red-ink error messages, admin times in Beijing time",
-    ],
+          ],
     foot1: "Across time, let ideas clash",
     foot2: "Vol. 1 · AD 2026",
     thanks: "Personas distilled by the open-source community · thanks to all authors",
@@ -380,6 +378,7 @@ export default function RevolutionPreview() {
   const [notice, setNotice] = useState<string | null>(null);
   const [newsOpen, setNewsOpen] = useState(false);
   const [zoom, setZoom] = useState<number | null>(null);
+  const [feedbackOpen, setFeedbackOpen] = useState(false);
   const [sponsorOpen, setSponsorOpen] = useState(false);
 
   useEffect(() => {
@@ -942,6 +941,16 @@ export default function RevolutionPreview() {
           <div className="rv-news-links">
             <a className="rv-news-gh" href="https://github.com/fsh114514/menwaitan" target="_blank" rel="noreferrer">GitHub ↗</a>
             <a className="rv-news-gh" href="https://space.bilibili.com/3707011927640910" target="_blank" rel="noreferrer">B站 ↗</a>
+            <span className="rv-feedback-wrap">
+              <a className="rv-news-gh" onClick={() => setFeedbackOpen((o) => !o)}>反馈 ↗</a>
+              {feedbackOpen && (
+                <div className="rv-feedback-panel">
+                  <b className="rv-sponsor-title">反馈</b>
+                  <p>发现问题或有想法？去 B 站私信我，或在评论区留言。</p>
+                  <a className="rv-feedback-btn" href="https://space.bilibili.com/3707011927640910" target="_blank" rel="noreferrer">去 B 站 ↗</a>
+                </div>
+              )}
+            </span>
             <span className="rv-sponsor-wrap">
               <a className="rv-news-gh" onClick={() => setSponsorOpen((o) => !o)}>{t.sponsor} ↗</a>
               {sponsorOpen && (
@@ -1362,6 +1371,16 @@ export default function RevolutionPreview() {
           <span className="rv-footer-links">
             <a className="rv-news-gh" href="https://github.com/fsh114514/menwaitan" target="_blank" rel="noreferrer">GitHub ↗</a>
             <a className="rv-news-gh" href="https://space.bilibili.com/3707011927640910" target="_blank" rel="noreferrer">B站 ↗</a>
+            <span className="rv-feedback-wrap">
+              <a className="rv-news-gh" onClick={() => setFeedbackOpen((o) => !o)}>反馈 ↗</a>
+              {feedbackOpen && (
+                <div className="rv-feedback-panel">
+                  <b className="rv-sponsor-title">反馈</b>
+                  <p>发现问题或有想法？去 B 站私信我，或在评论区留言。</p>
+                  <a className="rv-feedback-btn" href="https://space.bilibili.com/3707011927640910" target="_blank" rel="noreferrer">去 B 站 ↗</a>
+                </div>
+              )}
+            </span>
             <span className="rv-sponsor-wrap">
               <a className="rv-news-gh" onClick={() => setSponsorOpen((o) => !o)}>{t.sponsor} ↗</a>
               {sponsorOpen && (
