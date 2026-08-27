@@ -1047,7 +1047,7 @@ export default function RevolutionPreview() {
               )}
             </span>
             <span className="rv-sponsor-wrap">
-              <a className="rv-news-gh" onClick={() => { if (lang === "en") { const w = window.open("https://fengsihan.gumroad.com/l/mkrch", "_blank"); if (!w) { try { location.href = "https://fengsihan.gumroad.com/l/mkrch"; } catch {} } return; } setSponsorOpen((o) => !o); }}>{t.sponsor} ↗</a>
+              <a className="rv-news-gh" onClick={() => { if (lang === "en") { const w = window.open("https://ko-fi.com/offframe", "_blank"); if (!w) { try { location.href = "https://ko-fi.com/offframe"; } catch {} } return; } setSponsorOpen((o) => !o); }}>{t.sponsor} ↗</a>
               {sponsorOpen && (
                 <div className="rv-sponsor-panel">
                   <div className="rv-sponsor-codes">
@@ -1452,7 +1452,7 @@ export default function RevolutionPreview() {
               )}
             </span>
             <span className="rv-sponsor-wrap">
-              <a className="rv-news-gh" onClick={() => { if (lang === "en") { const w = window.open("https://fengsihan.gumroad.com/l/mkrch", "_blank"); if (!w) { try { location.href = "https://fengsihan.gumroad.com/l/mkrch"; } catch {} } return; } setSponsorOpen((o) => !o); }}>{t.sponsor} ↗</a>
+              <a className="rv-news-gh" onClick={() => { if (lang === "en") { const w = window.open("https://ko-fi.com/offframe", "_blank"); if (!w) { try { location.href = "https://ko-fi.com/offframe"; } catch {} } return; } setSponsorOpen((o) => !o); }}>{t.sponsor} ↗</a>
               {sponsorOpen && (
                 <div className="rv-sponsor-panel">
                   <div className="rv-sponsor-codes">
