@@ -1,6 +1,8 @@
 /* ===== 门外谈 · 革命三方向预览 ===== */
 /* 设计原则：反 AI 默认项；得意黑+思源宋体；红色革命调；编号/印章/口号；克制但丰富的动效 */
 
+html { font-size: 16px; }
+@media (min-width: 1280px) { html { font-size: 17px; } }
 html, body { overflow-x: clip; }
 
 :root {
@@ -40,7 +42,7 @@ html, body { overflow-x: clip; }
 
 /* ============ 骨架 ============ */
 .rv-shell { position: relative; min-height: 100vh; background: var(--paper); color: var(--ink); font-family: var(--font-serif); }
-.rv-content { position: relative; z-index: 10; max-width: 1180px; margin: 0 auto; padding: 0 var(--gutter); }
+.rv-content { position: relative; z-index: 10; max-width: 1440px; margin: 0 auto; padding: 0 var(--gutter); }
 
 /* 三方向背景质感 */
 .rv-bg { position: fixed; inset: 0; z-index: 0; pointer-events: none; }
