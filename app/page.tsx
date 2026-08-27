@@ -62,7 +62,7 @@ const SPEEDS: Record<SpeedLevel, { qn: number; qt: number; bn: number; bt: numbe
 };
 
 const EFFECT: Record<string, number> = {
-  zhangxuefeng: 35, fengge: 34, "luo-xiang-skill": 33, "marx-skill": 32, "kongzi-skill": 31, maoxuan: 30, luxun: 29,
+  zhangxuefeng: 35, fengge: 26, "luo-xiang-skill": 33, "marx-skill": 32, "kongzi-skill": 31, maoxuan: 30, luxun: 29,
   "steve-jobs-skill": 28, "elon-musk-skill": 27, "trump-skill": 26,
   "huchenfeng-skill": 24, "leijun-skill": 20, "huangrenxun-skill": 19, "ace-taffy-skill": 16,
   "buffett-skill": 14, "dalio-skill": 13,
@@ -976,7 +976,7 @@ export default function RevolutionPreview() {
           <div className="rv-mast-rule" />
           <div className="rv-ticker" aria-hidden="true">
             <div className="rv-ticker-track">
-              {chars.concat(chars).map((c, i) => (<span key={i}>{c.zhName}</span>))}
+              {[...chars.filter((c) => !SENSITIVE_IDS.has(c.id)), ...chars.filter((c) => !SENSITIVE_IDS.has(c.id))].map((c, i) => (<span key={i}>{c.zhName}</span>))}
             </div>
           </div>
         </header>
@@ -1267,6 +1267,7 @@ export default function RevolutionPreview() {
                 <p className="rv-personas-hint">{t.personasHint}</p>
                 <div className="rv-char-grid">
               {safeGrid.map(renderCard)}
+                </div>
               <div className="rv-char-more-wrap">
                 <button className="rv-char-more" onClick={() => setShowSensitive((o) => !o)}>
                   {showSensitive ? t.lessChars : t.moreChars} {showSensitive ? "▴" : "▾"}
@@ -1275,8 +1276,6 @@ export default function RevolutionPreview() {
               {showSensitive && sensGrid.length > 0 && (
                 <div className="rv-char-grid rv-char-grid-sens">{sensGrid.map(renderCard)}</div>
               )}
-
-                </div>
               </>
             )}
           </section>
