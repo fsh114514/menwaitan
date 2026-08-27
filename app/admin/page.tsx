@@ -35,6 +35,12 @@ export default async function AdminPage({ searchParams }: { searchParams: Promis
   if (authed && existsSync(logPath)) {
     entries = readFileSync(logPath, "utf-8").split("\n").filter(Boolean).map(l => { try { return JSON.parse(l); } catch { return null; } }).filter(Boolean);
   }
+  const fbPath = join(process.cwd(), "data", "feedback.jsonl");
+  let feedback: any[] = [];
+  if (authed && existsSync(fbPath)) {
+    feedback = readFileSync(fbPath, "utf-8").split("\n").filter(Boolean).map(l => { try { return JSON.parse(l); } catch { return null; } }).filter(Boolean);
+    feedback.sort((a: any, b: any) => (a.ts < b.ts ? 1 : -1));
+  }
   if (!authed) {
     return (
       <div style={{ fontFamily: S.font, background: S.bg, minHeight: "100vh", padding: 24 }}>
@@ -96,6 +102,13 @@ export default async function AdminPage({ searchParams }: { searchParams: Promis
           </div>
         ) : (
           <div>
+            <h2 style={{ fontSize: 18, margin: "0 0 12px" }}>访客反馈（{feedback.length} 条）</h2>
+            {feedback.length === 0 ? <p style={{ color: S.gray }}>暂无反馈</p> : feedback.slice(0, 20).map((f: any, i: number) => (
+              <div key={i} style={{ background: S.card, border: "1px solid " + S.border, borderRadius: 8, padding: "10px 14px", marginBottom: 8, fontSize: 14 }}>
+                <div style={{ color: S.gray, fontSize: 12, marginBottom: 6 }}>{fmtCST(f.ts)}{f.contact ? " · 联系：" + f.contact : ""}</div>
+                <div style={{ lineHeight: 1.7, whiteSpace: "pre-wrap" }}>{f.text}</div>
+              </div>
+            ))}
             <h2 style={{ fontSize: 18, margin: "0 0 12px" }}>用户列表（{users.length} 个访客 · 共 {filtered.length} 轮 · 北京时间）</h2>
             {users.length === 0 ? <p style={{ color: S.gray }}>暂无记录</p> : users.map((u) => (
               <div key={u.id} style={{ background: S.card, border: "1px solid " + S.border, borderRadius: 8, padding: "12px 16px", marginBottom: 8, display: "flex", alignItems: "center", justifyContent: "space-between" }}>

@@ -379,6 +379,19 @@ export default function RevolutionPreview() {
   const [newsOpen, setNewsOpen] = useState(false);
   const [zoom, setZoom] = useState<number | null>(null);
   const [feedbackOpen, setFeedbackOpen] = useState(false);
+  const [fbText, setFbText] = useState("");
+  const [fbContact, setFbContact] = useState("");
+  const [fbSending, setFbSending] = useState(false);
+  const [fbDone, setFbDone] = useState(false);
+  async function submitFb() {
+    if (!fbText.trim() || fbSending) return;
+    setFbSending(true);
+    try {
+      const r = await fetch("/api/feedback", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ text: fbText, contact: fbContact }) });
+      const j = await r.json();
+      if (j.ok) { setFbDone(true); setFbText(""); setFbContact(""); }
+    } catch {} finally { setFbSending(false); }
+  }
   const [sponsorOpen, setSponsorOpen] = useState(false);
 
   useEffect(() => {
@@ -946,8 +959,9 @@ export default function RevolutionPreview() {
               {feedbackOpen && (
                 <div className="rv-feedback-panel">
                   <b className="rv-sponsor-title">反馈</b>
-                  <p>发现问题或有想法？去 B 站私信我，或在评论区留言。</p>
-                  <a className="rv-feedback-btn" href="https://space.bilibili.com/3707011927640910" target="_blank" rel="noreferrer">去 B 站 ↗</a>
+                  <textarea className="rv-feedback-ta" value={fbText} onChange={(e) => setFbText(e.target.value)} placeholder={lang === "zh" ? "写下你遇到的问题或想法…" : "Describe the issue or idea…"} rows={3} />
+                  <input className="rv-feedback-in" value={fbContact} onChange={(e) => setFbContact(e.target.value)} placeholder={lang === "zh" ? "联系方式（选填，邮箱 / B站 / 微信）" : "Contact (optional: email / Bilibili / WeChat)"} />
+                  <button className="rv-feedback-btn" onClick={submitFb} disabled={fbSending || !fbText.trim()}>{fbDone ? (lang === "zh" ? "已收到，谢谢" : "Thanks!") : fbSending ? (lang === "zh" ? "发送中…" : "Sending…") : "提交"}</button>
                 </div>
               )}
             </span>
@@ -1376,8 +1390,9 @@ export default function RevolutionPreview() {
               {feedbackOpen && (
                 <div className="rv-feedback-panel">
                   <b className="rv-sponsor-title">反馈</b>
-                  <p>发现问题或有想法？去 B 站私信我，或在评论区留言。</p>
-                  <a className="rv-feedback-btn" href="https://space.bilibili.com/3707011927640910" target="_blank" rel="noreferrer">去 B 站 ↗</a>
+                  <textarea className="rv-feedback-ta" value={fbText} onChange={(e) => setFbText(e.target.value)} placeholder={lang === "zh" ? "写下你遇到的问题或想法…" : "Describe the issue or idea…"} rows={3} />
+                  <input className="rv-feedback-in" value={fbContact} onChange={(e) => setFbContact(e.target.value)} placeholder={lang === "zh" ? "联系方式（选填，邮箱 / B站 / 微信）" : "Contact (optional: email / Bilibili / WeChat)"} />
+                  <button className="rv-feedback-btn" onClick={submitFb} disabled={fbSending || !fbText.trim()}>{fbDone ? (lang === "zh" ? "已收到，谢谢" : "Thanks!") : fbSending ? (lang === "zh" ? "发送中…" : "Sending…") : "提交"}</button>
                 </div>
               )}
             </span>
