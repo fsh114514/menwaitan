@@ -131,9 +131,50 @@ async function fetchMemeInfo(q: string): Promise<{ brief: string; detail: string
   };
 }
 
+// ---- 英文版查梗（Urban Dictionary + Reddit）----
+const INTL_MEME_TRIGGER = /(what (is|are|does|do|means?)|meaning|explain|define|meme|sauce|source|why|who|how|lmk)/i;
+function intlShould(text: string): boolean {
+  if (text.length > 140) return false;
+  if (INTL_MEME_TRIGGER.test(text)) return true;
+  return text.length <= 50 && /[?]/.test(text);
+}
+function extractKeywordIntl(q: string): string {
+  return q.replace(/(what|is|are|does|do|means?|meaning|explain|define|the|a|an|of|for|me|about|this|that)|[?.,!]/gi, " ").replace(/s+/g, " ").trim() || q;
+}
+async function intlMemeSearch(q: string): Promise<{ brief: string; detail: string } | null> {
+  const jobs = [
+    fetchText("https://api.urbandictionary.com/v0/define?term=" + encodeURIComponent(q), 1500).then((t) => {
+      if (!t) return null;
+      try {
+        const j = JSON.parse(t);
+        const d = j.list?.[0];
+        if (!d) return null;
+        return [{ title: d.word, desc: String(d.definition || "").replace(/s+/g, " ").slice(0, 90) }];
+      } catch { return null; }
+    }),
+    fetchText("https://www.reddit.com/search.json?q=" + encodeURIComponent(q) + "&sort=relevance&limit=2&t=year", 1500).then((t) => {
+      if (!t) return null;
+      try {
+        const j = JSON.parse(t);
+        return (j.data?.children || []).slice(0, 2).map((c: any) => ({ title: String(c.data?.title || "").slice(0, 40), desc: String(c.data?.selftext || c.data?.subreddit || "").replace(/s+/g, " ").slice(0, 90) })).filter((x: any) => x.title);
+      } catch { return null; }
+    }),
+  ];
+  const results = await Promise.allSettled(jobs);
+  let chosen: SearchItem[] | null = null;
+  for (const r of results) {
+    if (r.status === "fulfilled" && r.value && r.value.length) { chosen = r.value; break; }
+  }
+  if (!chosen || !chosen.length) return null;
+  return {
+    brief: (chosen[0].title + ": " + chosen[0].desc).slice(0, 130),
+    detail: chosen.map((it, i) => "[" + (i + 1) + "] " + it.title + ": " + it.desc).join("\n").slice(0, 360),
+  };
+}
 export async function POST(req: Request) {
   try {
-    const { characters: charIds, messages, mode, apiKey = "", baseURL = "", model = "", scene = "casual", userId = "" } = await req.json();
+    const { characters: charIds, messages, mode, apiKey = "", baseURL = "", model = "", scene = "casual", userId = "", lang = "zh" } = await req.json();
+    const intl = lang === "en";
 
     if (charIds === undefined || Array.isArray(charIds) === false || charIds.length === 0) {
       return Response.json({ error: "请选择至少一位人物" }, { status: 400 });
@@ -146,12 +187,12 @@ export async function POST(req: Request) {
     }
 
     const client = new OpenAI({
-      baseURL: baseURL || process.env.AI_BASE_URL || "https://open.bigmodel.cn/api/paas/v4",
-      apiKey: apiKey || process.env.AI_API_KEY || "",
+      baseURL: baseURL || (intl ? (process.env.INTL_BASE_URL || "https://openrouter.ai/api/v1") : (process.env.AI_BASE_URL || "https://open.bigmodel.cn/api/paas/v4")),
+      apiKey: apiKey || (intl ? (process.env.INTL_API_KEY || "") : (process.env.AI_API_KEY || "")),
       timeout: 90000,
       maxRetries: 2,
     });
-    const mdl = model || DEF_MODEL;
+    const mdl = model || (intl ? (process.env.INTL_MODEL || "meta-llama/llama-3.3-70b-instruct:free") : (process.env.AI_MODEL || "glm-4-flash"));
 
     const history = messages.map((m: any) => ({
       role: m.role === "assistant" ? "assistant" : "user",
@@ -171,10 +212,12 @@ export async function POST(req: Request) {
         let memeBlock = "";
         const lastMsg = [...messages].reverse().find((m: any) => m.role !== "assistant");
         const lastText = lastMsg ? String(lastMsg.content ?? "") : "";
-        if (shouldSearch(lastText) && allowSearch(userId)) {
-          const info = await fetchMemeInfo(extractKeyword(lastText));
+        if ((intl ? intlShould(lastText) : shouldSearch(lastText)) && allowSearch(userId)) {
+          const info = intl ? await intlMemeSearch(extractKeywordIntl(lastText)) : await fetchMemeInfo(extractKeyword(lastText));
           if (info) {
-            memeBlock = "\n\n【场外情报（网络检索，仅供参考）】\n" + info.detail + "\n以上情报仅供理解话题背景。不要照读或引用原文，用你自己的身份和口吻自然回应；与情报冲突时，保持你自己的立场。";
+            memeBlock = intl
+              ? "\n\n[Field intel (web lookup, context only)]\n" + info.detail + "\nUse it only for background. Do not read it out or quote it; answer in your own voice."
+              : "\n\n【场外情报（网络检索，仅供参考）】\n" + info.detail + "\n以上情报仅供理解话题背景。不要照读或引用原文，用你自己的身份和口吻自然回应；与情报冲突时，保持你自己的立场。";
             try { send({ type: "note", text: info.brief }); } catch { /* ignore */ }
           }
         }

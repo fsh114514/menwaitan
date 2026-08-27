@@ -69,6 +69,11 @@ const EFFECT: Record<string, number> = {
   "buffett-skill": 14, "dalio-skill": 13,
   "nietzsche-skill": 8, "foucault-skill": 7, "beauvoir-skill": 7, "socrates-skill": 6, "wittgenstein-skill": 5,
   "einstein-skill": 4, "turing-skill": 3, hayek: 2, keynes: 2, "plato-skill": 1,
+  shakespeare: 13, aristotle: 12, kant: 11, smith: 10, darwin: 9, churchill: 9, newton: 8, camus: 8, russell: 7, orwell: 7, holmes: 6, alice: 6, schrodinger: 6, vangogh: 5, schopenhauer: 5, mlk: 5,
+};
+
+const EFFECT_INTL: Record<string, number> = {
+  shakespeare: 38, aristotle: 37, kant: 36, "plato-skill": 35, "socrates-skill": 34, "nietzsche-skill": 33, "marx-skill": 32, smith: 31, churchill: 30, holmes: 29, alice: 28, newton: 27, darwin: 26, schrodinger: 25, "einstein-skill": 24, "turing-skill": 23, "steve-jobs-skill": 22, "elon-musk-skill": 21, "trump-skill": 20, vangogh: 19, camus: 18, russell: 17, orwell: 16, schopenhauer: 15, "foucault-skill": 14, "wittgenstein-skill": 13, hayek: 12, keynes: 11, "beauvoir-skill": 10, mlk: 9, "buffett-skill": 8, "dalio-skill": 7, "kongzi-skill": 6, luxun: 5, murasame: 4, mako: 3, fengge: 2, "ace-taffy-skill": 2, "leijun-skill": 2, "huangrenxun-skill": 2, zhangxuefeng: 1, "huchenfeng-skill": 1, maoxuan: 1, "luo-xiang-skill": 1,
 };
 
 const SENSITIVE_IDS = new Set([
@@ -138,19 +143,14 @@ const I18N = {
     wsOrg: "nuwa-skills 组织",
     wsOrgUrl: "https://github.com/nuwa-skills",
     wsGallery: "合集页",
-    wsGalleryUrl: "https://titanwings.github.io/colleague-skill-site/gallery/",
+    wsGalleryUrl: "https://github.com/f/awesome-chatgpt-prompts",
     recs: [
-      { name: "titanwings gallery (collection)", url: "https://titanwings.github.io/colleague-skill-site/gallery/", ext: true },
-      { name: "Zhuangzi · skill", url: "https://github.com/nuwa-skills/zhuangzi-skill.git" },
-      { name: "Hannah Arendt · skill", url: "https://github.com/nuwa-skills/arendt-skill.git" },
-      { name: "Ren Zhengfei · skill", url: "https://github.com/nuwa-skills/renzhengfei-skill.git" },
-      { name: "Huang Zheng · skill", url: "https://github.com/nuwa-skills/huangzheng-skill.git" },
-      { name: "Ding Lei · skill", url: "https://github.com/nuwa-skills/dinglei-skill.git" },
-      { name: "65 historical advisors", url: "https://github.com/77cinc/ai-decision-council.git" },
-      { name: "Chinese sages · Li Bai/Confucius/Zhuangzi", url: "https://github.com/Yinuo-Guo/dialogues-with-chinese-sages.git" },
-      { name: "Sage · guided thinking", url: "https://github.com/Dreamfutura-Stephen/Sage-skill.git" },
-      { name: "Confucius 11 classics library", url: "https://github.com/tree3355961795-ops/kongzi-classics.git" },
-      { name: "awesome-nuwa picks (collection)", url: "https://github.com/nuwa-skills/awesome-nuwa", ext: true },
+      { name: "Anthropic · official agent skills", url: "https://github.com/anthropics/skills" },
+      { name: "f/awesome-chatgpt-prompts (168k ★)", url: "https://github.com/f/awesome-chatgpt-prompts" },
+      { name: "ComposioHQ/awesome-claude-skills", url: "https://github.com/ComposioHQ/awesome-claude-skills" },
+      { name: "hesreallyhim/awesome-claude-code", url: "https://github.com/hesreallyhim/awesome-claude-code" },
+      { name: "VoltAgent/awesome-agent-skills", url: "https://github.com/VoltAgent/awesome-agent-skills" },
+      { name: "travisvn/awesome-claude-skills", url: "https://github.com/travisvn/awesome-claude-skills" },
     ],
     creditTag: "开源训练人格",
     creditLine: "本页人物的人格，由开源社区开发者精心训练而成（SKILL.md 蒸馏人格）——非本站生成",
@@ -371,6 +371,16 @@ const I18N = {
 
 export default function RevolutionPreview() {
   const [lang, setLang] = useState<Lang>("zh");
+  const [regionInit, setRegionInit] = useState(false);
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem("mw_region");
+      if (saved === "zh" || saved === "en") { setLang(saved); setRegionInit(true); return; }
+    } catch { /* ignore */ }
+    if (typeof navigator !== "undefined" && navigator.language && !navigator.language.toLowerCase().startsWith("zh")) setLang("en");
+    setRegionInit(true);
+  }, []);
+  const providers = lang === "en" ? PROVIDERS.filter((p) => !["zhipu", "kimi", "qwen"].includes(p.id)) : PROVIDERS;
   const [tab, setTab] = useState<"debate" | "personas" | "workshop" | "guide" | "about" | "settings">("debate");
   const [chars, setChars] = useState<Char[]>(baseChars);
   const [showSensitive, setShowSensitive] = useState(false);
@@ -502,13 +512,13 @@ export default function RevolutionPreview() {
     setBaseURL(localStorage.getItem("mw_base_url") || "");
     setModel(localStorage.getItem("mw_model") || "");
     const savedBase = localStorage.getItem("mw_base_url") || "";
-    const matched = PROVIDERS.find((pr) => pr.baseURL && savedBase && savedBase.includes(pr.baseURL.split("//")[1].split("/")[0]));
+    const matched = providers.find((pr) => pr.baseURL && savedBase && savedBase.includes(pr.baseURL.split("//")[1].split("/")[0]));
     if (matched) setProviderId(matched.id);
   }, []);
 
   const selectProvider = (id: string) => {
     setProviderId(id);
-    const pr = PROVIDERS.find((x) => x.id === id);
+    const pr = providers.find((x) => x.id === id);
     if (!pr) return;
     if (pr.baseURL) setBaseURL(pr.baseURL);
     setModel(pr.models[0] || "");
@@ -524,7 +534,7 @@ export default function RevolutionPreview() {
   const gridChars = [
     ...selected.map((id) => chars.find((c) => c.id === id)).filter((c): c is Char => !!c),
     ...[...chars.filter((c) => !selected.includes(c.id))].sort(
-      (a, b) => (EFFECT[b.id] || 10) - (EFFECT[a.id] || 10)
+      (a, b) => ((lang === "en" ? EFFECT_INTL : EFFECT)[b.id] || 10) - ((lang === "en" ? EFFECT_INTL : EFFECT)[a.id] || 10)
     ),
   ];
   const renderCard = (c: Char, i: number) => {
@@ -548,7 +558,7 @@ export default function RevolutionPreview() {
                     onDragEnd={onDragEndCard}
                     onClick={() => { if (!suppressClick.current) toggleChar(c.id); }} title={t.dragHint}>
                     <span className="av" style={{ background: c.color }}>{c.initial}</span>
-                    <span className="nm">{c.zhName}</span>
+                    <span className="nm">{lang === "en" ? c.name : c.zhName}</span>
                     <span className="sc">{c.school}</span>
                     <span className="tg">{c.tag}</span>
                     <span className="enter">{active ? t.entered : t.enter}</span>
@@ -827,6 +837,7 @@ export default function RevolutionPreview() {
         baseURL: localStorage.getItem("mw_base_url") || "",
         model: localStorage.getItem("mw_model") || "",
         userId: uid,
+        lang,
       }),
     });
     if (!res.ok) {
@@ -986,12 +997,12 @@ export default function RevolutionPreview() {
             <span>{t.mastL}</span>
             <span>{t.mastR}</span>
             <span>{t.mastX}</span>
-            <button className="rv-lang" onClick={() => setLang((l) => (l === "zh" ? "en" : "zh"))}>{lang === "zh" ? "EN" : "中"}</button>
+            <button className="rv-lang" onClick={() => setLang((l) => { const n = l === "zh" ? "en" : "zh"; try { localStorage.setItem("mw_region", n); } catch { /* ignore */ } return n; })}>{lang === "zh" ? "EN" : "中"}</button>
           </div>
           <div className="rv-mast-rule" />
           <div className="rv-ticker" aria-hidden="true">
             <div className="rv-ticker-track">
-              {[...chars.filter((c) => !SENSITIVE_IDS.has(c.id)), ...chars.filter((c) => !SENSITIVE_IDS.has(c.id))].map((c, i) => (<span key={i}>{c.zhName}</span>))}
+              {[...chars.filter((c) => !SENSITIVE_IDS.has(c.id)), ...chars.filter((c) => !SENSITIVE_IDS.has(c.id))].map((c, i) => (<span key={i}>{lang === "en" ? c.name : c.zhName}</span>))}
             </div>
           </div>
         </header>
@@ -1015,7 +1026,6 @@ export default function RevolutionPreview() {
         <div className="rv-news">
           <div className="rv-news-links">
             <a className="rv-news-gh" href="https://github.com/fsh114514/menwaitan" target="_blank" rel="noreferrer">GitHub ↗</a>
-            <a className="rv-news-gh" href="https://space.bilibili.com/3707011927640910" target="_blank" rel="noreferrer">B站 ↗</a>
             <span className="rv-feedback-wrap">
               <a className="rv-news-gh" onClick={() => setFeedbackOpen((o) => !o)}>反馈 ↗</a>
               {feedbackOpen && (
@@ -1028,7 +1038,7 @@ export default function RevolutionPreview() {
               )}
             </span>
             <span className="rv-sponsor-wrap">
-              <a className="rv-news-gh" onClick={() => setSponsorOpen((o) => !o)}>{t.sponsor} ↗</a>
+              <a className="rv-news-gh" onClick={() => { if (lang === "en") { try { window.open("https://ko-fi.com/offframe#payment-widget", "_blank"); } catch {} return; } setSponsorOpen((o) => !o); }}>{t.sponsor} ↗</a>
               {sponsorOpen && (
                 <div className="rv-sponsor-panel">
                   <div className="rv-sponsor-codes">
@@ -1089,7 +1099,7 @@ export default function RevolutionPreview() {
                       onDragEnd={onDragEndCard}
                       title={t.dragHint}>
                       <span className="av" style={{ background: c.color }}>{c.initial}</span>
-                      <span className="nm">{c.zhName}</span>
+                      <span className="nm">{lang === "en" ? c.name : c.zhName}</span>
                       <span className="sc">{c.school}</span>
                       <span className="rm" onClick={(e) => { e.stopPropagation(); toggleChar(id); }} title={t.leave}>×</span>
                     </div>
@@ -1135,7 +1145,7 @@ export default function RevolutionPreview() {
                     return (
                       <div className="rv-order-row" key={id}>
                         <span className="no">{i + 1}</span>
-                        <span className="nm">{c ? c.zhName : id}</span>
+                        <span className="nm">{c ? (lang === "en" ? c.name : c.zhName) : id}</span>
                         <span className="acts">
                           <button disabled={i === 0} onClick={() => moveChar(id, -1)} aria-label="up">{"\u2191"}</button>
                           <button disabled={i === selected.length - 1} onClick={() => moveChar(id, 1)} aria-label="down">{"\u2193"}</button>
@@ -1240,7 +1250,7 @@ export default function RevolutionPreview() {
                         ))}
                       </div>
                       <div className="rv-dossier-kicker">{t.dosNo} {idx}</div>
-                      <h2 className="rv-dossier-name">{bc.zhName}</h2>
+                      <h2 className="rv-dossier-name">{lang === "en" ? bc.name : bc.zhName}</h2>
                       <div className="rv-dossier-sub">{bc.school} · {bc.tag}</div>
                       {q.quote && (
                         <blockquote className={"rv-dossier-quote" + (typedQ >= q.quote.length ? " done" : "")}>
@@ -1370,12 +1380,12 @@ export default function RevolutionPreview() {
             <div className="rv-settings-field"><label>{t.setProvider}</label>
               <div className="rv-select">
                 <button type="button" className="rv-select-trigger" onClick={() => setProviderOpen((o) => !o)}>
-                  <span>{PROVIDERS.find((pr) => pr.id === providerId)?.name || "—"}</span>
+                  <span>{providers.find((pr) => pr.id === providerId)?.name || "—"}</span>
                   <i className={"rv-select-arrow" + (providerOpen ? " open" : "")}>▾</i>
                 </button>
                 {providerOpen && (
                   <div className="rv-select-menu">
-                    {PROVIDERS.map((pr) => (
+                    {providers.map((pr) => (
                       <button type="button" key={pr.id} className={"rv-select-option" + (pr.id === providerId ? " active" : "")} onClick={() => { selectProvider(pr.id); setProviderOpen(false); }}>
                         {pr.name}
                       </button>
@@ -1386,7 +1396,7 @@ export default function RevolutionPreview() {
             </div>
             <div className="rv-settings-field"><label>{t.setKey}</label><input type="password" value={apiKey} onChange={(e) => setApiKey(e.target.value)} placeholder="sk-…" />
               {providerId !== "custom" && (() => {
-                const pr = PROVIDERS.find((x) => x.id === providerId);
+                const pr = providers.find((x) => x.id === providerId);
                 return pr?.keyUrl ? <a className="rv-key-link" href={pr.keyUrl} target="_blank" rel="noreferrer">{t.getKey}</a> : null;
               })()}
             </div>
@@ -1401,7 +1411,7 @@ export default function RevolutionPreview() {
                   </button>
                   {modelOpen && (
                     <div className="rv-select-menu">
-                      {(PROVIDERS.find((pr) => pr.id === providerId)?.models || []).map((m) => (
+                      {(providers.find((pr) => pr.id === providerId)?.models || []).map((m) => (
                         <button type="button" key={m} className={"rv-select-option" + (m === model ? " active" : "")} onClick={() => { setModel(m); setModelOpen(false); }}>
                           {m}
                         </button>
@@ -1421,7 +1431,6 @@ export default function RevolutionPreview() {
           <span>{t.foot2}</span>
           <span className="rv-footer-links">
             <a className="rv-news-gh" href="https://github.com/fsh114514/menwaitan" target="_blank" rel="noreferrer">GitHub ↗</a>
-            <a className="rv-news-gh" href="https://space.bilibili.com/3707011927640910" target="_blank" rel="noreferrer">B站 ↗</a>
             <span className="rv-feedback-wrap">
               <a className="rv-news-gh" onClick={() => setFeedbackOpen((o) => !o)}>反馈 ↗</a>
               {feedbackOpen && (
@@ -1434,7 +1443,7 @@ export default function RevolutionPreview() {
               )}
             </span>
             <span className="rv-sponsor-wrap">
-              <a className="rv-news-gh" onClick={() => setSponsorOpen((o) => !o)}>{t.sponsor} ↗</a>
+              <a className="rv-news-gh" onClick={() => { if (lang === "en") { try { window.open("https://ko-fi.com/offframe#payment-widget", "_blank"); } catch {} return; } setSponsorOpen((o) => !o); }}>{t.sponsor} ↗</a>
               {sponsorOpen && (
                 <div className="rv-sponsor-panel">
                   <div className="rv-sponsor-codes">
