@@ -1,5 +1,29 @@
 [
   {
+    "id": "mako",
+    "zhName": "常陆茉子",
+    "name": "Tokiwa Mako",
+    "initial": "茉",
+    "school": "常陆家 · 忍者",
+    "tag": "高攻低防",
+    "color": "#2f2f33",
+    "skillDir": "mako",
+    "imported": true,
+    "repo": "https://github.com/fsh114514/MakoCode"
+  },
+  {
+    "id": "murasame",
+    "zhName": "丛雨",
+    "name": "Murasame",
+    "initial": "丛",
+    "school": "神刀丛雨丸 · 刀灵",
+    "tag": "五百岁少女",
+    "color": "#3d8b57",
+    "skillDir": "murasame",
+    "imported": true,
+    "repo": "https://github.com/LemonQu-GIT/MurasamePet"
+  },
+  {
     "id": "plato-skill",
     "zhName": "柏拉图视角",
     "name": "plato-perspective",
