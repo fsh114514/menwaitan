@@ -186,13 +186,14 @@ export async function POST(req: Request) {
       return Response.json({ error: "找不到对应人物" }, { status: 400 });
     }
 
+    const intlReady = intl && (process.env.INTL_API_KEY || "");
     const client = new OpenAI({
-      baseURL: baseURL || (intl ? (process.env.INTL_BASE_URL || "https://openrouter.ai/api/v1") : (process.env.AI_BASE_URL || "https://open.bigmodel.cn/api/paas/v4")),
-      apiKey: apiKey || (intl ? (process.env.INTL_API_KEY || "") : (process.env.AI_API_KEY || "")),
+      baseURL: baseURL || (intlReady ? (process.env.INTL_BASE_URL || "https://openrouter.ai/api/v1") : (process.env.AI_BASE_URL || "https://open.bigmodel.cn/api/paas/v4")),
+      apiKey: apiKey || (intlReady ? (process.env.INTL_API_KEY || "") : (process.env.AI_API_KEY || "")),
       timeout: 90000,
       maxRetries: 2,
     });
-    const mdl = model || (intl ? (process.env.INTL_MODEL || "meta-llama/llama-3.3-70b-instruct:free") : (process.env.AI_MODEL || "glm-4-flash"));
+    const mdl = model || (intlReady ? (process.env.INTL_MODEL || "meta-llama/llama-3.3-70b-instruct:free") : (process.env.AI_MODEL || "glm-4-flash"));
 
     const history = messages.map((m: any) => ({
       role: m.role === "assistant" ? "assistant" : "user",
