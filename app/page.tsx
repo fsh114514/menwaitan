@@ -938,6 +938,22 @@ export default function RevolutionPreview() {
         </section>
 
         <div className="rv-news">
+          <div className="rv-news-links">
+            <a className="rv-news-gh" href="https://github.com/fsh114514/menwaitan" target="_blank" rel="noreferrer">GitHub ↗</a>
+            <span className="rv-sponsor-wrap">
+              <a className="rv-news-gh" onClick={() => setSponsorOpen((o) => !o)}>{t.sponsor} ↗</a>
+              {sponsorOpen && (
+                <div className="rv-sponsor-panel">
+                  <b className="rv-sponsor-title">茶水钱</b>
+                  <div className="rv-sponsor-codes">
+                    <div className="rv-sponsor-code"><img src="/sponsor/alipay.jpg" alt="支付宝" /><span>支付宝</span></div>
+                    <div className="rv-sponsor-code"><img src="/sponsor/wechat.jpg" alt="微信" /><span>微信</span></div>
+                  </div>
+                  <p className="rv-sponsor-note">{lang === "zh" ? "门外谈不收费，但思想交锽需要火。觉得有用，就请我喝杯茶——我继续把火拱旺。" : "Menwai Tan is free, but great debates need fire. If it helps, buy me a cup of tea — I will keep the fire burning."}</p>
+                </div>
+              )}
+            </span>
+          </div>
           <button className="rv-news-trigger" onClick={() => setNewsOpen((o) => !o)}>{t.whatsNew}{newsOpen ? " ▴" : " ▾"}</button>
           {newsOpen && (
             <div className="rv-news-panel">
