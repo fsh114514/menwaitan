@@ -129,6 +129,8 @@ const I18N = {
     wsRecHint: "以下人物站内还没有，点按钮填入链接即可导入。想淘更多，去合集页逛一逛。",
     wsOrg: "nuwa-skills 组织",
     wsOrgUrl: "https://github.com/nuwa-skills",
+    wsGallery: "合集页",
+    wsGalleryUrl: "https://titanwings.github.io/colleague-skill-site/gallery/",
     recs: [
       { name: "titanwings gallery (collection)", url: "https://titanwings.github.io/colleague-skill-site/gallery/", ext: true },
       { name: "Zhuangzi · skill", url: "https://github.com/nuwa-skills/zhuangzi-skill.git" },
@@ -259,6 +261,8 @@ const I18N = {
     wsRecHint: "None of these are in the site yet — click a button to fill the link and import. For more, browse the collections.",
     wsOrg: "nuwa-skills org",
     wsOrgUrl: "https://github.com/nuwa-skills",
+    wsGallery: "the gallery",
+    wsGalleryUrl: "https://titanwings.github.io/colleague-skill-site/gallery/",
     recs: [
       { name: "titanwings gallery (collection)", url: "https://titanwings.github.io/colleague-skill-site/gallery/", ext: true },
       { name: "Zhang Xuefeng · skill", url: "https://github.com/alchaincyf/zhangxuefeng-skill.git" },
@@ -1240,7 +1244,7 @@ export default function RevolutionPreview() {
                   )
                 )}
               </div>
-              <p className="rv-ws-recs-hint">{t.wsRecHint} <a href={t.wsOrgUrl} target="_blank" rel="noreferrer">{t.wsOrg} ↗</a></p>
+              <p className="rv-ws-recs-hint">{t.wsRecHint} <a href={t.wsGalleryUrl} target="_blank" rel="noreferrer">{t.wsGallery} ↗</a></p>
             </div>
             {importMsg && <p className="rv-ws-status">{importMsg}</p>}
           </section>
