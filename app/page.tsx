@@ -70,6 +70,10 @@ const EFFECT: Record<string, number> = {
   "einstein-skill": 4, "turing-skill": 3, hayek: 2, keynes: 2, "plato-skill": 1,
 };
 
+const SENSITIVE_IDS = new Set([
+  "zhangxuefeng", "luo-xiang-skill", "huchenfeng-skill", "maoxuan",
+]);
+
 const WELCOME_EN: Msg = { role: "ai", who: "Menwai Tan", color: "#c8102e", content: "The round table is set. Pick one or several thinkers, pose a question — they will answer in their own way." };
 
 function extractQuote(bio: string): { quote: string; rest: string } {
@@ -104,6 +108,8 @@ const I18N = {
     avEmpty: "还没人入席——去「人物志」点卡片把人请进来",
     avGo: "去人物志请人入席 →",
     personasHint: "点卡片 = 入席；已入席的卡片排前面。拖（手机长按）卡片调整顺序，未入席的拖过去会入席；点「介」看人物介绍",
+    moreChars: "展开更多角色",
+    lessChars: "收起",
     leave: "离席",
     dragHint: "拖动排序",
     bio: "简介",
@@ -235,6 +241,8 @@ const I18N = {
     avEmpty: "No one seated yet — pick thinkers in the Gallery",
     avGo: "Go to Gallery →",
     personasHint: "Click a card to seat a thinker; seated cards move to the front. Drag (long-press on touch) to reorder — dragging an unseated card seats it there; click the bio tag for details.",
+    moreChars: "More characters",
+    lessChars: "Collapse",
     leave: "Unseat",
     dragHint: "Drag to reorder",
     bio: "Bio",
@@ -362,6 +370,7 @@ export default function RevolutionPreview() {
   const [lang, setLang] = useState<Lang>("zh");
   const [tab, setTab] = useState<"debate" | "personas" | "workshop" | "guide" | "about" | "settings">("debate");
   const [chars, setChars] = useState<Char[]>(baseChars);
+  const [showSensitive, setShowSensitive] = useState(false);
   const [selected, setSelected] = useState<string[]>([]);
   const [history, setHistory] = useState<SavedChat[]>([]);
   const [historyOpen, setHistoryOpen] = useState(false);
@@ -515,6 +524,44 @@ export default function RevolutionPreview() {
       (a, b) => (EFFECT[b.id] || 10) - (EFFECT[a.id] || 10)
     ),
   ];
+  const renderCard = (c: Char, i: number) => {
+                const active = selected.includes(c.id);
+                const q = c.bio ? extractQuote(c.bio) : { quote: "", rest: "" };
+                const idx = (chars.findIndex((x) => x.id === c.id) + 1).toString().padStart(2, "0");
+                return (
+                  <Fragment key={c.id}>
+                  <button style={{ animationDelay: (0.05 * i) + "s" }}
+                    className={"rv-char-card" + (active ? " active" : "") + (dropId === c.id ? " drag-over" : "") + (draggingId === c.id ? " dragging" : "") + (bioId && bioId !== c.id ? " dimmed" : "")}
+                    data-id={c.id}
+                    draggable
+                    onPointerDown={(e) => onPtrDown(c.id, e)}
+                    onPointerMove={(e) => onPtrMove(c.id, e)}
+                    onPointerUp={(e) => onPtrUp(c.id, e)}
+                    onPointerCancel={() => onPtrCancel(c.id)}
+                    onDragStart={(e) => onDragStartCard(c.id, e)}
+                    onDragOver={(e) => { e.preventDefault(); e.dataTransfer.dropEffect = "move"; setDropId(c.id); }}
+                    onDragLeave={() => setDropId((d) => (d === c.id ? null : d))}
+                    onDrop={(e) => { e.preventDefault(); onDropCard(c.id); }}
+                    onDragEnd={onDragEndCard}
+                    onClick={() => { if (!suppressClick.current) toggleChar(c.id); }} title={t.dragHint}>
+                    <span className="av" style={{ background: c.color }}>{c.initial}</span>
+                    <span className="nm">{c.zhName}</span>
+                    <span className="sc">{c.school}</span>
+                    <span className="tg">{c.tag}</span>
+                    <span className="enter">{active ? t.entered : t.enter}</span>
+                    <span className="rv-card-drag" aria-hidden="true">⋮⋮</span>
+                    <span className="bio" onClick={(e) => {
+                      e.stopPropagation();
+                      if (bioId === c.id) { closeDossier(); return; }
+                      setBioId(c.id);
+                    }} title={t.bio}>{t.bio}</span>
+                  </button>
+                  </Fragment>
+                );
+  };
+
+  const safeGrid = gridChars.filter((c) => !SENSITIVE_IDS.has(c.id));
+  const sensGrid = gridChars.filter((c) => SENSITIVE_IDS.has(c.id));
   const charById = (id: string) => chars.find((c) => c.id === id);
   const toggleChar = (id: string) =>
     setSelected((prev) =>
@@ -1219,41 +1266,16 @@ export default function RevolutionPreview() {
               <>
                 <p className="rv-personas-hint">{t.personasHint}</p>
                 <div className="rv-char-grid">
-              {gridChars.map((c, i) => {
-                const active = selected.includes(c.id);
-                const q = c.bio ? extractQuote(c.bio) : { quote: "", rest: "" };
-                const idx = (chars.findIndex((x) => x.id === c.id) + 1).toString().padStart(2, "0");
-                return (
-                  <Fragment key={c.id}>
-                  <button style={{ animationDelay: (0.05 * i) + "s" }}
-                    className={"rv-char-card" + (active ? " active" : "") + (dropId === c.id ? " drag-over" : "") + (draggingId === c.id ? " dragging" : "") + (bioId && bioId !== c.id ? " dimmed" : "")}
-                    data-id={c.id}
-                    draggable
-                    onPointerDown={(e) => onPtrDown(c.id, e)}
-                    onPointerMove={(e) => onPtrMove(c.id, e)}
-                    onPointerUp={(e) => onPtrUp(c.id, e)}
-                    onPointerCancel={() => onPtrCancel(c.id)}
-                    onDragStart={(e) => onDragStartCard(c.id, e)}
-                    onDragOver={(e) => { e.preventDefault(); e.dataTransfer.dropEffect = "move"; setDropId(c.id); }}
-                    onDragLeave={() => setDropId((d) => (d === c.id ? null : d))}
-                    onDrop={(e) => { e.preventDefault(); onDropCard(c.id); }}
-                    onDragEnd={onDragEndCard}
-                    onClick={() => { if (!suppressClick.current) toggleChar(c.id); }} title={t.dragHint}>
-                    <span className="av" style={{ background: c.color }}>{c.initial}</span>
-                    <span className="nm">{c.zhName}</span>
-                    <span className="sc">{c.school}</span>
-                    <span className="tg">{c.tag}</span>
-                    <span className="enter">{active ? t.entered : t.enter}</span>
-                    <span className="rv-card-drag" aria-hidden="true">⋮⋮</span>
-                    <span className="bio" onClick={(e) => {
-                      e.stopPropagation();
-                      if (bioId === c.id) { closeDossier(); return; }
-                      setBioId(c.id);
-                    }} title={t.bio}>{t.bio}</span>
-                  </button>
-                  </Fragment>
-                );
-              })}
+              {safeGrid.map(renderCard)}
+              <div className="rv-char-more-wrap">
+                <button className="rv-char-more" onClick={() => setShowSensitive((o) => !o)}>
+                  {showSensitive ? t.lessChars : t.moreChars} {showSensitive ? "▴" : "▾"}
+                </button>
+              </div>
+              {showSensitive && sensGrid.length > 0 && (
+                <div className="rv-char-grid rv-char-grid-sens">{sensGrid.map(renderCard)}</div>
+              )}
+
                 </div>
               </>
             )}

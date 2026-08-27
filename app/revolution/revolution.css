@@ -130,6 +130,10 @@ html, body { overflow-x: clip; }
 
 /* ============ 人物志小卡 ============ */
 .rv-char-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(146px, 1fr)); gap: 14px; position: relative; z-index: 1; }
+.rv-char-more-wrap { text-align: center; margin: var(--s-4) 0 0; }
+.rv-char-more { border: none; background: none; font-family: var(--font-serif); font-size: 0.82rem; letter-spacing: 0.24em; color: var(--red); cursor: pointer; padding: 8px 26px; border-top: 1px dashed var(--line-strong); border-bottom: 1px dashed var(--line-strong); transition: color 0.2s; }
+.rv-char-more:hover { color: var(--ink); }
+.rv-char-grid-sens { margin-top: var(--s-3); }
 .rv-char-card { position: relative; background: var(--card); border: 1px solid var(--line-strong); padding: 12px; cursor: pointer; text-align: left; transition: transform 0.15s var(--ease-out), border-color 0.2s, box-shadow 0.2s; font-family: var(--font-serif); color: var(--ink); }
 .rv-char-card:hover { transform: translateY(-3px); border-color: var(--red); box-shadow: 0 10px 22px var(--shadow); }
 .rv-char-card .av { width: 40px; height: 40px; display: grid; place-items: center; color: #fff; font-family: var(--font-display); font-weight: 900; font-size: 1.2rem; }
