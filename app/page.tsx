@@ -166,7 +166,7 @@ const I18N = {
     changelog: [
       "联网查梗：问「XX 是什么 / 什么意思 / 为什么」时，自动联网检索最新网络梗（必应、360、萌娘百科等多源），回复前附一句「注：据网络检索…」",
       "自由看历史：辩论进行中可上翻查看发言，不再被强制拉回底部；右下角一键回到最新",
-      "停止发言：点「⏸ 停止」立即中断回答、保留已说内容，不再一直转圈；新对话不再残留加载",
+      "停止发言：点「停止」立即中断回答、保留已说内容，不再一直转圈；新对话不再残留加载",
       "圆桌交锋：先表明立场再给独立理由，不复述不附和，跑题时把话题拉回来",
       "人格校准：10 位思想家回归本人（鲁迅、哈耶克、凯恩斯、柏拉图、尼采等），不再被带偏或变成旁观者",
       "角色自然化：去掉平台层调教，每个角色用自己的方式说话——峰哥会用峰哥的腔调接你的问候",
@@ -306,7 +306,7 @@ const I18N = {
     changelog: [
       "Meme lookup: ask what a meme or phrase means (or why), and the thinkers search the web across Bing / 360 / Moegirl for the latest context",
       "Read while debating: scroll back through the discussion freely; jump back to the latest anytime",
-      "Stop speaking: the ⏸ stop button truly interrupts and keeps what was said — no more endless loading",
+      "Stop speaking: the stop button truly interrupts and keeps what was said — no more endless loading",
       "Sharper debate: state your stance first, give independent reasons, don't echo others, pull the topic back when it drifts",
       "Persona fixes: 10 thinkers now speak as themselves (Lu Xun, Hayek, Keynes, Plato, Nietzsche...)",
       "Natural voices: platform tuning removed, each character answers in their own way",
@@ -927,6 +927,18 @@ export default function RevolutionPreview() {
         if (pausedRef.current) { pausedRef.current = false; setPaused(false); bumpRef.current(); }
         setLoading(false); setTyping(false);
         saveChat(current);
+        try {
+          fetch("/api/log", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              userId: uid,
+              mode,
+              characters: selected.map((id) => chars.find((c) => c.id === id)?.zhName || id),
+              messages: current,
+            }),
+          }).catch(() => {});
+        } catch { /* logging never breaks chat */ }
         inputRef.current?.focus();
       }
     }
@@ -1192,7 +1204,7 @@ export default function RevolutionPreview() {
                 <input ref={inputRef} value={input} onChange={(e) => setInput(e.target.value)} onKeyDown={(e) => { if (e.key === "Enter" && !(e.nativeEvent as any).isComposing) send(); }} placeholder={t.ph} />
                 <div className="rv-send">
                   <ClickSpark sparkColor="#fff" sparkSize={10} sparkRadius={26} sparkCount={8}>
-                    <button className="rv-btn" onClick={loading ? stopChat : send} disabled={!loading && !input.trim()}>{loading ? (lang === "zh" ? "⏸ 停止" : "⏸ Stop") : t.send}</button>
+                    <button className="rv-btn" onClick={loading ? stopChat : send} disabled={!loading && !input.trim()}>{loading ? (lang === "zh" ? "■ 停止" : "■ Stop") : t.send}</button>
                   </ClickSpark>
                 </div>
               </div>

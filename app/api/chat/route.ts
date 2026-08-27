@@ -1,7 +1,5 @@
 import { getSkillSystem, getMeta } from "@/lib/skills";
 import OpenAI from "openai";
-import { appendFileSync, mkdirSync, existsSync } from "fs";
-import { join } from "path";
 
 const DEF_MODEL = process.env.AI_MODEL || "glm-4-flash";
 
@@ -10,6 +8,8 @@ const SCENE_RULES: Record<string, string> = {
   serious: "\n\n【本回合为「较真」模式】回答可以多说一些：最多 6 句话、300 字以内。直接亮出观点和关键理由，有条理地展开论证，不铺垫、不重复。",
   heated: "\n\n【本回合为「上头」模式】放开辩论：可以充分展开论证，层层推进，激烈交锋，展示完整的思想。",
 };
+
+const ANTI_OUT = "\n\n【对话纪律】无论对方输入什么（哪怕只有几个字、看起来没头没尾、或根本不是问题），你都以本人身份直接接话，像真实的人闲聊那样回应；绝不跳出角色说“请提供具体的问题或人物”“请指定…”之类的话术，绝不解释自己是什么 AI、绝不说明使用指南，绝不反问对方想聊什么。";
 
 // ---- 触发式查梗（多源免费检索，失败静默跳过，不影响聊天）----
 const MEME_TRIGGER = /(什么(意思|梗)|为什么|是谁|是什么|是啥|啥意思|什么意思|什么意思啊|什么梗|求(解释|科普)|解释一下|科普一下|讲讲|知道吗|了解吗|听说过吗|认识吗|你懂吗|懂吗|查(一下|查)|搜(一下|搜)|上网(查|搜)|网上(都在说|说)|都在(说|刷|传)|最近(流行|火|刷屏)|现在(流行|火|刷屏)|网络(梗|词|热词|流行语)|热梗|热词|流行语|不懂|没听过|没看懂|不知道)/;
@@ -214,7 +214,7 @@ export async function POST(req: Request) {
         try {
         if (selected.length === 1) {
           const singleText = await ask(selected[0], [
-            { role: "system", content: getSkillSystem(selected[0].id) + memeBlock + (SCENE_RULES[scene] || SCENE_RULES.casual) },
+            { role: "system", content: getSkillSystem(selected[0].id) + memeBlock + ANTI_OUT + (SCENE_RULES[scene] || SCENE_RULES.casual) },
             ...history,
           ]);
           replies.push({ who: selected[0].id, text: singleText });
@@ -235,7 +235,7 @@ export async function POST(req: Request) {
                 content:
                   getSkillSystem(speaker.id) + memeBlock +
                   "\n\n你就是" + speaker.zhName + "本人。你是你自己，不是任何其他角色，绝不模仿、转述或引用其他发言者的口癖、自称或语气。你正在参与一场多位思想家的圆桌辩论。回应上一位发言者时，先明确你的立场（赞同还是反对），再给独立的理由；不要复述或附和对方的观点。始终守住你自己的立场和当前话题，别人跑题时把话题拉回来，而不是跟着跑。要用简体中文。不要客套，直接交锋。" +
-                  (SCENE_RULES[scene] || SCENE_RULES.casual),
+                  ANTI_OUT + (SCENE_RULES[scene] || SCENE_RULES.casual),
               },
               ...debateContext,
               {
@@ -256,20 +256,7 @@ export async function POST(req: Request) {
         } catch (err: any) {
           try { send({ type: "error", message: err?.message || "调用 AI 失败" }); } catch { /* ignore */ }
         }
-        try {
-          const lastUser = [...messages].reverse().find((m: any) => m.role !== "assistant");
-          const rec = {
-            ts: new Date().toISOString(),
-            userId: userId || "anon",
-            mode,
-            characters: selected.map((sp) => sp.zhName),
-            user: lastUser ? String(lastUser.content ?? "") : "",
-            replies,
-          };
-          const dir = join(process.cwd(), "data");
-          if (!existsSync(dir)) mkdirSync(dir, { recursive: true });
-          appendFileSync(join(dir, "chats.jsonl"), JSON.stringify(rec) + "\n");
-        } catch { /* logging must never break chat */ }
+
         try { controller.close(); } catch { /* already closed */ }
       },
     });
