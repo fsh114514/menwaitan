@@ -242,5 +242,181 @@
     "color": "#8a5a8a",
     "skillDir": "beauvoir-skill",
     "imported": true
+  },
+  {
+    "id": "aristotle",
+    "zhName": "亚里士多德",
+    "name": "Aristotle",
+    "initial": "A",
+    "school": "古希腊 · 逻辑学",
+    "tag": "黄金中道",
+    "color": "#7a5c2e",
+    "skillDir": "aristotle",
+    "imported": true
+  },
+  {
+    "id": "smith",
+    "zhName": "亚当·斯密",
+    "name": "Adam Smith",
+    "initial": "S",
+    "school": "古典经济学",
+    "tag": "看不见的手",
+    "color": "#5c6b73",
+    "skillDir": "smith",
+    "imported": true
+  },
+  {
+    "id": "kant",
+    "zhName": "康德",
+    "name": "Immanuel Kant",
+    "initial": "K",
+    "school": "德国古典哲学",
+    "tag": "绝对命令",
+    "color": "#4a4a6a",
+    "skillDir": "kant",
+    "imported": true
+  },
+  {
+    "id": "darwin",
+    "zhName": "达尔文",
+    "name": "Charles Darwin",
+    "initial": "D",
+    "school": "进化论",
+    "tag": "物竞天择",
+    "color": "#5d7a3a",
+    "skillDir": "darwin",
+    "imported": true
+  },
+  {
+    "id": "russell",
+    "zhName": "罗素",
+    "name": "Bertrand Russell",
+    "initial": "R",
+    "school": "分析哲学",
+    "tag": "逻辑原子主义",
+    "color": "#8a6d3b",
+    "skillDir": "russell",
+    "imported": true
+  },
+  {
+    "id": "orwell",
+    "zhName": "奥威尔",
+    "name": "George Orwell",
+    "initial": "O",
+    "school": "文学 · 反乌托邦",
+    "tag": "Big Brother",
+    "color": "#5a5a5a",
+    "skillDir": "orwell",
+    "imported": true
+  },
+  {
+    "id": "camus",
+    "zhName": "加缪",
+    "name": "Albert Camus",
+    "initial": "C",
+    "school": "荒诞哲学",
+    "tag": "西西弗斯",
+    "color": "#3b6b8a",
+    "skillDir": "camus",
+    "imported": true
+  },
+  {
+    "id": "mlk",
+    "zhName": "马丁·路德·金",
+    "name": "Martin Luther King Jr.",
+    "initial": "M",
+    "school": "民权运动",
+    "tag": "I Have a Dream",
+    "color": "#8a3a3a",
+    "skillDir": "mlk",
+    "imported": true
+  },
+  {
+    "id": "holmes",
+    "zhName": "福尔摩斯",
+    "name": "Sherlock Holmes",
+    "initial": "H",
+    "school": "推理 · 演绎",
+    "tag": "福尔摩斯探案",
+    "color": "#3a3a3a",
+    "skillDir": "holmes",
+    "imported": true
+  },
+  {
+    "id": "vangogh",
+    "zhName": "梵高",
+    "name": "Vincent van Gogh",
+    "initial": "V",
+    "school": "后印象派",
+    "tag": "星月夜",
+    "color": "#a8862f",
+    "skillDir": "vangogh",
+    "imported": true
+  },
+  {
+    "id": "schrodinger",
+    "zhName": "薛定谔",
+    "name": "Erwin Schrödinger",
+    "initial": "S",
+    "school": "量子力学",
+    "tag": "薛定谔的猫",
+    "color": "#5a7a8a",
+    "skillDir": "schrodinger",
+    "imported": true
+  },
+  {
+    "id": "churchill",
+    "zhName": "丘吉尔",
+    "name": "Winston Churchill",
+    "initial": "C",
+    "school": "政治 · 演说",
+    "tag": "绝不投降",
+    "color": "#7a4a3a",
+    "skillDir": "churchill",
+    "imported": true
+  },
+  {
+    "id": "alice",
+    "zhName": "爱丽丝",
+    "name": "Alice",
+    "initial": "A",
+    "school": "童话 · 荒诞",
+    "tag": "爱丽丝梦游仙境",
+    "color": "#8a7ac8",
+    "skillDir": "alice",
+    "imported": true
+  },
+  {
+    "id": "newton",
+    "zhName": "牛顿",
+    "name": "Isaac Newton",
+    "initial": "N",
+    "school": "经典力学",
+    "tag": "万有引力",
+    "color": "#6a7a8a",
+    "skillDir": "newton",
+    "imported": true
+  },
+  {
+    "id": "schopenhauer",
+    "zhName": "叔本华",
+    "name": "Arthur Schopenhauer",
+    "initial": "S",
+    "school": "悲观哲学",
+    "tag": "生命意志",
+    "color": "#4a4a4a",
+    "skillDir": "schopenhauer",
+    "imported": true
+  },
+  {
+    "id": "shakespeare",
+    "zhName": "莎士比亚",
+    "name": "William Shakespeare",
+    "initial": "W",
+    "school": "文学 · 戏剧",
+    "tag": "To be or not to be",
+    "color": "#8a6a2e",
+    "skillDir": "shakespeare",
+    "imported": true
   }
 ]
