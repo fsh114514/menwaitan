@@ -760,6 +760,7 @@ export default function RevolutionPreview() {
           live = { role: "assistant", who: ev.name, color: ev.color, content: "" };
           if (!pausedRef.current) bump();
         } else if (ev.type === "delta" && live) {
+          if (/self\.__next_f|<script|<!DOCTYPE|<html/i.test(String(ev.text || ""))) continue;
           live.content += ev.text;
           if (!pausedRef.current) bump();
         } else if (ev.type === "note") {
