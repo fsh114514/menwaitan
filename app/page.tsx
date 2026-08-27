@@ -33,6 +33,19 @@ function HelpDesc({ text, hot }: { text: string; hot: string[] }) {
   );
 }
 
+const PROVIDERS = [
+  { id: "deepseek", name: "DeepSeek", baseURL: "https://api.deepseek.com", models: ["deepseek-chat", "deepseek-reasoner"], keyUrl: "https://platform.deepseek.com/api_keys" },
+  { id: "zhipu", name: "智谱 GLM", baseURL: "https://open.bigmodel.cn/api/paas/v4", models: ["glm-4-flash", "glm-4-air", "glm-4-plus"], keyUrl: "https://open.bigmodel.cn/usercenter/apikeys" },
+  { id: "kimi", name: "Kimi (Moonshot)", baseURL: "https://api.moonshot.cn/v1", models: ["moonshot-v1-8k", "moonshot-v1-32k", "moonshot-v1-128k"], keyUrl: "https://platform.moonshot.cn/console/api-keys" },
+  { id: "qwen", name: "通义千问", baseURL: "https://dashscope.aliyuncs.com/compatible-mode/v1", models: ["qwen-turbo", "qwen-plus", "qwen-max"], keyUrl: "https://bailian.console.aliyun.com/#/api-key" },
+  { id: "openai", name: "OpenAI", baseURL: "https://api.openai.com/v1", models: ["gpt-4o-mini", "gpt-4o"], keyUrl: "https://platform.openai.com/api-keys" },
+  { id: "gemini", name: "Google Gemini", baseURL: "https://generativelanguage.googleapis.com/v1beta/openai", models: ["gemini-1.5-flash", "gemini-2.0-flash"], keyUrl: "https://aistudio.google.com/app/apikey" },
+  { id: "groq", name: "Groq", baseURL: "https://api.groq.com/openai/v1", models: ["llama-3.3-70b-versatile", "llama-3.1-8b-instant"], keyUrl: "https://console.groq.com/keys" },
+  { id: "mistral", name: "Mistral", baseURL: "https://api.mistral.ai/v1", models: ["mistral-small-latest", "mistral-medium-latest"], keyUrl: "https://console.mistral.ai/api-keys/" },
+  { id: "openrouter", name: "OpenRouter", baseURL: "https://openrouter.ai/api/v1", models: ["openrouter/auto"], keyUrl: "https://openrouter.ai/keys" },
+  { id: "custom", name: "自定义 / Custom", baseURL: "", models: [], keyUrl: "" },
+];
+
 const WELCOME_ZH: Msg = { role: "ai", who: "门外谈", color: "#c8102e", content: "圆桌已备，静候议题。选一位（或几位）人物，抛出一个问题——他们会以各自的方式回应你。" };
 const SCENE_KEY = "mw_scene";
 const SCENE_ORDER: Scene[] = ["casual", "serious", "heated"];
@@ -117,6 +130,7 @@ const I18N = {
     wsOrg: "nuwa-skills 组织",
     wsOrgUrl: "https://github.com/nuwa-skills",
     recs: [
+      { name: "titanwings gallery (collection)", url: "https://titanwings.github.io/colleague-skill-site/gallery/", ext: true },
       { name: "Zhuangzi · skill", url: "https://github.com/nuwa-skills/zhuangzi-skill.git" },
       { name: "Hannah Arendt · skill", url: "https://github.com/nuwa-skills/arendt-skill.git" },
       { name: "Ren Zhengfei · skill", url: "https://github.com/nuwa-skills/renzhengfei-skill.git" },
@@ -126,7 +140,6 @@ const I18N = {
       { name: "Chinese sages · Li Bai/Confucius/Zhuangzi", url: "https://github.com/Yinuo-Guo/dialogues-with-chinese-sages.git" },
       { name: "Sage · guided thinking", url: "https://github.com/Dreamfutura-Stephen/Sage-skill.git" },
       { name: "Confucius 11 classics library", url: "https://github.com/tree3355961795-ops/kongzi-classics.git" },
-      { name: "titanwings gallery (collection)", url: "https://titanwings.github.io/colleague-skill-site/gallery/", ext: true },
       { name: "awesome-nuwa picks (collection)", url: "https://github.com/nuwa-skills/awesome-nuwa", ext: true },
     ],
     creditTag: "开源训练人格",
@@ -141,6 +154,7 @@ const I18N = {
     note: "免责声明：本网站角色对话由 AI 基于公开资料生成，不代表任何真实人物本人观点；内容仅供思想交流。",
     whatsNew: "近日更新",
     viewAll: "查看全部 →",
+    sponsor: "赞助",
     changelog: [
       "联网查梗：问「XX 是什么 / 什么意思 / 为什么」时，自动联网检索最新网络梗（必应、360、萌娘百科等多源），回复前附一句「注：据网络检索…」",
       "自由看历史：辩论进行中可上翻查看发言，不再被强制拉回底部；右下角一键回到最新",
@@ -164,6 +178,10 @@ const I18N = {
     a4d: "角色人格蒸馏自开源社区项目：dot-skill（colleague-skill）、女娲.skill（awesome-nuwa），以及张雪峰.skill、峰哥、毛选.skill、鲁迅.skill、哈耶克.skill、凯恩斯.skill——向各位作者致谢。",
     setTitle: "设置",
     setKey: "API Key（选填，用自己的）",
+    setProvider: "选择服务商",
+    defaultHint: "正在使用默认模型，思考深度有限。",
+    getKeyHint: "自定义 API Key",
+    getKey: "获取 API Key →",
     setBase: "Base URL",
     setModel: "模型",
     setSave: "保存",
@@ -242,6 +260,7 @@ const I18N = {
     wsOrg: "nuwa-skills org",
     wsOrgUrl: "https://github.com/nuwa-skills",
     recs: [
+      { name: "titanwings gallery (collection)", url: "https://titanwings.github.io/colleague-skill-site/gallery/", ext: true },
       { name: "Zhang Xuefeng · skill", url: "https://github.com/alchaincyf/zhangxuefeng-skill.git" },
       { name: "Feng Ge · perspective", url: "https://github.com/rottenpen/fengge-wangmingtianya-perspective.git" },
       { name: "Mao Xuan · skill", url: "https://github.com/leezythu/maoxuan-skill.git" },
@@ -272,6 +291,7 @@ const I18N = {
     note: "Disclaimer: character dialogues are AI-generated from public materials and do not represent the views of any real person; for thought exchange only.",
     whatsNew: "What's new",
     viewAll: "View all →",
+    sponsor: "Support",
     changelog: [
       "Meme lookup: ask what a meme or phrase means (or why), and the thinkers search the web across Bing / 360 / Moegirl for the latest context",
       "Read while debating: scroll back through the discussion freely; jump back to the latest anytime",
@@ -295,6 +315,10 @@ const I18N = {
     a4d: "Personas are distilled from open-source community projects: dot-skill (colleague-skill), Nuwa.skill (awesome-nuwa), and Zhang Xuefeng.skill, Feng Ge, Mao Xuan.skill, Lu Xun.skill, Hayek.skill, Keynes.skill — thanks to all the authors.",
     setTitle: "Settings",
     setKey: "API Key (optional — use your own)",
+    setProvider: "Provider",
+    defaultHint: "Default model in use — depth is limited.",
+    getKeyHint: "Bring your own key",
+    getKey: "Get an API key →",
     setBase: "Base URL",
     setModel: "Model",
     setSave: "Save",
@@ -347,10 +371,11 @@ export default function RevolutionPreview() {
   const [input, setInput] = useState("");
   const inputRef = useRef<HTMLInputElement>(null);
   const [loading, setLoading] = useState(false);
-  const [mode, setMode] = useState<"chat" | "debate">("chat");
+  const [mode, setMode] = useState<"chat" | "debate">("debate");
   const [memeNote, setMemeNote] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
   const [newsOpen, setNewsOpen] = useState(false);
+  const [sponsorOpen, setSponsorOpen] = useState(false);
 
   useEffect(() => {
     fetch("/api/notice")
@@ -378,6 +403,9 @@ export default function RevolutionPreview() {
   const [apiKey, setApiKey] = useState("");
   const [baseURL, setBaseURL] = useState("");
   const [model, setModel] = useState("");
+  const [providerId, setProviderId] = useState("custom");
+  const [providerOpen, setProviderOpen] = useState(false);
+  const [modelOpen, setModelOpen] = useState(false);
   const [setMsg, setSetMsg] = useState("");
   const [typed, setTyped] = useState("");
   const [tIdx, setTIdx] = useState(0);
@@ -444,7 +472,18 @@ export default function RevolutionPreview() {
     setApiKey(localStorage.getItem("mw_api_key") || "");
     setBaseURL(localStorage.getItem("mw_base_url") || "");
     setModel(localStorage.getItem("mw_model") || "");
+    const savedBase = localStorage.getItem("mw_base_url") || "";
+    const matched = PROVIDERS.find((pr) => pr.baseURL && savedBase && savedBase.includes(pr.baseURL.split("//")[1].split("/")[0]));
+    if (matched) setProviderId(matched.id);
   }, []);
+
+  const selectProvider = (id: string) => {
+    setProviderId(id);
+    const pr = PROVIDERS.find((x) => x.id === id);
+    if (!pr) return;
+    if (pr.baseURL) setBaseURL(pr.baseURL);
+    setModel(pr.models[0] || "");
+  };
 
   const saveSettings = () => {
     localStorage.setItem("mw_api_key", apiKey.trim());
@@ -1053,6 +1092,12 @@ export default function RevolutionPreview() {
                 )}
                 </div>
               )}
+              {!apiKey && (
+                <p className="rv-default-hint">
+                  {t.defaultHint}
+                  <a className="rv-hint-link" onClick={() => setTab("settings")}>{t.getKeyHint} →</a>
+                </p>
+              )}
               <div className="rv-chat-input">
                 <input ref={inputRef} value={input} onChange={(e) => setInput(e.target.value)} onKeyDown={(e) => { if (e.key === "Enter" && !(e.nativeEvent as any).isComposing) send(); }} placeholder={t.ph} />
                 <div className="rv-send">
@@ -1242,9 +1287,51 @@ export default function RevolutionPreview() {
           <section className="rv-panel rv-settings">
             <div className="rv-section-head"><span className="no">{t.setTitle}</span><span className="tt">{t.setTitle}</span></div>
             <p className="rv-about-lede">{t.setDesc}</p>
-            <div className="rv-settings-field"><label>{t.setKey}</label><input type="password" value={apiKey} onChange={(e) => setApiKey(e.target.value)} placeholder="sk-…" /></div>
+            <div className="rv-settings-field"><label>{t.setProvider}</label>
+              <div className="rv-select">
+                <button type="button" className="rv-select-trigger" onClick={() => setProviderOpen((o) => !o)}>
+                  <span>{PROVIDERS.find((pr) => pr.id === providerId)?.name || "—"}</span>
+                  <i className={"rv-select-arrow" + (providerOpen ? " open" : "")}>▾</i>
+                </button>
+                {providerOpen && (
+                  <div className="rv-select-menu">
+                    {PROVIDERS.map((pr) => (
+                      <button type="button" key={pr.id} className={"rv-select-option" + (pr.id === providerId ? " active" : "")} onClick={() => { selectProvider(pr.id); setProviderOpen(false); }}>
+                        {pr.name}
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
+            <div className="rv-settings-field"><label>{t.setKey}</label><input type="password" value={apiKey} onChange={(e) => setApiKey(e.target.value)} placeholder="sk-…" />
+              {providerId !== "custom" && (() => {
+                const pr = PROVIDERS.find((x) => x.id === providerId);
+                return pr?.keyUrl ? <a className="rv-key-link" href={pr.keyUrl} target="_blank" rel="noreferrer">{t.getKey}</a> : null;
+              })()}
+            </div>
+            <div className="rv-settings-field"><label>{t.setModel}</label>
+              {providerId === "custom" ? (
+                <input value={model} onChange={(e) => setModel(e.target.value)} placeholder="deepseek-chat" />
+              ) : (
+                <div className="rv-select">
+                  <button type="button" className="rv-select-trigger" onClick={() => setModelOpen((o) => !o)}>
+                    <span>{model || "—"}</span>
+                    <i className={"rv-select-arrow" + (modelOpen ? " open" : "")}>▾</i>
+                  </button>
+                  {modelOpen && (
+                    <div className="rv-select-menu">
+                      {(PROVIDERS.find((pr) => pr.id === providerId)?.models || []).map((m) => (
+                        <button type="button" key={m} className={"rv-select-option" + (m === model ? " active" : "")} onClick={() => { setModel(m); setModelOpen(false); }}>
+                          {m}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
             <div className="rv-settings-field"><label>{t.setBase}</label><input value={baseURL} onChange={(e) => setBaseURL(e.target.value)} placeholder="https://api.deepseek.com" /></div>
-            <div className="rv-settings-field"><label>{t.setModel}</label><input value={model} onChange={(e) => setModel(e.target.value)} placeholder="deepseek-chat" /></div>
             <div className="rv-settings-actions"><button className="rv-btn" onClick={saveSettings}>{t.setSave}</button>{setMsg && <span className="rv-ws-status">{setMsg}</span>}</div>
           </section>
         )}
@@ -1252,7 +1339,22 @@ export default function RevolutionPreview() {
         <footer className="rv-footer rv-reveal">
           <span><b>{t.aboutName}</b> · {t.foot1}</span>
           <span>{t.foot2}</span>
-          <span><a className="rv-news-gh" href="https://github.com/fsh114514/menwaitan" target="_blank" rel="noreferrer">GitHub ↗</a></span>
+          <span className="rv-footer-links">
+            <a className="rv-news-gh" href="https://github.com/fsh114514/menwaitan" target="_blank" rel="noreferrer">GitHub ↗</a>
+            <span className="rv-sponsor-wrap">
+              <a className="rv-news-gh" onClick={() => setSponsorOpen((o) => !o)}>{t.sponsor} ↗</a>
+              {sponsorOpen && (
+                <div className="rv-sponsor-panel">
+                  <b className="rv-sponsor-title">茶水钱</b>
+                  <div className="rv-sponsor-codes">
+                    <div className="rv-sponsor-code"><img src="/sponsor/alipay.jpg" alt="支付宝" /><span>支付宝</span></div>
+                    <div className="rv-sponsor-code"><img src="/sponsor/wechat.jpg" alt="微信" /><span>微信</span></div>
+                  </div>
+                  <p className="rv-sponsor-note">{lang === "zh" ? "门外谈不收费，但思想交锋需要火。觉得有用，就请我喝杯茶——我继续把火拱旺。" : "Menwai Tan is free, but great debates need fire. If it helps, buy me a cup of tea — I will keep the fire burning."}</p>
+                </div>
+              )}
+            </span>
+          </span>
                    </footer>
         <div className="rv-rain" aria-hidden="true">
           {Array.from({ length: 16 }).map((_, c) => {

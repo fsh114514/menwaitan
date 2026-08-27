@@ -879,3 +879,44 @@ html, body { overflow-x: clip; }
 .rv-news-more { display: block; border: none; background: none; margin-left: auto; font-family: var(--font-serif); font-size: 0.68rem; color: var(--ink-faint); letter-spacing: 0.08em; cursor: pointer; padding: 3px 0 0; }
 .rv-news-more:hover { color: var(--red); }
 @media (max-width: 1100px) { .rv-news { display: none; } }
+
+/* settings provider/model selects */
+.rv-settings-select {
+  appearance: none; -webkit-appearance: none;
+  width: 100%; box-sizing: border-box;
+  background: var(--paper) url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="10" height="6" viewBox="0 0 10 6"><path d="M1 1l4 4 4-4" stroke="%23c8102e" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>') no-repeat right 12px center;
+  border: 1px solid var(--line-strong); border-radius: 0;
+  color: var(--ink); padding: 10px 30px 10px 12px; font: inherit; outline: none;
+  transition: border-color 0.2s;
+}
+.rv-settings-select:focus { border-color: var(--red); }
+.rv-key-link { display: inline-block; margin-top: 6px; font-family: var(--font-serif); font-size: 0.7rem; color: var(--red); text-decoration: underline; text-underline-offset: 3px; cursor: pointer; letter-spacing: 0.05em; }
+.rv-key-link:hover { color: var(--ink); }
+.rv-default-hint { margin: 0 0 8px; padding: 0 2px; font-family: var(--font-serif); font-size: 0.7rem; color: var(--ink-faint); letter-spacing: 0.05em; text-align: left; line-height: 1.8; }
+.rv-hint-link { color: var(--red); text-decoration: underline; text-underline-offset: 3px; text-decoration-thickness: 1px; cursor: pointer; margin-left: 8px; white-space: nowrap; font-weight: 600; }
+.rv-hint-link:hover { color: var(--ink); }
+
+/* custom newspaper-style dropdowns */
+.rv-select { position: relative; }
+.rv-select-trigger { display: flex; align-items: center; justify-content: space-between; width: 100%; box-sizing: border-box; background: var(--paper); border: 1px solid var(--line-strong); color: var(--ink); padding: 10px 12px; font: inherit; cursor: pointer; text-align: left; transition: border-color 0.2s; }
+.rv-select-trigger:hover { border-color: var(--red); }
+.rv-select-arrow { font-style: normal; color: var(--red); font-size: 0.7rem; letter-spacing: 0; transition: transform 0.2s; }
+.rv-select-arrow.open { transform: rotate(180deg); }
+.rv-select-menu { position: absolute; top: calc(100% + 4px); left: 0; right: 0; background: var(--paper); border: 1px solid var(--ink-faint); z-index: 30; box-shadow: 0 14px 30px -18px rgba(23, 18, 13, 0.35); }
+.rv-select-option { display: block; width: 100%; border: none; background: none; text-align: left; font-family: var(--font-serif); font-size: 0.8rem; color: var(--ink-soft); padding: 9px 12px; cursor: pointer; border-bottom: 1px dashed var(--ink-faint); }
+.rv-select-option:last-child { border-bottom: none; }
+.rv-select-option:hover { color: var(--red); background: color-mix(in srgb, var(--paper-2) 50%, transparent); }
+.rv-select-option.active { color: var(--red); font-weight: 700; }
+.rv-select-option.active::before { content: "▍"; margin-right: 6px; color: var(--red); }
+
+/* sponsor (tea money) panel */
+.rv-footer-links { display: inline-flex; align-items: center; gap: 16px; }
+.rv-sponsor-wrap { position: relative; }
+.rv-sponsor-panel { position: absolute; bottom: calc(100% + 14px); right: 0; width: 330px; background: var(--paper); border: 1px solid var(--ink-faint); padding: 16px 16px 12px; box-shadow: 0 16px 36px -20px rgba(23, 18, 13, 0.45); z-index: 40; }
+.rv-sponsor-title { display: block; font-family: var(--font-display); font-size: 0.82rem; letter-spacing: 0.24em; color: var(--red); margin-bottom: 12px; }
+.rv-sponsor-codes { display: flex; gap: 14px; justify-content: center; }
+.rv-sponsor-code { text-align: center; }
+.rv-sponsor-code img { width: 128px; height: 128px; object-fit: contain; border: 1px solid var(--line); background: #fff; }
+.rv-sponsor-code span { display: block; font-size: 0.68rem; color: var(--ink-soft); margin-top: 6px; letter-spacing: 0.12em; }
+.rv-sponsor-note { margin: 12px 0 0; font-size: 0.7rem; color: var(--ink-faint); line-height: 1.9; letter-spacing: 0.04em; text-align: center; }
+@media (max-width: 560px) { .rv-sponsor-panel { width: 280px; } .rv-sponsor-code img { width: 108px; height: 108px; } }
