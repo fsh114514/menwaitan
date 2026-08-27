@@ -164,7 +164,7 @@ const I18N = {
     note: "免责声明：本网站角色对话由 AI 基于公开资料生成，不代表任何真实人物本人观点；内容仅供思想交流。",
     whatsNew: "近日更新",
     viewAll: "查看全部 →",
-    sponsor: "赞助",
+    sponsor: "赞助 ♥",
     feedback: "反馈",
     zoomClose: "点任意处关闭",
     changelog: [
@@ -310,7 +310,7 @@ const I18N = {
     note: "Disclaimer: character dialogues are AI-generated from public materials and do not represent the views of any real person; for thought exchange only.",
     whatsNew: "What's new",
     viewAll: "View all →",
-    sponsor: "Support",
+    sponsor: "Sponsor ♥",
     feedback: "Feedback",
     zoomClose: "Click anywhere to close",
     changelog: [
@@ -995,7 +995,7 @@ export default function RevolutionPreview() {
 
   return (
     <>
-    <div className="rv-shell" data-variant="b">
+    <div className="rv-shell" data-lang={lang} data-variant="b">
       <div className="rv-bg" />
       <div className="rv-grain" aria-hidden="true" />
 
@@ -1047,7 +1047,7 @@ export default function RevolutionPreview() {
               )}
             </span>
             <span className="rv-sponsor-wrap">
-              <a className="rv-news-gh" onClick={() => { if (lang === "en") { try { window.open("https://ko-fi.com/offframe#payment-widget", "_blank"); } catch {} return; } setSponsorOpen((o) => !o); }}>{t.sponsor} ↗</a>
+              <a className="rv-news-gh" onClick={() => { if (lang === "en") { const w = window.open("https://ko-fi.com/offframe#payment-widget", "_blank"); if (!w) { try { location.href = "https://ko-fi.com/offframe#payment-widget"; } catch {} } return; } setSponsorOpen((o) => !o); }}>{t.sponsor} ↗</a>
               {sponsorOpen && (
                 <div className="rv-sponsor-panel">
                   <div className="rv-sponsor-codes">
@@ -1452,7 +1452,7 @@ export default function RevolutionPreview() {
               )}
             </span>
             <span className="rv-sponsor-wrap">
-              <a className="rv-news-gh" onClick={() => { if (lang === "en") { try { window.open("https://ko-fi.com/offframe#payment-widget", "_blank"); } catch {} return; } setSponsorOpen((o) => !o); }}>{t.sponsor} ↗</a>
+              <a className="rv-news-gh" onClick={() => { if (lang === "en") { const w = window.open("https://ko-fi.com/offframe#payment-widget", "_blank"); if (!w) { try { location.href = "https://ko-fi.com/offframe#payment-widget"; } catch {} } return; } setSponsorOpen((o) => !o); }}>{t.sponsor} ↗</a>
               {sponsorOpen && (
                 <div className="rv-sponsor-panel">
                   <div className="rv-sponsor-codes">
