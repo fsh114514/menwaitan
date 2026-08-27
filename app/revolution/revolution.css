@@ -96,6 +96,7 @@ html, body { overflow-x: clip; }
 .rv-main { display: grid; grid-template-columns: 220px 1fr; gap: var(--s-5); align-items: start; }
 .rv-avatars { position: sticky; top: var(--s-5); display: flex; flex-direction: column; gap: var(--s-2); }
 .rv-av-label { font-size: 0.68rem; letter-spacing: 0.24em; color: var(--ink-faint); margin: 0 0 var(--s-2); }
+.rv-av-note { font-size: 0.64rem; letter-spacing: 0.06em; color: var(--ink-faint); line-height: 1.7; margin: var(--s-2) 0 0; }
 .rv-avatar { display: flex; align-items: center; gap: var(--s-2); border: 1px solid var(--line-strong); background: var(--card); padding: 0.55em 0.7em; cursor: pointer; transition: transform 0.12s var(--ease-out), border-color 0.2s, box-shadow 0.2s; color: var(--ink); text-align: left; font-family: var(--font-serif); }
 .rv-avatar:hover { transform: translateY(-2px); border-color: var(--red); }
 .rv-avatar .av { width: 34px; height: 34px; display: grid; place-items: center; color: #fff; font-family: var(--font-display); font-weight: 900; flex: none; }

@@ -106,6 +106,7 @@ const I18N = {
     tab4: "关于",
     avLabel: "入席人物",
     avHint: "已入席人物：拖动排序 · 点 × 离席",
+    avNote: "角色人格均由上游社区精心蒸馏打磨 · 向各位作者致谢",
     avEmpty: "还没人入席——去「人物志」点卡片把人请进来",
     avGo: "去人物志请人入席 →",
     personasHint: "点卡片 = 入席；已入席的卡片排前面。拖（手机长按）卡片调整顺序，未入席的拖过去会入席；点「介」看人物介绍",
@@ -239,6 +240,7 @@ const I18N = {
     tab4: "About",
     avLabel: "Seat the thinkers",
     avHint: "Seated: drag to reorder · use × to unseat",
+    avNote: "Personas distilled by the upstream community · thanks to all authors",
     avEmpty: "No one seated yet — pick thinkers in the Gallery",
     avGo: "Go to Gallery →",
     personasHint: "Click a card to seat a thinker; seated cards move to the front. Drag (long-press on touch) to reorder — dragging an unseated card seats it there; click the bio tag for details.",
@@ -1095,6 +1097,7 @@ export default function RevolutionPreview() {
                 })
               )}
               <p className="rv-av-hint">{t.avHint}</p>
+              <p className="rv-av-note">{t.avNote}</p>
               <div className="rv-dialog-settings">
                 <div className="rv-set-row">
                   <span className="rv-set-tag">{t.modeTag}</span>
