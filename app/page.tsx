@@ -165,7 +165,12 @@ const I18N = {
     whatsNew: "近日更新",
     viewAll: "查看全部 →",
     sponsor: "赞助",
+    feedback: "反馈",
+    zoomClose: "点任意处关闭",
     changelog: [
+      "海外版：右上角一键切中/英，海外访客自动落英文界面，英文版走国际模型+英文查梗",
+      "新角色：新增 16 位国际人物（莎士比亚、亚里士多德、福尔摩斯、薛定谔、丘吉尔……），各带英文梗素养",
+      "打赏与反馈：英文版支持 Ko-fi 打赏；「反馈」直传站长后台",
       "联网查梗：问「XX 是什么 / 什么意思 / 为什么」时，自动联网检索最新网络梗（必应、360、萌娘百科等多源），回复前附一句「注：据网络检索…」",
       "自由看历史：辩论进行中可上翻查看发言，不再被强制拉回底部；右下角一键回到最新",
       "停止发言：点「停止」立即中断回答、保留已说内容，不再一直转圈；新对话不再残留加载",
@@ -306,7 +311,12 @@ const I18N = {
     whatsNew: "What's new",
     viewAll: "View all →",
     sponsor: "Support",
+    feedback: "Feedback",
+    zoomClose: "Click anywhere to close",
     changelog: [
+      "International: one-click ZH/EN switch — overseas visitors land on the English interface with international models and English meme lookup",
+      "New characters: 16 international thinkers added (Shakespeare, Aristotle, Holmes, Schrödinger, Churchill...) with meme-literate personas",
+      "Support & feedback: Ko-fi for English visitors; feedback goes straight to the owner",
       "Meme lookup: ask what a meme or phrase means (or why), and the thinkers search the web across Bing / 360 / Moegirl for the latest context",
       "Read while debating: scroll back through the discussion freely; jump back to the latest anytime",
       "Stop speaking: the stop button truly interrupts and keeps what was said — no more endless loading",
@@ -557,10 +567,9 @@ export default function RevolutionPreview() {
                     onDrop={(e) => { e.preventDefault(); onDropCard(c.id); }}
                     onDragEnd={onDragEndCard}
                     onClick={() => { if (!suppressClick.current) toggleChar(c.id); }} title={t.dragHint}>
-                    <span className="av" style={{ background: c.color }}>{c.initial}</span>
+                    <span className="av" style={{ background: c.color }}>{lang === "en" ? (c.name || c.zhName).charAt(0).toUpperCase() : c.initial}</span>
                     <span className="nm">{lang === "en" ? c.name : c.zhName}</span>
-                    <span className="sc">{c.school}</span>
-                    <span className="tg">{c.tag}</span>
+                    {lang !== "en" && (<><span className="sc">{c.school}</span><span className="tg">{c.tag}</span></>)}
                     <span className="enter">{active ? t.entered : t.enter}</span>
                     <span className="rv-card-drag" aria-hidden="true">⋮⋮</span>
                     <span className="bio" onClick={(e) => {
@@ -1027,7 +1036,7 @@ export default function RevolutionPreview() {
           <div className="rv-news-links">
             <a className="rv-news-gh" href="https://github.com/fsh114514/menwaitan" target="_blank" rel="noreferrer">GitHub ↗</a>
             <span className="rv-feedback-wrap">
-              <a className="rv-news-gh" onClick={() => setFeedbackOpen((o) => !o)}>反馈 ↗</a>
+              <a className="rv-news-gh" onClick={() => setFeedbackOpen((o) => !o)}>{t.feedback} ↗</a>
               {feedbackOpen && (
                 <div className="rv-feedback-panel">
                   <b className="rv-sponsor-title">反馈</b>
@@ -1098,9 +1107,9 @@ export default function RevolutionPreview() {
                       onDrop={(e) => { e.preventDefault(); onDropCard(id); }}
                       onDragEnd={onDragEndCard}
                       title={t.dragHint}>
-                      <span className="av" style={{ background: c.color }}>{c.initial}</span>
+                      <span className="av" style={{ background: c.color }}>{lang === "en" ? (c.name || c.zhName).charAt(0).toUpperCase() : c.initial}</span>
                       <span className="nm">{lang === "en" ? c.name : c.zhName}</span>
-                      <span className="sc">{c.school}</span>
+                      {lang !== "en" && <span className="sc">{c.school}</span>}
                       <span className="rm" onClick={(e) => { e.stopPropagation(); toggleChar(id); }} title={t.leave}>×</span>
                     </div>
                   );
@@ -1251,7 +1260,7 @@ export default function RevolutionPreview() {
                       </div>
                       <div className="rv-dossier-kicker">{t.dosNo} {idx}</div>
                       <h2 className="rv-dossier-name">{lang === "en" ? bc.name : bc.zhName}</h2>
-                      <div className="rv-dossier-sub">{bc.school} · {bc.tag}</div>
+                      {lang !== "en" && (<div className="rv-dossier-sub">{bc.school} · {bc.tag}</div>)}
                       {q.quote && (
                         <blockquote className={"rv-dossier-quote" + (typedQ >= q.quote.length ? " done" : "")}>
                           <span className="rv-q">“</span>
@@ -1260,7 +1269,7 @@ export default function RevolutionPreview() {
                         </blockquote>
                       )}
                       <div className="rv-detail-seal">
-                        {dosDone && <span className="rv-dossier-seal">{bc.initial}</span>}
+                        {dosDone && <span className="rv-dossier-seal">{lang === "en" ? (bc.name || bc.zhName).charAt(0).toUpperCase() : bc.initial}</span>}
                         {dosDone && <span className="rv-dossier-src">{t.bioSource}</span>}
                       </div>
                       <div className="rv-detail-credit">
@@ -1432,7 +1441,7 @@ export default function RevolutionPreview() {
           <span className="rv-footer-links">
             <a className="rv-news-gh" href="https://github.com/fsh114514/menwaitan" target="_blank" rel="noreferrer">GitHub ↗</a>
             <span className="rv-feedback-wrap">
-              <a className="rv-news-gh" onClick={() => setFeedbackOpen((o) => !o)}>反馈 ↗</a>
+              <a className="rv-news-gh" onClick={() => setFeedbackOpen((o) => !o)}>{t.feedback} ↗</a>
               {feedbackOpen && (
                 <div className="rv-feedback-panel">
                   <b className="rv-sponsor-title">反馈</b>
@@ -1459,12 +1468,12 @@ export default function RevolutionPreview() {
         {zoom !== null && (
           <div className="rv-zoom-mask" onClick={() => setZoom(null)}>
             <img src={zoom === 0 ? "/sponsor/alipay.jpg" : "/sponsor/wechat.jpg"} alt="收款码" />
-            <span className="rv-zoom-close">点任意处关闭</span>
+            <span className="rv-zoom-close">{t.zoomClose}</span>
           </div>
         )}
         <div className="rv-rain" aria-hidden="true">
           {Array.from({ length: 16 }).map((_, c) => {
-            const name = chars.length ? chars[c % chars.length].zhName : "门外谈";
+            const name = chars.length ? chars[c % chars.length][lang === "en" ? "name" : "zhName"] : (lang === "en" ? "Menwai Tan" : "门外谈");
             return (
               <span className="rv-rain-col" key={c}
                 style={{ left: (3 + c * 6.1) + "%", animationDelay: (c * 1.3) + "s", animationDuration: (12 + (c % 6) * 2.4) + "s" }}>

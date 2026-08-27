@@ -238,8 +238,8 @@ export async function POST(req: Request) {
           }
           throw lastErr;
         };
-        const ask = async (speaker: { id: string; zhName: string; color: string }, prompt: any[]) => {
-          send({ type: "who", who: speaker.id, name: speaker.zhName, color: speaker.color });
+        const ask = async (speaker: { id: string; zhName: string; name: string; color: string }, prompt: any[]) => {
+          send({ type: "who", who: speaker.id, name: intl ? speaker.name : speaker.zhName, color: speaker.color });
           const res = await call(prompt);
           let text = "";
           for await (const chunk of res) {
