@@ -663,7 +663,7 @@ export default function RevolutionPreview() {
       const paper = (cs ? cs.getPropertyValue("--paper").trim() : "") || "#f4efe3";
       if (sealRef.current && sealRef.current.parentNode) sealRef.current.parentNode.removeChild(sealRef.current);
       const seal = document.createElement("div");
-      seal.textContent = c.initial;
+      seal.textContent = lang === "en" ? (c.name || c.zhName).charAt(0).toUpperCase() : c.initial;
       seal.style.cssText =
         "position:fixed;left:-9999px;top:0;width:60px;height:60px;border-radius:50%;" +
         "background:" + red + ";color:" + paper + ";display:grid;place-items:center;" +

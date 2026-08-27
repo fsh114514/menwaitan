@@ -38,7 +38,7 @@ function bioFor(c: { id: string; skillDir: string }): string {
   const read = (f: string) => (existsSync(f) ? readFileSync(f, "utf-8") : "");
   const techCut = /(安装|使用方法|使用说明|快速开始|Usage|Installation|Quick Start|命令行|npm |npx )/i;
   let parts: string[] = [];
-  let md = clean(read(join(dir, "README.md")));
+  let md = clean(read(join(dir, "README.en.md")) || read(join(dir, "README.md")));
   const c1 = techCut.exec(md);
   if (c1 && c1.index > 60) md = md.slice(0, c1.index);
   parts.push(md);
@@ -73,7 +73,8 @@ function bioFor(c: { id: string; skillDir: string }): string {
 }
 
 function repoFor(c: { skillDir: string }): string {
-  const readmePath = join(process.cwd(), "skills", c.skillDir, "README.md");
+  const enPath = join(process.cwd(), "skills", c.skillDir, "README.en.md");
+  const readmePath = existsSync(enPath) ? enPath : join(process.cwd(), "skills", c.skillDir, "README.md");
   try {
     const readme = readFileSync(readmePath, "utf-8");
     // 1. full owner/repo link (strip .git/trailing slash)
