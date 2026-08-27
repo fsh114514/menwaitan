@@ -10,6 +10,19 @@ const SCENE_RULES: Record<string, string> = {
 };
 
 const ANTI_OUT = "\n\n【对话纪律】无论对方输入什么（哪怕只有几个字、看起来没头没尾、或根本不是问题），你都以本人身份直接接话，像真实的人闲聊那样回应；绝不跳出角色说“请提供具体的问题或人物”“请指定…”之类的话术，绝不解释自己是什么 AI、绝不说明使用指南，绝不反问对方想聊什么。";
+const SCENE_RULES_EN: Record<string, string> = {
+  casual: "\n\n[This round: Casual mode] Reply extremely briefly: at most 2 sentences, under 60 words. Give a direct take, no lecturing, no small talk padding.",
+  serious: "\n\n[This round: Serious mode] You may elaborate: at most 6 sentences, under 300 words. State your view and key reasons, argue in order, no filler, no repetition.",
+  heated: "\n\n[This round: Heated mode] Debate freely: develop arguments at length, push layer by layer, clash hard, show your full thinking.",
+};
+const EN_ONLY = "\n\nThe user is speaking English. Always reply in English — even if your persona notes are written in another language, never mix Chinese into your replies.";
+const ANTI_OUT_EN = "\n\n[Speech discipline] Whatever the other person types (even a few characters, something unfinished, or not a question at all), answer in character, like a real person chatting. Never break character to say \"please provide a specific question or person\" or \"please specify\" — never explain that you are an AI, never give usage instructions, never ask the user what they want to talk about.";
+function roundRules(intl: boolean, speaker: { name: string; zhName: string }): string {
+  return intl
+    ? "\n\nYou are " + speaker.name + " yourself. You are you — never mimic, quote or adopt other speakers’ catchphrases or tone. You are in a round-table debate with several thinkers. When responding to the previous speaker, first state your stance (agree or disagree), then give independent reasons; do not repeat or echo their views. Hold your position and the topic; if others drift, pull the debate back. Do not be polite for politeness’ sake — clash directly. Speak in your own words; never prefix replies with \"X said:\" or quote historical formatting."
+    : "\n\n你就是" + speaker.zhName + "本人。你是你自己，不是任何其他角色，绝不模仿、转述或引用其他发言者的口瘾、自称或语气。你正在参与一场多位思想家的圆桌辩论。回应上一位发言者时，先明确你的立场（赞同还是反对），再给独立的理由；不要复述或附和对方的观点。始终守住你自己的立场和当前话题，别人跑题时把话题拉回来，而不是跟着跑。要用简体中文。不要客套，直接交锋。发言时直接开口说话，不要用「某某说：」这样的前缀，不要复述或引用历史记录里的格式。";
+}
+// ROUND_FN_END
 
 // ---- 触发式查梗（多源免费检索，失败静默跳过，不影响聊天）----
 const MEME_TRIGGER = /(什么(意思|梗)|为什么|是谁|是什么|是啥|啥意思|什么意思|什么意思啊|什么梗|求(解释|科普)|解释一下|科普一下|讲讲|知道吗|了解吗|听说过吗|认识吗|你懂吗|懂吗|查(一下|查)|搜(一下|搜)|上网(查|搜)|网上(都在说|说)|都在(说|刷|传)|最近(流行|火|刷屏)|现在(流行|火|刷屏)|网络(梗|词|热词|流行语)|热梗|热词|流行语|不懂|没听过|没看懂|不知道)/;
@@ -199,7 +212,7 @@ export async function POST(req: Request) {
       role: m.role === "assistant" ? "assistant" : "user",
       content:
         mode === "debate" && m.role === "assistant" && m.who
-          ? m.who + "说：" + String(m.content ?? "")
+          ? (intl ? m.who + ": " : m.who + "说：") + String(m.content ?? "")
           : String(m.content ?? ""),
     }));
 
@@ -258,7 +271,7 @@ export async function POST(req: Request) {
         try {
         if (selected.length === 1) {
           const singleText = await ask(selected[0], [
-            { role: "system", content: getSkillSystem(selected[0].id) + memeBlock + ANTI_OUT + (SCENE_RULES[scene] || SCENE_RULES.casual) },
+            { role: "system", content: getSkillSystem(selected[0].id, intl) + memeBlock + (intl ? ANTI_OUT_EN : ANTI_OUT) + (intl ? (SCENE_RULES_EN[scene] || SCENE_RULES_EN.casual) : (SCENE_RULES[scene] || SCENE_RULES.casual)) + (intl ? EN_ONLY : "") },
             ...history,
           ]);
           replies.push({ who: selected[0].id, text: singleText });
@@ -269,7 +282,7 @@ export async function POST(req: Request) {
               const mm = /^([^\s：:]+)说[：:]\s*/.exec(m.content);
               if (m.role === "assistant" && mm) {
                 const meta = getMeta(mm[1]);
-                return { ...m, content: (meta?.zhName || mm[1]) + "说：" + m.content.slice(mm[0].length) };
+                return { ...m, content: (intl ? (meta?.name || mm[1]) + ": " : (meta?.zhName || mm[1]) + "说：") + m.content.slice(mm[0].length) };
               }
               return m;
             });
@@ -278,7 +291,7 @@ export async function POST(req: Request) {
                 role: "system" as const,
                 content:
                   getSkillSystem(speaker.id) + memeBlock +
-                  "\n\n你就是" + speaker.zhName + "本人。你是你自己，不是任何其他角色，绝不模仿、转述或引用其他发言者的口癖、自称或语气。你正在参与一场多位思想家的圆桌辩论。回应上一位发言者时，先明确你的立场（赞同还是反对），再给独立的理由；不要复述或附和对方的观点。始终守住你自己的立场和当前话题，别人跑题时把话题拉回来，而不是跟着跑。要用简体中文。不要客套，直接交锋。发言时直接开口说话，不要用「某某说：」这样的前缀，不要复述或引用历史记录里的格式。" +
+                  (intl ? roundRules(true, speaker) : roundRules(false, speaker)) +
                   ANTI_OUT + (SCENE_RULES[scene] || SCENE_RULES.casual),
               },
               ...debateContext,

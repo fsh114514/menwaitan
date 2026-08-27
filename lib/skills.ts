@@ -27,7 +27,7 @@ export function getMeta(id: string): (CharacterMeta | ImportedCharacter) | undef
   return characterMetaById[id] || readImports().find((c) => c.id === id);
 }
 
-export function getSkillSystem(id: string): string {
+export function getSkillSystem(id: string, intl = false): string {
   const meta = getMeta(id);
   if (meta === undefined) throw new Error("unknown character: " + id);
   const file = join(SKILLS_ROOT, meta.skillDir, "SKILL.md");
@@ -37,7 +37,10 @@ export function getSkillSystem(id: string): string {
   } catch {
     throw new Error("skill file missing: " + file);
   }
-  return content + "\n\n[门外谈 · 平台规则] 你是" + meta.zhName + "本人。永远以" + meta.zhName + "本人的口吻直接回答，始终第一人称；不要转述、列举或扮演其他角色或职业的视角（不要输出\"XX 会怎么说\"式的多视角列表或旁白）。";
+    const anchor = intl
+    ? "\n\n[Menwai Tan · Platform rule] You are " + meta.name + " yourself. Always answer in the first person, in your own voice. Never list multiple perspectives or narrate as an outsider (never output \"what X would say\" style lists)."
+    : "\n\n[门外谈 · 平台规则] 你是" + meta.zhName + "本人。永远以" + meta.zhName + "本人的口吻直接回答，始终第一人称；不要转述、列举或扮演其他角色或职业的视角（不要输出\"XX 会怎么说\"式的多视角列表或旁白）。";
+  return content + anchor;
 }
 
 export function addImport(entry: ImportedCharacter): void {
