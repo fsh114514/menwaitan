@@ -941,6 +941,7 @@ export default function RevolutionPreview() {
         <div className="rv-news">
           <div className="rv-news-links">
             <a className="rv-news-gh" href="https://github.com/fsh114514/menwaitan" target="_blank" rel="noreferrer">GitHub ↗</a>
+            <a className="rv-news-gh" href="https://space.bilibili.com/3707011927640910" target="_blank" rel="noreferrer">B站 ↗</a>
             <span className="rv-sponsor-wrap">
               <a className="rv-news-gh" onClick={() => setSponsorOpen((o) => !o)}>{t.sponsor} ↗</a>
               {sponsorOpen && (
@@ -1360,6 +1361,7 @@ export default function RevolutionPreview() {
           <span>{t.foot2}</span>
           <span className="rv-footer-links">
             <a className="rv-news-gh" href="https://github.com/fsh114514/menwaitan" target="_blank" rel="noreferrer">GitHub ↗</a>
+            <a className="rv-news-gh" href="https://space.bilibili.com/3707011927640910" target="_blank" rel="noreferrer">B站 ↗</a>
             <span className="rv-sponsor-wrap">
               <a className="rv-news-gh" onClick={() => setSponsorOpen((o) => !o)}>{t.sponsor} ↗</a>
               {sponsorOpen && (
