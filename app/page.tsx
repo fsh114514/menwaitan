@@ -379,6 +379,7 @@ export default function RevolutionPreview() {
   const [memeNote, setMemeNote] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
   const [newsOpen, setNewsOpen] = useState(false);
+  const [zoom, setZoom] = useState<number | null>(null);
   const [sponsorOpen, setSponsorOpen] = useState(false);
 
   useEffect(() => {
@@ -944,13 +945,11 @@ export default function RevolutionPreview() {
               <a className="rv-news-gh" onClick={() => setSponsorOpen((o) => !o)}>{t.sponsor} ↗</a>
               {sponsorOpen && (
                 <div className="rv-sponsor-panel">
-                  <b className="rv-sponsor-title">茶水钱</b>
                   <div className="rv-sponsor-codes">
-                    <div className="rv-sponsor-code"><img src="/sponsor/alipay.jpg" alt="支付宝" /><span>支付宝</span></div>
-                    <div className="rv-sponsor-code"><img src="/sponsor/wechat.jpg" alt="微信" /><span>微信</span></div>
+                    <div className="rv-sponsor-code"><img src="/sponsor/alipay.jpg" alt="支付宝" onClick={() => setZoom(0)} /><span>支付宝</span></div>
+                    <div className="rv-sponsor-code"><img src="/sponsor/wechat.jpg" alt="微信" onClick={() => setZoom(1)} /><span>微信</span></div>
                   </div>
-                  <p className="rv-sponsor-note">{lang === "zh" ? "门外谈不收费，但思想交锽需要火。觉得有用，就请我喝杯茶——我继续把火拱旺。" : "Menwai Tan is free, but great debates need fire. If it helps, buy me a cup of tea — I will keep the fire burning."}</p>
-                </div>
+                                  </div>
               )}
             </span>
           </div>
@@ -1365,17 +1364,22 @@ export default function RevolutionPreview() {
               <a className="rv-news-gh" onClick={() => setSponsorOpen((o) => !o)}>{t.sponsor} ↗</a>
               {sponsorOpen && (
                 <div className="rv-sponsor-panel">
-                  <b className="rv-sponsor-title">茶水钱</b>
                   <div className="rv-sponsor-codes">
-                    <div className="rv-sponsor-code"><img src="/sponsor/alipay.jpg" alt="支付宝" /><span>支付宝</span></div>
-                    <div className="rv-sponsor-code"><img src="/sponsor/wechat.jpg" alt="微信" /><span>微信</span></div>
+                    <div className="rv-sponsor-code"><img src="/sponsor/alipay.jpg" alt="支付宝" onClick={() => setZoom(0)} /><span>支付宝</span></div>
+                    <div className="rv-sponsor-code"><img src="/sponsor/wechat.jpg" alt="微信" onClick={() => setZoom(1)} /><span>微信</span></div>
                   </div>
-                  <p className="rv-sponsor-note">{lang === "zh" ? "门外谈不收费，但思想交锋需要火。觉得有用，就请我喝杯茶——我继续把火拱旺。" : "Menwai Tan is free, but great debates need fire. If it helps, buy me a cup of tea — I will keep the fire burning."}</p>
                 </div>
               )}
             </span>
           </span>
                    </footer>
+
+        {zoom !== null && (
+          <div className="rv-zoom-mask" onClick={() => setZoom(null)}>
+            <img src={zoom === 0 ? "/sponsor/alipay.jpg" : "/sponsor/wechat.jpg"} alt="收款码" />
+            <span className="rv-zoom-close">点任意处关闭</span>
+          </div>
+        )}
         <div className="rv-rain" aria-hidden="true">
           {Array.from({ length: 16 }).map((_, c) => {
             const name = chars.length ? chars[c % chars.length].zhName : "门外谈";

@@ -42,7 +42,7 @@ html, body { overflow-x: clip; }
 
 /* ============ 骨架 ============ */
 .rv-shell { position: relative; min-height: 100vh; background: var(--paper); color: var(--ink); font-family: var(--font-serif); }
-.rv-content { position: relative; z-index: 10; max-width: min(1380px, 95vw); margin: 0 auto; padding: 0 var(--gutter); }
+.rv-content { position: relative; z-index: 10; max-width: min(1280px, 92vw); margin: 0 auto; padding: 0 var(--gutter); }
 
 /* 三方向背景质感 */
 .rv-bg { position: fixed; inset: 0; z-index: 0; pointer-events: none; }
@@ -920,7 +920,11 @@ html, body { overflow-x: clip; }
 .rv-sponsor-title { display: block; font-family: var(--font-display); font-size: 0.82rem; letter-spacing: 0.24em; color: var(--red); margin-bottom: 12px; }
 .rv-sponsor-codes { display: flex; gap: 14px; justify-content: center; }
 .rv-sponsor-code { text-align: center; }
-.rv-sponsor-code img { width: 128px; height: 128px; object-fit: contain; border: 1px solid var(--line); background: #fff; }
+.rv-sponsor-code img { width: 128px; height: 128px; object-fit: contain; border: 1px solid var(--line); background: #fff; cursor: zoom-in; transition: border-color 0.2s; }
+.rv-sponsor-code img:hover { border-color: var(--red); }
+.rv-zoom-mask { position: fixed; inset: 0; z-index: 90; background: color-mix(in srgb, var(--paper) 97%, transparent); display: grid; place-items: center; cursor: zoom-out; animation: rvUp 0.24s var(--ease-out) forwards; }
+.rv-zoom-mask img { max-width: min(460px, 86vw); max-height: 80vh; border: 1px solid var(--line-strong); outline: 3px solid var(--paper); box-shadow: 0 26px 64px -34px rgba(23, 18, 13, 0.55); background: #fff; padding: 12px; }
+.rv-zoom-close { position: absolute; bottom: 6vh; left: 50%; transform: translateX(-50%); font-family: var(--font-serif); font-size: 0.7rem; letter-spacing: 0.3em; color: var(--red); border-bottom: 1px solid var(--red); padding-bottom: 2px; cursor: pointer; }
 .rv-sponsor-code span { display: block; font-size: 0.68rem; color: var(--ink-soft); margin-top: 6px; letter-spacing: 0.12em; }
 .rv-sponsor-note { margin: 12px 0 0; font-size: 0.7rem; color: var(--ink-faint); line-height: 1.9; letter-spacing: 0.04em; text-align: center; }
 @media (max-width: 560px) { .rv-sponsor-panel { width: 280px; } .rv-sponsor-code img { width: 108px; height: 108px; } }
