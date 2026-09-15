@@ -33,21 +33,67 @@ function skillDesc(dir: string): string {
   return d[1].split("\n").map((l) => l.replace(/^\s+/, "")).join(" ").replace(/\s+/g, " ").trim();
 }
 
-function bioFor(c: { id: string; skillDir: string }): string {
+type Lang = "zh" | "en";
+
+const CJK_CHAR = /[\u4e00-\u9fff]/g;
+
+// 是否英文文档：给中英两条文案线分流用
+function isEnglishDoc(md: string): boolean {
+  const cjk = (md.match(CJK_CHAR) || []).length;
+  const latin = (md.match(/[A-Za-z]/g) || []).length;
+  return latin >= 300 && latin > cjk * 3;
+}
+
+// 英文文案只认“干净英文”的素材：混着中文的调研笔记不算（否则英文人物志里会掉进中文段落）
+function isEnglishClean(md: string): boolean {
+  const cjk = (md.match(CJK_CHAR) || []).length;
+  const latin = (md.match(/[A-Za-z]/g) || []).length;
+  return latin >= 300 && cjk <= 8;
+}
+
+// 没有 README.en.md 的角色（多为国际人物，SKILL.md 本身就是英文）→ 退回 SKILL.md 正文
+function skillDoc(dir: string): string {
+  const f = join(dir, "SKILL.md");
+  if (existsSync(f) === false) return "";
+  let md = readFileSync(f, "utf-8");
+  md = md.replace(/^---\n[\s\S]*?\n---\n?/, "");
+  md = md.replace(/^\s*#\s[^\n]*\n+/, "");
+  md = md.replace(/##\s*(By-Need Resources|按需资源|Resources)[\s\S]*?(?=\n##\s|$)/i, "");
+  return md;
+}
+
+function bioFor(c: { id: string; skillDir: string }, lang: Lang = "zh"): string {
   const dir = join(process.cwd(), "skills", c.skillDir);
   const read = (f: string) => (existsSync(f) ? readFileSync(f, "utf-8") : "");
   const techCut = /(安装|使用方法|使用说明|快速开始|Usage|Installation|Quick Start|命令行|npm |npx )/i;
+  const zhReadme = read(join(dir, "README.md"));
+  const enReadme = read(join(dir, "README.en.md"));
+  const skill = skillDoc(dir);
+  // 中文界面优先中文 README；英文界面优先 README.en.md，再退到英文 SKILL.md 正文
+  const primary = lang === "en"
+    ? (enReadme || (isEnglishClean(skill) ? skill : zhReadme))
+    : (zhReadme || enReadme);
   let parts: string[] = [];
-  let md = clean(read(join(dir, "README.en.md")) || read(join(dir, "README.md")));
+  let md = clean(primary);
+  md = md.replace(/^[^\n]*?\.skill\b[^\n]*\n?/, "");
+  // README.en.md 的 H1 常是仓库 slug（如 "hayek"、"plato skill"）→ 英文文案里去掉这行标题残渣
+  if (lang === "en") {
+    const row = md.split("\n");
+    const head = (row[0] || "").trim();
+    if (head !== "" && head.length <= 40 && /^[A-Za-z0-9 ._-]+$/.test(head)) md = row.slice(1).join("\n").trim();
+  }
   const c1 = techCut.exec(md);
   if (c1 && c1.index > 60) md = md.slice(0, c1.index);
   parts.push(md);
   const total = () => parts.join("\n\n").length;
+  // 补料只在同语种内进行，否则英文界面会被中文参考文档填满
+  const sameLang = (t: string) => (lang === "en" ? isEnglishClean(t) : isEnglishDoc(t) === false);
   if (total() < 500) {
     const refDir = join(dir, "references");
     if (existsSync(refDir)) {
       for (const f of collectMd(refDir)) {
         let ref = clean(read(f));
+        if (sameLang(ref) === false) continue;
         const c2 = techCut.exec(ref);
         if (c2 && c2.index > 60) ref = ref.slice(0, c2.index);
         parts.push(ref);
@@ -55,7 +101,7 @@ function bioFor(c: { id: string; skillDir: string }): string {
       }
     }
   }
-  if (total() < 650) {
+  if (total() < 650 && lang === "zh") {
     const desc = skillDesc(dir);
     if (desc.length > 30) parts.push(desc);
   }
@@ -72,7 +118,8 @@ function bioFor(c: { id: string; skillDir: string }): string {
   return cut + "…";
 }
 
-function repoFor(c: { skillDir: string }): string {
+function repoFor(c: { skillDir: string; repo?: string }): string {
+  if (c.repo) return c.repo;   // 导入时记录的源仓库优先
   const enPath = join(process.cwd(), "skills", c.skillDir, "README.en.md");
   const readmePath = existsSync(enPath) ? enPath : join(process.cwd(), "skills", c.skillDir, "README.md");
   try {
@@ -88,6 +135,12 @@ function repoFor(c: { skillDir: string }): string {
 }
 
 export async function GET() {
-  const characters = getAllCharacters().map((c) => ({ ...c, bio: bioFor(c), repo: repoFor(c) }));
+  // 一次返回中英两版简介：切换语言无需重新拉取，英文界面也不再落到中文人物志
+  const characters = getAllCharacters().map((c) => ({
+    ...c,
+    bio: bioFor(c, "zh"),
+    bioEn: bioFor(c, "en"),
+    repo: repoFor(c),
+  }));
   return Response.json({ characters });
 }

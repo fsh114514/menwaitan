@@ -1,11 +1,11 @@
 "use client";
-import { useState, useEffect, useRef, Fragment } from "react";
+import { useState, useEffect, useLayoutEffect, useRef, Fragment } from "react";
 import { characterMeta as baseChars } from "@/lib/characterMeta";
 import SplitText from "@/components/bits/SplitText";
 import ClickSpark from "@/components/bits/ClickSpark";
 import "./revolution/revolution.css";
 
-type Char = { id: string; zhName: string; name: string; initial: string; school: string; tag: string; color: string; skillDir: string; imported?: boolean; bio?: string; repo?: string };
+type Char = { id: string; zhName: string; name: string; initial: string; school: string; tag: string; color: string; skillDir: string; imported?: boolean; bio?: string; bioEn?: string; repo?: string };
 type Msg = { role: string; who?: string; color?: string; content: string; auto?: boolean; err?: boolean };
 type Scene = "casual" | "serious" | "heated";
 type Lang = "zh" | "en";
@@ -63,6 +63,7 @@ const SPEEDS: Record<SpeedLevel, { qn: number; qt: number; bn: number; bt: numbe
 
 const EFFECT: Record<string, number> = {
   zhangxuefeng: 35, fengge: 26, "luo-xiang-skill": 33, "marx-skill": 32, "kongzi-skill": 31, maoxuan: 30, luxun: 29,
+  "sun-yuchen-perspective": 30,
   "steve-jobs-skill": 28, "elon-musk-skill": 27, "trump-skill": 26,
   "huchenfeng-skill": 24, "leijun-skill": 20, "huangrenxun-skill": 19, "ace-taffy-skill": 16,
   murasame: 15, mako: 15,
@@ -73,7 +74,7 @@ const EFFECT: Record<string, number> = {
 };
 
 const EFFECT_INTL: Record<string, number> = {
-  shakespeare: 38, aristotle: 37, kant: 36, "plato-skill": 35, "socrates-skill": 34, "nietzsche-skill": 33, "marx-skill": 32, smith: 31, churchill: 30, holmes: 29, alice: 28, newton: 27, darwin: 26, schrodinger: 25, "einstein-skill": 24, "turing-skill": 23, "steve-jobs-skill": 22, "elon-musk-skill": 21, "trump-skill": 20, vangogh: 19, camus: 18, russell: 17, orwell: 16, schopenhauer: 15, "foucault-skill": 14, "wittgenstein-skill": 13, hayek: 12, keynes: 11, "beauvoir-skill": 10, mlk: 9, "buffett-skill": 8, "dalio-skill": 7, "kongzi-skill": 6, luxun: 5, murasame: 4, mako: 3, fengge: 2, "ace-taffy-skill": 2, "leijun-skill": 2, "huangrenxun-skill": 2, zhangxuefeng: 1, "huchenfeng-skill": 1, maoxuan: 1, "luo-xiang-skill": 1,
+  shakespeare: 38, aristotle: 37, kant: 36, "sun-yuchen-perspective": 36, "plato-skill": 35, "socrates-skill": 34, "nietzsche-skill": 33, "marx-skill": 32, smith: 31, churchill: 30, holmes: 29, alice: 28, newton: 27, darwin: 26, schrodinger: 25, "einstein-skill": 24, "turing-skill": 23, "steve-jobs-skill": 22, "elon-musk-skill": 21, "trump-skill": 20, vangogh: 19, camus: 18, russell: 17, orwell: 16, schopenhauer: 15, "foucault-skill": 14, "wittgenstein-skill": 13, hayek: 12, keynes: 11, "beauvoir-skill": 10, mlk: 9, "buffett-skill": 8, "dalio-skill": 7, "kongzi-skill": 6, luxun: 5, murasame: 4, mako: 3, fengge: 2, "ace-taffy-skill": 2, "leijun-skill": 2, "huangrenxun-skill": 2, zhangxuefeng: 1, "huchenfeng-skill": 1, maoxuan: 1, "luo-xiang-skill": 1,
 };
 
 const SENSITIVE_IDS = new Set([
@@ -143,14 +144,17 @@ const I18N = {
     wsOrg: "nuwa-skills 组织",
     wsOrgUrl: "https://github.com/nuwa-skills",
     wsGallery: "合集页",
-    wsGalleryUrl: "https://github.com/f/awesome-chatgpt-prompts",
+    wsGalleryUrl: "https://titanwings.github.io/colleague-skill-site/gallery/",
     recs: [
-      { name: "Anthropic · official agent skills", url: "https://github.com/anthropics/skills" },
-      { name: "f/awesome-chatgpt-prompts (168k ★)", url: "https://github.com/f/awesome-chatgpt-prompts" },
-      { name: "ComposioHQ/awesome-claude-skills", url: "https://github.com/ComposioHQ/awesome-claude-skills" },
-      { name: "hesreallyhim/awesome-claude-code", url: "https://github.com/hesreallyhim/awesome-claude-code" },
-      { name: "VoltAgent/awesome-agent-skills", url: "https://github.com/VoltAgent/awesome-agent-skills" },
-      { name: "travisvn/awesome-claude-skills", url: "https://github.com/travisvn/awesome-claude-skills" },
+      { name: "dot-skill 合集页（gallery）", url: "https://titanwings.github.io/colleague-skill-site/gallery/", ext: true },
+      { name: "王阳明 · skill（心学）", url: "https://github.com/nuwa-skills/wangyangming-skill.git" },
+      { name: "老子 · skill（道家）", url: "https://github.com/nuwa-skills/laozi-skill.git" },
+      { name: "曾国藩 · skill（自我管理）", url: "https://github.com/nuwa-skills/zengguofan-skill.git" },
+      { name: "费曼 · skill（学习法）", url: "https://github.com/nuwa-skills/feynman-skill.git" },
+      { name: "达芬奇 · skill（跨学科）", url: "https://github.com/nuwa-skills/davinci-skill.git" },
+      { name: "稻盛和夫 · skill（经营）", url: "https://github.com/nuwa-skills/inamori-skill.git" },
+      { name: "李小龙 · skill（截拳道）", url: "https://github.com/nuwa-skills/brucelee-skill.git" },
+      { name: "富兰克林 · skill（习惯）", url: "https://github.com/nuwa-skills/franklin-skill.git" },
     ],
     creditTag: "开源训练人格",
     creditLine: "本页人物的人格，由开源社区开发者精心训练而成（SKILL.md 蒸馏人格）——非本站生成",
@@ -168,6 +172,9 @@ const I18N = {
     feedback: "反馈",
     zoomClose: "点任意处关闭",
     changelog: [
+      "英文版人物名与对话彻底英文化：导入角色的 slug 名（如 plato-perspective）清洗成人名（Plato），单人对谈与圆桌一律英文作答，人物志改用英文简介",
+      "入席人物自适应：1–4 位长条卡、5–11 位自动收成红签小方片、12 位以上只留头像色块——多人圆桌不再挤爆侧栏",
+      "顺序调整简化：删除「回答顺序」按钮，直接拖动入席人物卡片即可排定发言顺序",
       "海外版：右上角一键切中/英，海外访客自动落英文界面，英文版走国际模型+英文查梗",
       "新角色：新增 16 位国际人物（莎士比亚、亚里士多德、福尔摩斯、薛定谔、丘吉尔……），各带英文梗素养",
       "打赏与反馈：英文版支持 Ko-fi 打赏；「反馈」直传站长后台",
@@ -201,7 +208,6 @@ const I18N = {
     setSave: "保存",
     setSaved: "已保存",
     setDesc: "留空则使用站点默认。Key 仅存于你的浏览器本地。",
-    order: "回答顺序",
     tabGuide: "教程",
     history: "历史",
     newChat: "新对话",
@@ -221,7 +227,7 @@ const I18N = {
     guideTitle: "使用教程",
     guideLede: "从零开始，一步步带你玩转门外谈。",
     guide: [
-      { n: "壹", t: "选人物", b: "在「人物志」或左侧人物列表里点选角色。选 1 位 = 单人对谈；选 2 位以上 = 圆桌辩论。圆桌时可在辩论室左侧「回答顺序」里调整谁先开口（上移 / 下移）。" },
+      { n: "壹", t: "选人物", b: "在「人物志」或左侧人物列表里点选角色。选 1 位 = 单人对谈；选 2 位以上 = 圆桌辩论。" },
       { n: "贰", t: "提问", b: "在输入框写下你的问题，点「发言」或按回车。回答会一个字一个字地冒出来——别急，这是 AI 在边想边说。" },
       { n: "叁", t: "切换语言", b: "右上角「EN / 中」一键切换全站中英文。" },
       { n: "肆", t: "用自己的 API Key（可选）", b: "不填也能用（走站点默认）。想用自己的：在任意支持 OpenAI 兼容接口的服务商注册（如 DeepSeek、Moonshot Kimi、智谱、通义、OpenRouter 等）；在它的控制台创建并复制 API Key（一般 sk- 开头）；回到本站「设置」，把 Key 粘贴到「API Key」栏；「Base URL」和「模型」填服务商给你的地址和模型名（每家不同，看它的控制台或文档）；点「保存」。举例：DeepSeek 填 https://api.deepseek.com + deepseek-chat；Kimi 填 https://api.moonshot.cn + moonshot-v1-8k。Key 只存在你自己的浏览器本地，不会上传服务器。" },
@@ -280,22 +286,14 @@ const I18N = {
     wsGalleryUrl: "https://titanwings.github.io/colleague-skill-site/gallery/",
     recs: [
       { name: "titanwings gallery (collection)", url: "https://titanwings.github.io/colleague-skill-site/gallery/", ext: true },
-      { name: "Zhang Xuefeng · skill", url: "https://github.com/alchaincyf/zhangxuefeng-skill.git" },
-      { name: "Feng Ge · perspective", url: "https://github.com/rottenpen/fengge-wangmingtianya-perspective.git" },
-      { name: "Mao Xuan · skill", url: "https://github.com/leezythu/maoxuan-skill.git" },
-      { name: "Lu Xun · skill", url: "https://github.com/nuwa-skills/luxun-skill.git" },
-      { name: "Hayek · skill", url: "https://github.com/nuwa-skills/hayek-skill.git" },
-      { name: "Keynes · skill", url: "https://github.com/nuwa-skills/keynes-skill.git" },
-      { name: "Plato · skill", url: "https://github.com/nuwa-skills/plato-skill.git" },
-      { name: "Confucius · kongzi-skill", url: "https://github.com/nuwa-skills/kongzi-skill.git" },
-      { name: "Marx · marx-skill", url: "https://github.com/Nhj-sz/marx-skill.git" },
-      { name: "Confucius · Analects", url: "https://github.com/Wudiyi-bigyi/kongzi-skill.git" },
-      { name: "Confucius · teaching", url: "https://github.com/snake-aabb-wtf/confucius.git" },
-      { name: "Marx · Capital view", url: "https://github.com/Slzx1/marx-perspective.git" },
-      { name: "Marxist classics", url: "https://github.com/TianWai0823/marxist-leninist-skill.git" },
-      { name: "65 historical advisors", url: "https://github.com/77cinc/ai-decision-council.git" },
-      { name: "Sages: Li Bai, Confucius…", url: "https://github.com/Yinuo-Guo/dialogues-with-chinese-sages.git" },
-      { name: "Sage · guided thinking", url: "https://github.com/Dreamfutura-Stephen/Sage-skill.git" },
+      { name: "Feynman · skill", url: "https://github.com/nuwa-skills/feynman-skill.git" },
+      { name: "da Vinci · skill", url: "https://github.com/nuwa-skills/davinci-skill.git" },
+      { name: "Franklin · skill", url: "https://github.com/nuwa-skills/franklin-skill.git" },
+      { name: "Marcus Aurelius · skill", url: "https://github.com/nuwa-skills/aurelius-skill.git" },
+      { name: "Beethoven · skill", url: "https://github.com/nuwa-skills/beethoven-skill.git" },
+      { name: "Curie · skill", url: "https://github.com/nuwa-skills/curie-skill.git" },
+      { name: "Drucker · skill", url: "https://github.com/nuwa-skills/drucker-skill.git" },
+      { name: "Clausewitz · skill", url: "https://github.com/nuwa-skills/clausewitz-skill.git" },
     ],
     creditTag: "Open-source trained persona",
     creditLine: "Every persona here is carefully trained by open-source developers (SKILL.md distilled personas) — not generated by this site",
@@ -314,6 +312,9 @@ const I18N = {
     feedback: "Feedback",
     zoomClose: "Click anywhere to close",
     changelog: [
+      "English names and dialogue, end to end: imported slug names (e.g. plato-perspective) are cleaned into real names (Plato), one-on-one chats and round tables answer in English, and dossiers use English intros",
+      "Seated thinkers adapt: 1–4 stay full cards, 5–11 shrink to compact chips, 12+ become avatar tiles — big roundtables no longer overflow the sidebar",
+      "Reorder simplified: the speaking-order buttons are gone — drag the seated cards to set the turn order",
       "International: one-click ZH/EN switch — overseas visitors land on the English interface with international models and English meme lookup",
       "New characters: 16 international thinkers added (Shakespeare, Aristotle, Holmes, Schrödinger, Churchill...) with meme-literate personas",
       "Support & feedback: Ko-fi for English visitors; feedback goes straight to the owner",
@@ -347,7 +348,6 @@ const I18N = {
     setSave: "Save",
     setSaved: "Saved",
     setDesc: "Leave blank to use the site default. The key is stored only in your browser.",
-    order: "Speaking order",
     tabGuide: "Guide",
     history: "History",
     newChat: "New chat",
@@ -367,7 +367,7 @@ const I18N = {
     guideTitle: "Quick Guide",
     guideLede: "A step-by-step walkthrough, from zero to hero.",
     guide: [
-      { n: "01", t: "Pick thinkers", b: "Click characters in the Gallery or the left list. One = one-on-one chat; two or more = round-table debate. In debate mode, use the Speaking order list to decide who talks first (move up / down)." },
+      { n: "01", t: "Pick thinkers", b: "Click characters in the Gallery or the left list. One = one-on-one chat; two or more = round-table debate." },
       { n: "02", t: "Ask", b: "Type your question and hit Speak or Enter. Answers stream out word by word — the AI is thinking out loud, so let it finish." },
       { n: "03", t: "Language", b: "Toggle EN / 中 at the top right to switch the whole site between English and Chinese." },
       { n: "04", t: "Use your own API key (optional)", b: "It works without one (site default). To use yours: sign up with any provider offering an OpenAI-compatible API (e.g. DeepSeek, Moonshot Kimi, Zhipu, Qwen, OpenRouter); create and copy an API key in its console (usually starts with sk-); open Settings here, paste it into API Key; fill in the Base URL and Model your provider gives you (each differs — see its console or docs); hit Save. Example: DeepSeek = https://api.deepseek.com + deepseek-chat; Kimi = https://api.moonshot.cn + moonshot-v1-8k. The key stays only in your browser." },
@@ -463,6 +463,9 @@ export default function RevolutionPreview() {
 
   const t = I18N[lang];
 
+  // 人物志简介：中英各一份（后端 /api/characters 同时返回 bio / bioEn）
+  const bioOf = (c: Char) => (lang === "en" ? (c.bioEn || c.bio || "") : (c.bio || c.bioEn || ""));
+
   useEffect(() => {
     fetch("/api/characters")
       .then((r) => r.json())
@@ -541,6 +544,48 @@ export default function RevolutionPreview() {
     setSetMsg(lang === "zh" ? "已保存" : "Saved");
   };
 
+  const compact = selected.length > 4;
+  const mini = selected.length > 11;
+  const avatarsRef = useRef<HTMLDivElement | null>(null);
+  const prevRects = useRef<Map<string, DOMRect>>(new Map());
+  const flipMounted = useRef(false);
+  useLayoutEffect(() => {
+    const list = avatarsRef.current;
+    if (!list) return;
+    const nodes = Array.from(list.querySelectorAll<HTMLElement>("[data-flip]"));
+    const newRects = new Map<string, DOMRect>();
+    for (const n of nodes) newRects.set(n.getAttribute("data-flip") || "", n.getBoundingClientRect());
+    if (!flipMounted.current) {
+      flipMounted.current = true;
+      prevRects.current = newRects;
+      return;
+    }
+    const prev = prevRects.current;
+    if (prev.size > 0) {
+      for (const [id, rect] of newRects) {
+        const old = prev.get(id);
+        if (!old) continue;
+        const el = list.querySelector<HTMLElement>('[data-flip="' + id + '"]');
+        if (!el) continue;
+        const dx = old.left - rect.left, dy = old.top - rect.top;
+        const sx = old.width / rect.width, sy = old.height / rect.height;
+        if (Math.abs(dx) < 0.5 && Math.abs(dy) < 0.5 && Math.abs(sx - 1) < 0.02 && Math.abs(sy - 1) < 0.02) continue;
+        el.style.transition = "none";
+        el.style.transformOrigin = "top left";
+        el.style.transform = "translate(" + dx + "px, " + dy + "px) scale(" + sx + ", " + sy + ")";
+        requestAnimationFrame(() => {
+          requestAnimationFrame(() => {
+            el.style.transition = "transform 0.5s var(--ease-out)";
+            el.style.transform = "translate(0, 0) scale(1, 1)";
+            const clean = () => { el.style.transition = ""; el.style.transform = ""; el.style.transformOrigin = ""; };
+            el.addEventListener("transitionend", clean, { once: true });
+          });
+        });
+      }
+    }
+    prevRects.current = newRects;
+  }, [compact, mini, selected.length]);
+
   const gridChars = [
     ...selected.map((id) => chars.find((c) => c.id === id)).filter((c): c is Char => !!c),
     ...[...chars.filter((c) => !selected.includes(c.id))].sort(
@@ -549,7 +594,7 @@ export default function RevolutionPreview() {
   ];
   const renderCard = (c: Char, i: number) => {
                 const active = selected.includes(c.id);
-                const q = c.bio ? extractQuote(c.bio) : { quote: "", rest: "" };
+                const q = bioOf(c) ? extractQuote(bioOf(c)) : { quote: "", rest: "" };
                 const idx = (chars.findIndex((x) => x.id === c.id) + 1).toString().padStart(2, "0");
                 return (
                   <Fragment key={c.id}>
@@ -590,15 +635,6 @@ export default function RevolutionPreview() {
       prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]
     );
 
-  const moveChar = (id: string, dir: number) =>
-    setSelected((prev) => {
-      const i = prev.indexOf(id);
-      const j = i + dir;
-      if (i < 0 || j < 0 || j >= prev.length) return prev;
-      const next = [...prev];
-      [next[i], next[j]] = [next[j], next[i]];
-      return next;
-    });
 
   const dragId = useRef<string | null>(null);
   const sealRef = useRef<HTMLDivElement | null>(null);
@@ -622,7 +658,7 @@ export default function RevolutionPreview() {
   useEffect(() => {
     if (!bioId) return;
     const bc = chars.find((x) => x.id === bioId);
-    const q = bc && bc.bio ? extractQuote(bc.bio) : { quote: "", rest: "" };
+    const q = bc && bioOf(bc) ? extractQuote(bioOf(bc)) : { quote: "", rest: "" };
     setTypedQ(0); setTypedB(0); setDosDone(false);
     let qi = 0, bi = 0, timer: any = null;
     const sp = SPEEDS[speed];
@@ -889,6 +925,10 @@ export default function RevolutionPreview() {
           if (/self\.__next_f|<script|<!DOCTYPE|<html/i.test(String(ev.text || ""))) continue;
           live.content += ev.text;
           if (!pausedRef.current) bump();
+        } else if (ev.type === "reset" && live) {
+          // 英文模式：模型用中文作答，服务端已拦下并重试 → 清掉这一条，等英文版本流回来
+          live.content = "";
+          if (!pausedRef.current) bump();
         } else if (ev.type === "note") {
           setMemeNote(String(ev.text || ""));
         } else if (ev.type === "done") {
@@ -980,7 +1020,7 @@ export default function RevolutionPreview() {
       });
       const data = await res.json();
       if (data.ok) {
-        setImportMsg(lang === "zh" ? "已导入：" + data.character.zhName : "Imported: " + data.character.zhName);
+        setImportMsg(lang === "zh" ? "已导入：" + data.character.zhName : "Imported: " + (data.character.name || data.character.zhName));
         setImportUrl("");
         const d = await (await fetch("/api/characters")).json();
         if (d.characters) setChars(d.characters);
@@ -1088,7 +1128,7 @@ export default function RevolutionPreview() {
           <section className="rv-panel">
             <div className="rv-section-head"><span className="no">{t.tab1}</span><span className="tt">{t.tab1}</span></div>
             <div className="rv-main">
-              <aside className="rv-avatars">
+              <aside ref={avatarsRef} className={"rv-avatars" + (mini ? " mini" : compact ? " compact" : "")}>
               <p className="rv-av-label">{t.avLabel}</p>
               {selected.length === 0 ? (
                 <div className="rv-av-empty">
@@ -1100,13 +1140,13 @@ export default function RevolutionPreview() {
                   const c = charById(id);
                   if (!c) return null;
                   return (
-                    <div key={id} style={{ animationDelay: (0.05 * i) + "s" }} className={"rv-avatar" + (dropId === id ? " drag-over" : "") + (draggingId === id ? " dragging" : "")}
+                    <div key={id} style={{ animationDelay: (0.05 * i) + "s" }} data-flip={id} className={"rv-avatar" + (dropId === id ? " drag-over" : "") + (draggingId === id ? " dragging" : "")}
                       draggable onDragStart={(e) => onDragStartCard(id, e)}
                       onDragOver={(e) => { e.preventDefault(); e.dataTransfer.dropEffect = "move"; setDropId(id); }}
                       onDragLeave={() => setDropId((d) => (d === id ? null : d))}
                       onDrop={(e) => { e.preventDefault(); onDropCard(id); }}
                       onDragEnd={onDragEndCard}
-                      title={t.dragHint}>
+                      title={mini ? (lang === "en" ? (c.name || c.zhName) : c.zhName) : t.dragHint}>
                       <span className="av" style={{ background: c.color }}>{lang === "en" ? (c.name || c.zhName).charAt(0).toUpperCase() : c.initial}</span>
                       <span className="nm">{lang === "en" ? c.name : c.zhName}</span>
                       {lang !== "en" && <span className="sc">{c.school}</span>}
@@ -1144,24 +1184,6 @@ export default function RevolutionPreview() {
                   {[1, 2, 3, 4].map((n) => (
                     <button key={n} className={rounds === n ? "active" : ""} onClick={() => setRounds(n)}>{n}</button>
                   ))}
-                </div>
-              )}
-              {mode === "debate" && selected.length > 1 && (
-                <div className="rv-order">
-                  <p className="rv-av-label">{t.order}</p>
-                  {selected.map((id, i) => {
-                    const c = charById(id);
-                    return (
-                      <div className="rv-order-row" key={id}>
-                        <span className="no">{i + 1}</span>
-                        <span className="nm">{c ? (lang === "en" ? c.name : c.zhName) : id}</span>
-                        <span className="acts">
-                          <button disabled={i === 0} onClick={() => moveChar(id, -1)} aria-label="up">{"\u2191"}</button>
-                          <button disabled={i === selected.length - 1} onClick={() => moveChar(id, 1)} aria-label="down">{"\u2193"}</button>
-                        </span>
-                      </div>
-                    );
-                  })}
                 </div>
               )}
             </aside>
@@ -1243,7 +1265,7 @@ export default function RevolutionPreview() {
               (() => {
                 const bc = chars.find((x) => x.id === bioId);
                 if (!bc) return null;
-                const q = bc.bio ? extractQuote(bc.bio) : { quote: "", rest: "" };
+                const q = bioOf(bc) ? extractQuote(bioOf(bc)) : { quote: "", rest: "" };
                 const idx = (chars.findIndex((x) => x.id === bc.id) + 1).toString().padStart(2, "0");
                 return (
                   <div className="rv-detail" key={bc.id}>
@@ -1339,7 +1361,7 @@ export default function RevolutionPreview() {
                   )
                 )}
               </div>
-              <p className="rv-ws-recs-hint">{t.wsRecHint} <a href={t.wsGalleryUrl} target="_blank" rel="noreferrer">{t.wsGallery} ↗</a></p>
+              <p className="rv-ws-recs-hint">{t.wsRecHint} <a href={t.wsGalleryUrl} target="_blank" rel="noreferrer">{t.wsGallery} ↗</a> · <a href={t.wsOrgUrl} target="_blank" rel="noreferrer">{t.wsOrg} ↗</a></p>
             </div>
             {importMsg && <p className="rv-ws-status">{importMsg}</p>}
           </section>

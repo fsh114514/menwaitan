@@ -331,15 +331,6 @@ html, body { overflow-x: clip; }
 .rv-settings-actions { display: flex; align-items: center; gap: 14px; margin-top: 22px; }
 .rv-settings-actions .rv-ws-status { margin-top: 0; }
 
-/* speaking order */
-.rv-order { margin-top: var(--s-5); }
-.rv-order-row { display: flex; align-items: center; gap: 8px; padding: 6px 0; border-top: 1px dashed var(--ink-faint); }
-.rv-order-row .no { width: 1.4em; color: var(--red); font-family: var(--font-serif); font-size: 0.78rem; }
-.rv-order-row .nm { flex: 1; font-size: 0.86rem; letter-spacing: 0.03em; }
-.rv-order-row .acts button { border: 1px solid var(--ink-faint); background: transparent; color: var(--ink); width: 26px; height: 24px; cursor: pointer; font-size: 0.8rem; line-height: 1; transition: border-color 0.2s, color 0.2s; }
-.rv-order-row .acts button:hover:not(:disabled) { border-color: var(--red); color: var(--red); }
-.rv-order-row .acts button:disabled { opacity: 0.3; cursor: default; }
-
 /* guide panel */
 .rv-guide-list { display: flex; flex-direction: column; gap: 16px; margin-top: var(--s-5); }
 .rv-guide-item { display: flex; gap: 14px; border-left: 2px solid var(--red); padding: 4px 0 4px 16px; }
@@ -358,6 +349,8 @@ html, body { overflow-x: clip; }
 
 /* drag & drop reorder */
 .rv-char-card[draggable="true"] { cursor: grab; }
+
+/* speaking order */
 .rv-char-card.drag-over, .rv-avatar.drag-over { outline: 2px dashed var(--red); outline-offset: 3px; }
 .rv-avatar.dragging, .rv-char-card.dragging { opacity: 0.35; filter: grayscale(0.4); }
 .rv-avatar .rm { margin-left: auto; width: 20px; height: 20px; display: grid; place-items: center; border: 1px solid var(--ink-faint); color: var(--ink-soft); font-size: 0.8rem; line-height: 1; cursor: pointer; flex: none; background: transparent; }
@@ -611,7 +604,7 @@ html, body { overflow-x: clip; }
   .rv-detail-back { width: 100%; text-align: center; }
   .rv-hero-cta .rv-btn { width: 100%; justify-content: center; }
   .rv-tabs { gap: 12px; }
-  .rv-mode, .rv-rounds, .rv-order { flex-wrap: wrap; }
+  .rv-mode, .rv-rounds { flex-wrap: wrap; }
   .rv-char-grid { gap: 10px; }
   .rv-char-card .av { width: 34px; height: 34px; }
   .rv-char-card .nm { font-size: 0.95rem; }
@@ -785,7 +778,7 @@ html, body { overflow-x: clip; }
   .rv-detail-back { width: 100%; text-align: center; }
   .rv-hero-cta .rv-btn { width: 100%; justify-content: center; }
   .rv-tabs { gap: 12px; }
-  .rv-mode, .rv-rounds, .rv-order { flex-wrap: wrap; }
+  .rv-mode, .rv-rounds { flex-wrap: wrap; }
   .rv-char-grid { gap: 10px; }
   .rv-char-card .av { width: 34px; height: 34px; }
   .rv-char-card .nm { font-size: 0.95rem; }
@@ -951,3 +944,27 @@ html, body { overflow-x: clip; }
 
 /* EN brand size */
 [data-lang="en"] .rv-brand { font-size: clamp(4rem, 7.5vw, 6rem); letter-spacing: 0.04em; white-space: nowrap; }
+
+/* ============ 入席人物：紧凑 chips（>4 人自动形变） ============ */
+.rv-avatars.compact { flex-direction: row; flex-wrap: wrap; gap: var(--s-1) var(--s-2); }
+.rv-avatars.compact .rv-avatar { padding: 0.45em 0.65em 0.45em 0.5em; border-color: var(--red); box-shadow: none; will-change: transform; }
+.rv-avatars.compact .rv-avatar .av { width: 28px; height: 28px; font-size: 0.72rem; }
+.rv-avatars.compact .rv-avatar .nm { font-size: 0.85rem; letter-spacing: 0.04em; }
+.rv-avatars.compact .rv-avatar .sc { display: none; }
+.rv-avatars.compact .rv-avatar .rm { width: 19px; height: 19px; font-size: 0.76rem; margin-left: 4px; }
+.rv-avatars.compact .rv-avatar.active { box-shadow: inset 2px 0 0 var(--red); }
+.rv-avatars.compact .rv-avatar:hover { transform: translateY(-1px); }
+
+/* mini：>11 人，只有头像小方块 */
+.rv-avatars.mini { flex-direction: row; flex-wrap: wrap; gap: 4px; }
+.rv-avatars.mini .rv-avatar { padding: 2px; border-color: var(--red); box-shadow: none; will-change: transform; background: transparent; }
+.rv-avatars.mini .rv-avatar .av { width: 34px; height: 34px; font-size: 0.78rem; }
+.rv-avatars.mini .rv-avatar .nm { display: none; }
+.rv-avatars.mini .rv-avatar .sc { display: none; }
+.rv-avatars.mini .rv-avatar .rm { position: absolute; top: -5px; right: -5px; width: 16px; height: 16px; font-size: 0.66rem; opacity: 0; background: var(--paper); transition: opacity 0.2s var(--ease-out); }
+.rv-avatars.mini .rv-avatar:hover .rm { opacity: 1; }
+.rv-avatars.mini .rv-avatar { position: relative; }
+.rv-avatars.mini .rv-avatar.active { box-shadow: inset 2px 0 0 var(--red); }
+.rv-avatars.mini .rv-avatar:hover { transform: translateY(-1px); }
+
+.rv-ws-recs-hint a + a { margin-left: 12px; }

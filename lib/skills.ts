@@ -1,7 +1,7 @@
 // 服务端：角色注册表 = 内置 6 人 + skills/manifest.json 导入
 import { readFileSync, writeFileSync, existsSync } from "fs";
 import { join } from "path";
-import { characterMeta, characterMetaById, type CharacterMeta } from "./characterMeta";
+import { characterMeta, characterMetaById, enName, type CharacterMeta } from "./characterMeta";
 
 export interface ImportedCharacter extends CharacterMeta {
   imported: true;
@@ -19,12 +19,19 @@ export function readImports(): ImportedCharacter[] {
   }
 }
 
+// 英文显示名统一在这里归一：UI 与 system prompt 都拿到清洗过的本名
+function named<T extends { id: string; name: string; zhName: string }>(c: T): T {
+  const name = enName(c);
+  return name === c.name ? c : { ...c, name };
+}
+
 export function getAllCharacters(): (CharacterMeta | ImportedCharacter)[] {
-  return [...characterMeta, ...readImports()];
+  return [...characterMeta.map(named), ...readImports().map(named)];
 }
 
 export function getMeta(id: string): (CharacterMeta | ImportedCharacter) | undefined {
-  return characterMetaById[id] || readImports().find((c) => c.id === id);
+  const meta = characterMetaById[id] || readImports().find((c) => c.id === id);
+  return meta === undefined ? undefined : named(meta);
 }
 
 export function getSkillSystem(id: string, intl = false): string {

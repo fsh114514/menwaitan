@@ -2,6 +2,7 @@ import { execFileSync } from "child_process";
 import { readFileSync, existsSync, rmSync } from "fs";
 import { join } from "path";
 import { addImport, readImports, type ImportedCharacter } from "@/lib/skills";
+import { enName } from "@/lib/characterMeta";
 
 const PALETTE = ["#c0392b", "#2e8a5e", "#2e5d8a", "#8a6a2e", "#6b4f8a", "#a0582e"];
 
@@ -36,7 +37,8 @@ export async function POST(req: Request) {
     const entry: ImportedCharacter = {
       id: repo,
       zhName,
-      name: nameMatch ? nameMatch[1].trim() : repo,
+      // frontmatter 里常是仓库 slug（plato-perspective）→ 清洗成英文界面能直接显示的本名
+      name: enName({ id: repo, name: nameMatch ? nameMatch[1].trim() : repo, zhName }),
       initial: zhName.slice(0, 1),
       school: "导入角色",
       tag: "skill",

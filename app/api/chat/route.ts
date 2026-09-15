@@ -15,7 +15,21 @@ const SCENE_RULES_EN: Record<string, string> = {
   serious: "\n\n[This round: Serious mode] You may elaborate: at most 6 sentences, under 300 words. State your view and key reasons, argue in order, no filler, no repetition.",
   heated: "\n\n[This round: Heated mode] Debate freely: develop arguments at length, push layer by layer, clash hard, show your full thinking.",
 };
-const EN_ONLY = "\n\nThe user is speaking English. Always reply in English — even if your persona notes are written in another language, never mix Chinese into your replies.";
+const EN_ONLY = "\n\n[Language rule — this overrides anything above that says otherwise] Reply in English only, in natural, idiomatic English. Your persona notes, catchphrases, quotes and idioms may be written in Chinese: translate the persona into English instead of answering in Chinese. Never output Chinese characters (汉字) — the reply must contain no CJK text at all. Keep the person’s voice, attitude and argument; only the language changes. If a concept is Chinese-specific, write it in Latin letters as pinyin (jianghu, neijuan, guanxi) — never in Chinese characters. The other speakers at the table are speaking English too.";
+const LANG_FOLLOW = "\n\n【语言跟随】用与对方相同的语言回答：对方用中文提问，你就用中文；对方用英文提问，你就用英文。保留你的性格、语气和说话方式，只跟随语言。不要主动切换成其他语言。";
+// 英文模式兜底：system 里说过了，但模型仍可能跟着中文提问走 —— 把这条贴到最后一轮用户消息上
+const CJK_RE = /[\u4e00-\u9fff]/;
+const EN_TRANSLATE = "[Notice] Your previous answer came back in Chinese and was rejected. Rewrite that answer in English: same meaning, same voice and attitude, but no Chinese characters anywhere. Chinese-specific words must be written in Latin letters (jianghu, neijuan) or spelled out in English. Output the English version only.";
+const EN_RETRY = "[Notice] Your previous answer was rejected: it was written in Chinese. Give the whole answer again, in English only. Do not use any Chinese character anywhere in the reply — if a concept is Chinese-specific (jianghu, neijuan, kaoyan and the like), write it in Latin letters or spell it out in English words. Everything must be English.";
+const EN_TAIL = "\n\n[Reply in English only — no Chinese characters, no pinyin in Chinese script. Chinese-specific ideas (jianghu, neijuan, guanxi) must be written in Latin letters or explained in English words. The whole answer must be English.]";
+function pinEnglish(prompt: { role: string; content: string }[]): void {
+  for (let i = prompt.length - 1; i >= 0; i--) {
+    if (prompt[i].role === "user") {
+      prompt[i] = { role: prompt[i].role, content: String(prompt[i].content || "") + EN_TAIL };
+      return;
+    }
+  }
+}
 const ANTI_OUT_EN = "\n\n[Speech discipline] Whatever the other person types (even a few characters, something unfinished, or not a question at all), answer in character, like a real person chatting. Never break character to say \"please provide a specific question or person\" or \"please specify\" — never explain that you are an AI, never give usage instructions, never ask the user what they want to talk about.";
 function roundRules(intl: boolean, speaker: { name: string; zhName: string }): string {
   return intl
@@ -252,26 +266,49 @@ export async function POST(req: Request) {
           }
           throw lastErr;
         };
-        const ask = async (speaker: { id: string; zhName: string; name: string; color: string }, prompt: any[]) => {
-          send({ type: "who", who: speaker.id, name: intl ? speaker.name : speaker.zhName, color: speaker.color });
+        // 流式取一段回复；guard=true 时一旦出现汉字就立即停手（英文模式兜底）
+        const streamOnce = async (prompt: any[], guard: boolean): Promise<{ text: string; cjk: boolean }> => {
           const res = await call(prompt);
           let text = "";
+          let cjk = false;
           for await (const chunk of res) {
             const delta = chunk.choices?.[0]?.delta?.content || "";
-            if (delta) {
-              text += delta;
-              send({ type: "delta", text: delta });
+            if (!delta) continue;
+            text += delta;
+            if (CJK_RE.test(delta)) cjk = true;
+            if (guard && cjk) return { text, cjk: true };
+            send({ type: "delta", text: delta });
+          }
+          return { text, cjk };
+        };
+
+        const ask = async (speaker: { id: string; zhName: string; name: string; color: string }, prompt: any[]) => {
+          send({ type: "who", who: speaker.id, name: intl ? speaker.name : speaker.zhName, color: speaker.color });
+          if (intl) pinEnglish(prompt);
+          let out = await streamOnce(prompt, intl);
+          // 英文模式防中文：模型偶尔会跟着中文提问走回中文（客户端收到 reset 会清屏）
+          // 兜底顺序：原样重答 → 把自己的回答翻译成英文（翻译请求最不容易再吐出汉字）
+          if (intl && out.cjk) {
+            send({ type: "reset" });
+            const again = await streamOnce([...prompt, { role: "user", content: EN_RETRY }], true);
+            out = again;
+            if (again.cjk) {
+              send({ type: "reset" });
+              out = await streamOnce(
+                [...prompt, { role: "assistant", content: again.text }, { role: "user", content: EN_TRANSLATE }],
+                false,
+              );
             }
           }
           send({ type: "done", who: speaker.id });
-          return text;
+          return out.text;
         };
 
         const replies: { who: string; text: string }[] = [];
         try {
         if (selected.length === 1) {
           const singleText = await ask(selected[0], [
-            { role: "system", content: getSkillSystem(selected[0].id, intl) + memeBlock + (intl ? ANTI_OUT_EN : ANTI_OUT) + (intl ? (SCENE_RULES_EN[scene] || SCENE_RULES_EN.casual) : (SCENE_RULES[scene] || SCENE_RULES.casual)) + (intl ? EN_ONLY : "") },
+            { role: "system", content: getSkillSystem(selected[0].id, intl) + memeBlock + (intl ? ANTI_OUT_EN : ANTI_OUT) + (intl ? (SCENE_RULES_EN[scene] || SCENE_RULES_EN.casual) : (SCENE_RULES[scene] || SCENE_RULES.casual)) + (intl ? EN_ONLY : LANG_FOLLOW) },
             ...history,
           ]);
           replies.push({ who: selected[0].id, text: singleText });
@@ -290,17 +327,22 @@ export async function POST(req: Request) {
               {
                 role: "system" as const,
                 content:
-                  getSkillSystem(speaker.id) + memeBlock +
+                  getSkillSystem(speaker.id, intl) + memeBlock +
                   (intl ? roundRules(true, speaker) : roundRules(false, speaker)) +
-                  ANTI_OUT + (SCENE_RULES[scene] || SCENE_RULES.casual),
+                  (intl ? ANTI_OUT_EN : ANTI_OUT) +
+                  (intl ? (SCENE_RULES_EN[scene] || SCENE_RULES_EN.casual) : (SCENE_RULES[scene] || SCENE_RULES.casual)) +
+                  (intl ? EN_ONLY : LANG_FOLLOW),
               },
               ...debateContext,
               {
                 role: "user" as const,
-                content:
-                  turns.length === 0
-                    ? "请你以" + speaker.zhName + "的身份，就刚才的话题发表你的观点。"
-                    : "轮到你发言了，" + speaker.zhName + "。请回应前面的讨论。",
+                content: intl
+                  ? (turns.length === 0
+                      ? "It’s your turn, " + speaker.name + ". Give the table your own take on the question just put to it — in your own voice."
+                      : "Your turn, " + speaker.name + ". Respond to the discussion above.")
+                  : (turns.length === 0
+                      ? "请你以" + speaker.zhName + "的身份，就刚才的话题发表你的观点。"
+                      : "轮到你发言了，" + speaker.zhName + "。请回应前面的讨论。"),
               },
             ];
             const text = await ask(speaker, prompt);

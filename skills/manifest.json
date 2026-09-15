@@ -418,5 +418,17 @@
     "color": "#8a6a2e",
     "skillDir": "shakespeare",
     "imported": true
+  },
+  {
+    "id": "sun-yuchen-perspective",
+    "zhName": "孙哥",
+    "name": "Justin Sun",
+    "initial": "孙",
+    "school": "注意力 · 营销",
+    "tag": "割味十足",
+    "color": "#d4a017",
+    "skillDir": "sun-yuchen-perspective",
+    "imported": true,
+    "repo": "https://github.com/alchaincyf/sun-yuchen-perspective"
   }
 ]

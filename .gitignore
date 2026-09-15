@@ -45,6 +45,7 @@ next-env.d.ts
 
 # local screenshots
 /.shots/
+/tmp-frames/
 
 # gh cli config written into workspace
 /.config/
