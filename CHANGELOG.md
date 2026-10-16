@@ -110,6 +110,21 @@ v2 给圆桌加了一层「**谁知道什么**」——发言者的上下文不�
 
 ### 0.2.2 之前
 
+### 0.2.4 · 提交前清理（2026-10-17）
+
+**依赖与组件清理**（逐个核对引用后执行）
+- 移除 6 个零引用依赖：`ai`、`@ai-sdk/openai`、`@ai-sdk/react`、`three`、`ogl`、`motion`
+- 移除 4 个孤儿组件：`Aurora.tsx`、`Magnet.tsx`、`ScrollReveal.tsx`、`TiltedCard.tsx`
+- 保留的 react-bits 组件只有两个：`SplitText`（标题拆分）与 `ClickSpark`（按钮火花）
+- 验证：`npm install` → `tsc --noEmit`（退出码 0）→ `next build`（通过）→ 接口冒烟（悄悄话仍只唤起 1 人）
+
+**开发体验修复**
+- `next.config.ts` 的 `allowedDevOrigins` 补上 `127.0.0.1` 与 `localhost`。
+  此前只写了 `192.168.2.162`，用 `127.0.0.1` 打开 dev 服务时 Next 会以
+  「跨域访问 dev 资源」为由拦掉 JS chunk——页面能看但**完全点不动**，且不报错。
+
+### 0.2.3 之前
+
 ### 验证
 - `tsc --noEmit` 通过
 - `next build` 通过（Compiled successfully + TypeScript 全过，8 个路由正常生成）
