@@ -58,3 +58,6 @@ next-env.d.ts
 competition/video/*.mp4
 competition/video/*.mov
 competition/screenshots/_raw/
+
+# 文书导出的中间产物
+competition/docs/pdf/*.html
