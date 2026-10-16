@@ -1,0 +1,169 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="944" viewBox="0 0 1280 944" font-family="PingFang SC, Hiragino Sans GB, Source Han Sans SC, Noto Sans CJK SC, Microsoft YaHei, sans-serif">
+  <defs>
+    <marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#4b5563"/>
+    </marker>
+    <marker id="ab" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#2f6feb"/>
+    </marker>
+  </defs>
+
+  <rect x="0" y="0" width="1280" height="944" fill="#ffffff"/>
+
+  <!-- ============ 标题 ============ -->
+  <text x="60" y="46" font-size="27" font-weight="700" fill="#16191d">门外谈 · 悄悄话交互流程图（v2）</text>
+  <text x="60" y="72" font-size="14" fill="#6b7280">信息不对称机制：用户私下告诉 A 的信息，B 永远不可见 —— 由此产生真实张力，而不是伪共识</text>
+  <line x1="60" y1="86" x2="1250" y2="86" stroke="#dfe3e8"/>
+
+  <!-- ============ 时间轴刻度 ============ -->
+  <text x="222" y="112" font-size="12.5" font-weight="700" fill="#6b7280" text-anchor="middle">T1</text>
+  <text x="410" y="112" font-size="12.5" font-weight="700" fill="#6b7280" text-anchor="middle">T2</text>
+  <text x="580" y="112" font-size="12.5" font-weight="700" fill="#2f6feb" text-anchor="middle">T3</text>
+  <text x="806" y="112" font-size="12.5" font-weight="700" fill="#6b7280" text-anchor="middle">T4</text>
+  <text x="1000" y="112" font-size="12.5" font-weight="700" fill="#6b7280" text-anchor="middle">T5</text>
+  <text x="1180" y="112" font-size="12.5" font-weight="700" fill="#6b7280" text-anchor="middle">T6</text>
+
+  <!-- ============ B 的可见范围（阴影区） ============ -->
+  <rect x="452" y="124" width="750" height="496" rx="8" fill="#f4f7fa" stroke="#aab4c0" stroke-width="1.4" stroke-dasharray="9 5"/>
+  <rect x="466" y="132" width="372" height="24" rx="5" fill="#e2e8ef"/>
+  <text x="478" y="149" font-size="12.5" font-weight="700" fill="#4a5563">B 的可见范围：仅公开发言，看不到任何悄悄话</text>
+
+  <!-- ============ 泳道 ============ -->
+  <!-- 泳道 1：用户 -->
+  <rect x="60" y="120" width="80" height="112" rx="8" fill="#eef2f6" stroke="#ccd4dc"/>
+  <text x="100" y="180" font-size="15" font-weight="700" fill="#2b3138" text-anchor="middle">用户</text>
+  <rect x="140" y="120" width="1110" height="112" fill="#fcfdfe" stroke="#e3e8ed"/>
+
+  <rect x="152" y="150" width="140" height="54" rx="7" fill="#ffffff" stroke="#8d97a3" stroke-width="1.4"/>
+  <text x="222" y="174" font-size="12.5" font-weight="700" fill="#2b3138" text-anchor="middle">公开提问</text>
+  <text x="222" y="193" font-size="11.5" fill="#6b7280" text-anchor="middle">@A @B　全员可见</text>
+
+  <rect x="500" y="150" width="156" height="54" rx="7" fill="#e8f1ff" stroke="#2f6feb" stroke-width="2.2" stroke-dasharray="7 4"/>
+  <g transform="translate(514,158)">
+    <path d="M2,8 L2,6 A5,5 0 0 1 12,6 L12,8" fill="none" stroke="#2f6feb" stroke-width="2"/>
+    <rect x="0" y="7" width="14" height="10" rx="2" fill="#2f6feb"/>
+  </g>
+  <text x="534" y="170" font-size="11.5" font-weight="700" fill="#1c4fb8">悄悄话（仅 A 可见）</text>
+  <text x="514" y="189" font-size="11.5" fill="#3b4a63">「B 其实不赞同你的观点」</text>
+
+  <rect x="1064" y="150" width="176" height="54" rx="7" fill="#ffffff" stroke="#8d97a3" stroke-width="1.4"/>
+  <text x="1152" y="174" font-size="12.5" font-weight="700" fill="#2b3138" text-anchor="middle">看到 B 的回应</text>
+  <text x="1152" y="193" font-size="11.5" fill="#6b7280" text-anchor="middle">继续追问或结束</text>
+
+  <!-- 泳道 2：人物 A -->
+  <rect x="60" y="232" width="80" height="116" rx="8" fill="#eef2f6" stroke="#ccd4dc"/>
+  <text x="100" y="294" font-size="15" font-weight="700" fill="#2b3138" text-anchor="middle">人物 A</text>
+  <rect x="140" y="232" width="1110" height="116" fill="#fcfdfe" stroke="#e3e8ed"/>
+
+  <rect x="500" y="266" width="250" height="60" rx="7" fill="#ffffff" stroke="#8d97a3" stroke-width="1.4"/>
+  <text x="514" y="285" font-size="12" fill="#3f4650">先独立立论，随后正视</text>
+  <text x="514" y="303" font-size="12" fill="#3f4650">「B 不赞同我」这件事，</text>
+  <text x="514" y="321" font-size="12" fill="#3f4650">决定下一轮公开点名 B。</text>
+
+  <!-- 泳道 3：人物 B -->
+  <rect x="60" y="348" width="80" height="136" rx="8" fill="#eef2f6" stroke="#ccd4dc"/>
+  <text x="100" y="420" font-size="15" font-weight="700" fill="#2b3138" text-anchor="middle">人物 B</text>
+  <rect x="140" y="348" width="1110" height="136" fill="#fcfdfe" stroke="#e3e8ed"/>
+
+  <rect x="807" y="396" width="170" height="58" rx="7" fill="#ffffff" stroke="#8d97a3" stroke-width="1.4"/>
+  <text x="821" y="415" font-size="12" fill="#3f4650">公开立论，摆出</text>
+  <text x="821" y="433" font-size="12" fill="#3f4650">自己的反对理由。</text>
+
+  <rect x="1045" y="396" width="186" height="58" rx="7" fill="#ffffff" stroke="#8d97a3" stroke-width="1.4"/>
+  <text x="1059" y="415" font-size="12" fill="#3f4650">被点名后回应：</text>
+  <text x="1059" y="433" font-size="12" fill="#3f4650">「我从没说过不赞同。」</text>
+
+  <!-- 泳道 4：系统 -->
+  <rect x="60" y="484" width="80" height="136" rx="8" fill="#eef2f6" stroke="#ccd4dc"/>
+  <text x="100" y="556" font-size="15" font-weight="700" fill="#2b3138" text-anchor="middle">系统</text>
+  <rect x="140" y="484" width="1110" height="136" fill="#fcfdfe" stroke="#e3e8ed"/>
+
+  <rect x="500" y="504" width="230" height="76" rx="7" fill="#e8f1ff" stroke="#2f6feb" stroke-width="2.2"/>
+  <rect x="606" y="496" width="62" height="19" rx="9.5" fill="#2f6feb"/>
+  <text x="637" y="510" font-size="11" font-weight="700" fill="#ffffff" text-anchor="middle">v2 新增</text>
+  <text x="514" y="521" font-size="12.5" font-weight="700" fill="#1c4fb8">可见性过滤器</text>
+  <text x="514" y="540" font-size="11.5" fill="#3b4a63">悄悄话只写入 A 的下一轮 prompt；</text>
+  <text x="514" y="557" font-size="11.5" fill="#3b4a63">B 的上下文里依然是「干净的」。</text>
+  <text x="514" y="574" font-size="11.5" fill="#3b4a63">系统只过滤信息，不改写内容。</text>
+
+  <!-- ============ 流转箭头 ============ -->
+  <!-- T1 用户 → A -->
+  <path d="M222,204 L222,262" fill="none" stroke="#4b5563" stroke-width="1.8" marker-end="url(#a)"/>
+  <text x="232" y="238" font-size="11.5" fill="#6b7280">公开议题（全员可见）</text>
+
+  <!-- T2 A → B 公开发言 -->
+  <path d="M750,296 L805,296 L805,392" fill="none" stroke="#4b5563" stroke-width="1.8" marker-end="url(#a)"/>
+  <text x="817" y="286" font-size="11.5" fill="#6b7280">公开发言，互相可见</text>
+
+  <!-- T3 悄悄话：用户 → A（蓝虚线，私域通路） -->
+  <path d="M656,170 L890,170 L890,260" fill="none" stroke="#2f6feb" stroke-width="1.8" stroke-dasharray="6 4" marker-end="url(#ab)"/>
+  <text x="660" y="164" font-size="11.5" font-weight="700" fill="#2f6feb">私域通道：不进入公共上下文</text>
+
+  <!-- T4 A 点名 B -->
+  <path d="M806,328 L806,378 L980,378 L980,392" fill="none" stroke="#4b5563" stroke-width="1.8" marker-end="url(#a)"/>
+  <text x="920" y="372" font-size="11.5" fill="#6b7280">A 公开点名 B → B 被提前拉入下一轮</text>
+
+  <!-- 系统 → A：悄悄话注入 -->
+  <path d="M615,504 L615,352" fill="none" stroke="#2f6feb" stroke-width="1.8" stroke-dasharray="6 4" marker-end="url(#ab)"/>
+  <text x="605" y="494" font-size="11.5" fill="#2f6feb" text-anchor="end">悄悄话注入 A</text>
+
+  <!-- 系统 → B：过滤后注入 -->
+  <path d="M1160,502 L1160,456" fill="none" stroke="#2f6feb" stroke-width="1.8" stroke-dasharray="6 4" marker-end="url(#ab)"/>
+  <text x="1145" y="494" font-size="11.5" fill="#2f6feb" text-anchor="end">过滤后注入 B（不含悄悄话）</text>
+
+  <!-- T6 B 回应回到圆桌 -->
+  <path d="M1090,394 L1090,206" fill="none" stroke="#4b5563" stroke-width="1.8" marker-end="url(#a)"/>
+  <text x="1102" y="322" font-size="11.5" fill="#6b7280">B 的回应回到圆桌</text>
+
+  <!-- ============ 左：v1 / v2 对比 ============ -->
+  <rect x="60" y="636" width="738" height="196" rx="9" fill="#fafbfc" stroke="#e2e6ea"/>
+  <text x="80" y="664" font-size="15" font-weight="700" fill="#2b3138">为什么必须加这一层「信息层」</text>
+  <line x1="80" y1="674" x2="778" y2="674" stroke="#e7eaee"/>
+
+  <rect x="80" y="686" width="316" height="126" rx="8" fill="#ffffff" stroke="#ccd4dc"/>
+  <text x="96" y="710" font-size="13.5" font-weight="700" fill="#5b6472">v1　全员共享同一份上下文</text>
+  <text x="96" y="736" font-size="12" fill="#6b7280">每个人都看得到所有发言和用户插话，</text>
+  <text x="96" y="756" font-size="12" fill="#6b7280">于是 A 与 B 迅速互相附和、彼此退让。</text>
+  <text x="96" y="784" font-size="12.5" font-weight="700" fill="#8a4a12">结果：内容趋同 → 伪共识</text>
+  <text x="96" y="803" font-size="11.5" fill="#8b93a0">辩论看着热闹，其实没有真正的对立面。</text>
+
+  <rect x="410" y="686" width="368" height="126" rx="8" fill="#f2f7ff" stroke="#2f6feb" stroke-width="1.8"/>
+  <text x="426" y="710" font-size="13.5" font-weight="700" fill="#1c4fb8">v2　可见性分层（信息不对称）</text>
+  <text x="426" y="736" font-size="12" fill="#3b4a63">A 拿到「B 不赞同我」这个私有前提，会</text>
+  <text x="426" y="756" font-size="12" fill="#3b4a63">主动把 B 拉进来当面对峙；而 B 始终不知</text>
+  <text x="426" y="776" font-size="12" fill="#3b4a63">情，只能凭公开信息回应。</text>
+  <text x="426" y="800" font-size="12.5" font-weight="700" fill="#2f6feb">结果：立场差异被保留 → 真实张力</text>
+
+  <!-- ============ 左下：图例 ============ -->
+  <rect x="60" y="848" width="738" height="82" rx="9" fill="#ffffff" stroke="#e2e6ea"/>
+  <text x="80" y="872" font-size="12.5" font-weight="700" fill="#2b3138">图例</text>
+  <line x1="80" y1="892" x2="118" y2="892" stroke="#4b5563" stroke-width="1.8"/>
+  <polygon points="118,888 126,892 118,896" fill="#4b5563"/>
+  <text x="134" y="896" font-size="12" fill="#3f4650">公开发言 / 系统调度</text>
+  <line x1="330" y1="892" x2="368" y2="892" stroke="#2f6feb" stroke-width="1.8" stroke-dasharray="6 4"/>
+  <polygon points="368,888 376,892 368,896" fill="#2f6feb"/>
+  <text x="384" y="896" font-size="12" fill="#1c4fb8">悄悄话 / 私域数据通路（仅当事人可见）</text>
+  <rect x="80" y="904" width="20" height="15" rx="3" fill="#f4f7fa" stroke="#aab4c0" stroke-width="1.2" stroke-dasharray="6 3"/>
+  <text x="108" y="916" font-size="12" fill="#3f4650">虚线阴影框 = B 的可见范围边界</text>
+  <text x="330" y="916" font-size="12" fill="#6b7280">系统只做信息路由与过滤，不新增、不改写、不转述内容。</text>
+
+  <!-- ============ 右下：要点 ============ -->
+  <rect x="818" y="636" width="432" height="294" rx="9" fill="#fafbfc" stroke="#e2e6ea"/>
+  <text x="838" y="664" font-size="15" font-weight="700" fill="#2b3138">流程图要点</text>
+  <line x1="838" y1="674" x2="1230" y2="674" stroke="#e7eaee"/>
+
+  <text x="838" y="700" font-size="12.5" font-weight="700" fill="#2f6feb">① 可见性标签</text>
+  <text x="838" y="720" font-size="12" fill="#5b6472">每条发言带 public 或「仅某某可见」标签，</text>
+  <text x="838" y="738" font-size="12" fill="#5b6472">是整个链路的唯一判定依据。</text>
+
+  <text x="838" y="766" font-size="12.5" font-weight="700" fill="#2f6feb">② 悄悄话只推进当事人</text>
+  <text x="838" y="786" font-size="12" fill="#5b6472">私域消息仅注入 A 的下一轮 prompt，不写入</text>
+  <text x="838" y="804" font-size="12" fill="#5b6472">公共历史，也不会进入 B 的上下文。</text>
+
+  <text x="838" y="832" font-size="12.5" font-weight="700" fill="#2f6feb">③ 点名拉人由 A 自主发起</text>
+  <text x="838" y="852" font-size="12" fill="#5b6472">A 依据私有前提决定把 B 拉进讨论，轮次控</text>
+  <text x="838" y="870" font-size="12" fill="#5b6472">制器据此动态调整下一轮发言名单。</text>
+
+  <text x="838" y="898" font-size="12.5" font-weight="700" fill="#2f6feb">④ 隐私边界在服务端</text>
+  <text x="838" y="918" font-size="12" fill="#5b6472">服务端裁剪上下文，而非前端隐藏；B 不可见</text>
+</svg>

@@ -6,7 +6,7 @@ import ClickSpark from "@/components/bits/ClickSpark";
 import "./revolution/revolution.css";
 
 type Char = { id: string; zhName: string; name: string; initial: string; school: string; tag: string; color: string; skillDir: string; imported?: boolean; bio?: string; bioEn?: string; repo?: string };
-type Msg = { role: string; who?: string; color?: string; content: string; auto?: boolean; err?: boolean };
+type Msg = { role: string; who?: string; color?: string; content: string; auto?: boolean; err?: boolean; whisperTo?: string };
 type Scene = "casual" | "serious" | "heated";
 type Lang = "zh" | "en";
 
@@ -406,6 +406,8 @@ export default function RevolutionPreview() {
   const inputRef = useRef<HTMLInputElement>(null);
   const [loading, setLoading] = useState(false);
   const [mode, setMode] = useState<"chat" | "debate">("debate");
+  // v2 信息层：当前正在私下对谁说话（空 = 公开发言）
+  const [whisperTo, setWhisperTo] = useState<string>("");
   const [memeNote, setMemeNote] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
   const [newsOpen, setNewsOpen] = useState(false);
@@ -866,7 +868,8 @@ export default function RevolutionPreview() {
     setTyping(false);
   };
 
-  const streamChat = async (current: Msg[]): Promise<Msg[]> => {
+  // v2：whisperOnly 非空时，服务端只让这一个人回应（悄悄话定向发言）
+  const streamChat = async (current: Msg[], whisperOnly?: string): Promise<Msg[]> => {
     const ctrl = new AbortController();
     abortRef.current = ctrl;
     const res = await fetch("/api/chat", {
@@ -875,7 +878,7 @@ export default function RevolutionPreview() {
       signal: ctrl.signal,
       body: JSON.stringify({
         characters: selected,
-        messages: current.map((m) => ({ role: m.role, content: m.content, who: m.who })),
+        messages: current.map((m) => ({ role: m.role, content: m.content, who: m.who, whisperTo: m.whisperTo })),
         mode,
         scene,
         apiKey: localStorage.getItem("mw_api_key") || "",
@@ -883,6 +886,7 @@ export default function RevolutionPreview() {
         model: localStorage.getItem("mw_model") || "",
         userId: uid,
         lang,
+        whisperOnly: whisperOnly || "",
       }),
     });
     if (!res.ok) {
@@ -972,17 +976,21 @@ export default function RevolutionPreview() {
       setInput("");
       return;
     }
-    const userMsg: Msg = { role: "user", content: v };
+    // v2 信息层：如果处于「私下说」状态，这条消息只对被点名的人可见，且本轮只叫它回应
+    const whisperTarget = whisperTo;
+    const userMsg: Msg = whisperTarget ? { role: "user", content: v, whisperTo: whisperTarget } : { role: "user", content: v };
     const userCount = messages.filter((m) => m.role === "user").length + 1;
     maybeEscalate(v, userCount);
     let current = [...messages, userMsg];
     setMessages(current); setInput(""); setLoading(true); setTyping(true);
     try {
-      const rn = mode === "debate" ? rounds : 1;
+      // 悄悄话只走一轮，且只叫一个人
+      const rn = (mode === "debate" && !whisperTarget) ? rounds : 1;
       for (let r = 0; r < rn; r++) {
-        current = await streamChat(current);
+        current = await streamChat(current, whisperTarget || undefined);
         if (r < rn - 1) await new Promise((res) => setTimeout(res, 400));
       }
+      if (whisperTarget) setWhisperTo("");
     } catch (e: any) {
       setMessages((prev) => [...prev, { role: "assistant", err: true, content: (lang === "zh" ? "连接中断，请稍后再试" : "Connection interrupted, try again later") }]);
     } finally {
@@ -1150,6 +1158,14 @@ export default function RevolutionPreview() {
                       <span className="av" style={{ background: c.color }}>{lang === "en" ? (c.name || c.zhName).charAt(0).toUpperCase() : c.initial}</span>
                       <span className="nm">{lang === "en" ? c.name : c.zhName}</span>
                       {lang !== "en" && <span className="sc">{c.school}</span>}
+                      {selected.length > 1 && (
+                        <span
+                          className={"wh" + (whisperTo === id ? " on" : "")}
+                          onClick={(e) => { e.stopPropagation(); setWhisperTo((w) => (w === id ? "" : id)); }}
+                          title={lang === "en" ? "Whisper to " + (c.name || c.zhName) : "私下对 " + c.zhName + " 说（其他人看不到）"}>
+                          {lang === "en" ? "Wh" : "私"}
+                        </span>
+                      )}
                       <span className="rm" onClick={(e) => { e.stopPropagation(); toggleChar(id); }} title={t.leave}>×</span>
                     </div>
                   );
@@ -1226,7 +1242,14 @@ export default function RevolutionPreview() {
                     m.auto ? (
                       <div key={i} className="rv-msg-auto">{m.content}</div>
                     ) : (
-                      <div key={i} className={"rv-msg " + (m.role === "user" ? "user" : "ai") + (m.err ? " rv-err" : "")} style={{ animationDelay: (0.05 * i) + "s" }}>
+                      <div key={i} className={"rv-msg " + (m.role === "user" ? "user" : "ai") + (m.err ? " rv-err" : "") + (m.whisperTo ? " rv-whisper" : "")} style={{ animationDelay: (0.05 * i) + "s" }}>
+                        {m.whisperTo && (
+                          <div className="rv-msg-whisper">
+                            🔒 {lang === "en"
+                              ? "Whispered — only " + (charById(m.whisperTo)?.name || charById(m.whisperTo)?.zhName || m.whisperTo) + " can see this"
+                              : "私下说的 — 只有 " + (charById(m.whisperTo)?.zhName || m.whisperTo) + " 看得到"}
+                          </div>
+                        )}
                         {m.who && <div className="rv-msg-who" style={{ color: m.color }}>■ {m.who}</div>}
                         <div>{m.content}</div>
                       </div>
@@ -1245,8 +1268,19 @@ export default function RevolutionPreview() {
                   <a className="rv-hint-link" onClick={() => setTab("settings")}>{t.getKeyHint} →</a>
                 </p>
               )}
+              {whisperTo && (
+                <div className="rv-whisper-bar">
+                  <span className="lk">🔒</span>
+                  <span className="tx">
+                    {lang === "en"
+                      ? "Whispering to " + (charById(whisperTo)?.name || charById(whisperTo)?.zhName || whisperTo) + " — the others cannot see this"
+                      : "正在私下对 " + (charById(whisperTo)?.zhName || whisperTo) + " 说话 —— 桌上其他人看不到"}
+                  </span>
+                  <button className="cx" onClick={() => setWhisperTo("")}>{lang === "en" ? "Cancel" : "取消"}</button>
+                </div>
+              )}
               <div className="rv-chat-input">
-                <input ref={inputRef} value={input} onChange={(e) => setInput(e.target.value)} onKeyDown={(e) => { if (e.key === "Enter" && !(e.nativeEvent as any).isComposing) send(); }} placeholder={t.ph} />
+                <input ref={inputRef} value={input} onChange={(e) => setInput(e.target.value)} onKeyDown={(e) => { if (e.key === "Enter" && !(e.nativeEvent as any).isComposing) send(); }} placeholder={whisperTo ? (lang === "en" ? "Type privately…" : "私下说点什么…") : t.ph} />
                 <div className="rv-send">
                   <ClickSpark sparkColor="#fff" sparkSize={10} sparkRadius={26} sparkCount={8}>
                     <button className="rv-btn" onClick={loading ? stopChat : send} disabled={!loading && !input.trim()}>{loading ? (lang === "zh" ? "■ 停止" : "■ Stop") : t.send}</button>

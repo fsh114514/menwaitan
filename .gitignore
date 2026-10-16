@@ -53,3 +53,8 @@ next-env.d.ts
 
 # dsh tool artifacts
 .dsh-*/
+
+# 参赛材料中的大文件
+competition/video/*.mp4
+competition/video/*.mov
+competition/screenshots/_raw/

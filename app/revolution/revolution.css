@@ -968,3 +968,52 @@ html, body { overflow-x: clip; }
 .rv-avatars.mini .rv-avatar:hover { transform: translateY(-1px); }
 
 .rv-ws-recs-hint a + a { margin-left: 12px; }
+
+
+/* ===== v2 · 信息层：悄悄话（Whisper）===== */
+/* 已入席卡片上的「私」按钮 */
+.rv-avatar .wh {
+  margin-left: auto; flex: 0 0 auto;
+  font-family: var(--font-serif); font-size: 0.72rem; line-height: 1;
+  padding: 0.34em 0.44em; border: 1px solid var(--line);
+  color: var(--ink-faint); background: transparent; cursor: pointer;
+  transition: color .16s var(--ease-out), border-color .16s var(--ease-out), background .16s var(--ease-out);
+}
+.rv-avatar .wh:hover { border-color: var(--red); color: var(--red); }
+.rv-avatar .wh.on { background: var(--red); border-color: var(--red); color: var(--paper); }
+
+/* 输入框上方的悄悄话状态条 */
+.rv-whisper-bar {
+  display: flex; align-items: center; gap: var(--s-2);
+  margin: 0 0 var(--s-2); padding: 0.5em 0.75em;
+  border: 1px dashed var(--red); background: rgba(163, 39, 44, 0.06);
+  font-family: var(--font-serif); font-size: 0.84rem; color: var(--red-deep);
+}
+.rv-whisper-bar .lk { flex: 0 0 auto; }
+.rv-whisper-bar .tx { flex: 1 1 auto; line-height: 1.5; }
+.rv-whisper-bar .cx {
+  flex: 0 0 auto; cursor: pointer;
+  border: 1px solid var(--line-strong); background: transparent;
+  color: var(--ink-soft); font-family: var(--font-serif); font-size: 0.78rem;
+  padding: 0.25em 0.6em;
+  transition: color .16s var(--ease-out), border-color .16s var(--ease-out);
+}
+.rv-whisper-bar .cx:hover { border-color: var(--red); color: var(--red); }
+
+/* 悄悄话消息：像一封封起来的私信 */
+.rv-msg.rv-whisper { border-left: 2px dashed var(--red); }
+.rv-msg-whisper {
+  font-family: var(--font-serif); font-size: 0.76rem; letter-spacing: .02em;
+  color: var(--red-deep); opacity: .85; margin-bottom: 0.35em;
+}
+/* ===== v2 · 信息层 END ===== */
+
+/* v2：紧凑/迷你布局下的「私」按钮 */
+.rv-avatars.compact .rv-avatar .wh { font-size: 0.62rem; padding: 0.28em 0.36em; }
+.rv-avatars.mini .rv-avatar .wh {
+  position: absolute; top: -5px; left: -5px; width: 16px; height: 16px;
+  display: grid; place-items: center; font-size: 0.6rem; padding: 0;
+  opacity: 0; transition: opacity 0.2s var(--ease-out);
+}
+.rv-avatars.mini .rv-avatar:hover .wh, .rv-avatars.mini .rv-avatar .wh.on { opacity: 1; }
+.rv-avatars.mini .rv-avatar .wh.on { background: var(--red); border-color: var(--red); color: var(--paper); }

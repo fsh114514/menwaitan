@@ -1,0 +1,216 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="1080" viewBox="0 0 1280 1080" font-family="PingFang SC, Hiragino Sans GB, Source Han Sans SC, Noto Sans CJK SC, Microsoft YaHei, sans-serif">
+  <defs>
+    <marker id="arw" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#9aa4b2"/>
+    </marker>
+    <marker id="arwB" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#2f6feb"/>
+    </marker>
+  </defs>
+
+  <rect x="0" y="0" width="1280" height="1080" fill="#ffffff"/>
+
+  <!-- ================= 标题区 ================= -->
+  <text x="60" y="52" font-size="28" font-weight="700" fill="#16191d">门外谈 · 系统架构图</text>
+  <text x="60" y="80" font-size="14" fill="#6b7280">《门外谈——基于信息不对称机制的多智能体圆桌辩论系统》</text>
+  <text x="770" y="84" font-size="13" fill="#9aa4b2" text-anchor="end">v1.0 → v2.0 架构演进版</text>
+  <text x="60" y="102" font-size="14" fill="#6b7280">Next.js 16 · React 19 · TypeScript · Tailwind v4 · 智谱 glm-4-flash · 阿里云香港 + podman</text>
+  <line x1="60" y1="118" x2="1190" y2="118" stroke="#dfe3e8" stroke-width="1"/>
+
+  <!-- ================= 图例 ================= -->
+  <rect x="790" y="24" width="400" height="88" rx="8" fill="#fafbfc" stroke="#e2e6ea"/>
+  <text x="806" y="46" font-size="13" font-weight="700" fill="#2b3138">图例</text>
+  <rect x="806" y="58" width="26" height="14" rx="3" fill="#f0f2f5" stroke="#c8ced6"/>
+  <text x="840" y="70" font-size="13" fill="#3f4650">v1 已有能力</text>
+  <rect x="990" y="56" width="26" height="18" rx="3" fill="#e8f1ff" stroke="#2f6feb" stroke-width="2.2"/>
+  <text x="1024" y="70" font-size="13" fill="#2f6feb" font-weight="700">v2 新增</text>
+  <rect x="806" y="84" width="26" height="13" rx="2" fill="#ffffff" stroke="#2f6feb" stroke-width="1.6" stroke-dasharray="5 3"/>
+  <text x="840" y="95" font-size="13" fill="#3f4650">v2 数据通路（悄悄话）</text>
+  <rect x="990" y="83" width="26" height="13" rx="2" fill="#fff8e6" stroke="#d9a441" stroke-width="1.4" stroke-dasharray="5 3"/>
+  <text x="1024" y="95" font-size="13" fill="#8a6414">私域数据存储</text>
+
+  <!-- ================= 客户端层 ================= -->
+  <rect x="60" y="134" width="1130" height="50" rx="8" fill="#f2f5f8" stroke="#dbe1e7"/>
+  <text x="80" y="164" font-size="14.5" font-weight="700" fill="#2b3138">客户端层</text>
+  <rect x="205" y="144" width="470" height="30" rx="6" fill="#ffffff" stroke="#c8ced6"/>
+  <text x="219" y="164" font-size="13" fill="#3f4650">浏览器 Web（Chrome / Safari / Edge）</text>
+  <rect x="690" y="144" width="485" height="30" rx="6" fill="#ffffff" stroke="#c8ced6"/>
+  <text x="704" y="164" font-size="13" fill="#3f4650">移动端 Web（响应式布局，免安装、免下载）</text>
+
+  <line x1="1235" y1="199" x2="1235" y2="185" stroke="#9aa4b2" stroke-width="1.6" marker-end="url(#arw)"/>
+  <text x="1226" y="196" font-size="11.5" fill="#8b93a0" text-anchor="end">请求上行</text>
+
+  <!-- ================= 前端层 ================= -->
+  <rect x="60" y="202" width="1130" height="66" rx="8" fill="#f2f5f8" stroke="#dbe1e7"/>
+  <text x="80" y="232" font-size="14.5" font-weight="700" fill="#2b3138">前端层</text>
+  <rect x="205" y="212" width="970" height="46" rx="6" fill="#ffffff" stroke="#c8ced6"/>
+  <text x="219" y="231" font-size="13.5" font-weight="700" fill="#2b3138">app/page.tsx　·　Next.js App Router 单页（约 1516 行）</text>
+  <text x="219" y="250" font-size="12.5" fill="#6b7280">界面渲染　·　圆桌状态管理　·　SSE 流式消费与逐字渲染　·　可见性切换 UI　·　悄悄话输入通道</text>
+
+  <line x1="1235" y1="280" x2="1235" y2="266" stroke="#9aa4b2" stroke-width="1.6" marker-end="url(#arw)"/>
+  <text x="1226" y="277" font-size="11.5" fill="#8b93a0" text-anchor="end">请求上行</text>
+
+  <!-- ================= 接口层 ================= -->
+  <rect x="60" y="283" width="1130" height="66" rx="8" fill="#f2f5f8" stroke="#dbe1e7"/>
+  <text x="80" y="313" font-size="14.5" font-weight="700" fill="#2b3138">接口层</text>
+  <rect x="205" y="293" width="228" height="46" rx="6" fill="#ffffff" stroke="#c8ced6"/>
+  <text x="219" y="312" font-size="13" font-weight="700" fill="#3f4650">POST /api/chat</text>
+  <text x="219" y="331" font-size="12.5" fill="#6b7280">SSE 流式输出</text>
+  <rect x="445" y="293" width="228" height="46" rx="6" fill="#ffffff" stroke="#c8ced6"/>
+  <text x="459" y="312" font-size="13" font-weight="700" fill="#3f4650">GET /api/characters</text>
+  <text x="459" y="331" font-size="12.5" fill="#6b7280">角色清单与元数据</text>
+  <rect x="685" y="293" width="228" height="46" rx="6" fill="#ffffff" stroke="#c8ced6"/>
+  <text x="699" y="312" font-size="13" font-weight="700" fill="#3f4650">POST /api/import-skill</text>
+  <text x="699" y="331" font-size="12.5" fill="#6b7280">导入 SKILL.md 人格</text>
+  <rect x="925" y="293" width="250" height="46" rx="6" fill="#ffffff" stroke="#c8ced6"/>
+  <text x="939" y="312" font-size="13" font-weight="700" fill="#3f4650">POST /api/feedback</text>
+  <text x="939" y="331" font-size="12.5" fill="#6b7280">反馈收集与埋点</text>
+
+  <line x1="1235" y1="361" x2="1235" y2="347" stroke="#9aa4b2" stroke-width="1.6" marker-end="url(#arw)"/>
+  <text x="1226" y="358" font-size="11.5" fill="#8b93a0" text-anchor="end">请求上行</text>
+
+  <!-- ================= 核心业务层（重点） ================= -->
+  <rect x="60" y="364" width="1130" height="300" rx="9" fill="#f7f9fc" stroke="#2f6feb" stroke-width="1.8"/>
+  <path d="M60,373 a9,9 0 0 1 9,-9 h1112 a9,9 0 0 1 9,9 v27 h-1130 z" fill="#e8f1ff"/>
+  <text x="80" y="388" font-size="15.5" font-weight="700" fill="#1c4fb8">核心业务层 · 圆桌调度器（Round Table Orchestrator）</text>
+  <text x="560" y="388" font-size="12.5" fill="#5b6b82">本层是作品的原创技术核心：把「议题 + 人格 + 可见性规则」编排成一轮轮会交锋的 AI 发言</text>
+
+  <rect x="76" y="404" width="1098" height="248" rx="8" fill="#ffffff" stroke="#cfd6de" stroke-width="1.2" stroke-dasharray="7 4"/>
+  <text x="90" y="421" font-size="12" fill="#8b93a0">调度器内部执行链路</text>
+
+  <!-- N1 -->
+  <rect x="96" y="436" width="150" height="104" rx="7" fill="#ffffff" stroke="#c8ced6"/>
+  <text x="171" y="465" font-size="13.5" font-weight="700" fill="#2b3138" text-anchor="middle">① 议题输入</text>
+  <text x="171" y="488" font-size="12" fill="#6b7280" text-anchor="middle">用户抛出的问题</text>
+  <text x="171" y="506" font-size="12" fill="#6b7280" text-anchor="middle">+ 在座人物名单</text>
+  <text x="171" y="524" font-size="12" fill="#6b7280" text-anchor="middle">+ 可见性模式</text>
+  <line x1="248" y1="488" x2="270" y2="488" stroke="#9aa4b2" stroke-width="1.6" marker-end="url(#arw)"/>
+
+  <!-- N2 -->
+  <rect x="272" y="436" width="150" height="104" rx="7" fill="#ffffff" stroke="#c8ced6"/>
+  <text x="347" y="465" font-size="13.5" font-weight="700" fill="#2b3138" text-anchor="middle">② 轮次控制器</text>
+  <text x="347" y="488" font-size="12" fill="#6b7280" text-anchor="middle">发言顺序编排</text>
+  <text x="347" y="506" font-size="12" fill="#6b7280" text-anchor="middle">点名 / 拉人对峙</text>
+  <text x="347" y="524" font-size="12" fill="#6b7280" text-anchor="middle">流式分片回传</text>
+  <line x1="424" y1="488" x2="446" y2="488" stroke="#9aa4b2" stroke-width="1.6" marker-end="url(#arw)"/>
+
+  <!-- N3 -->
+  <rect x="448" y="436" width="186" height="104" rx="7" fill="#ffffff" stroke="#c8ced6"/>
+  <text x="541" y="462" font-size="13.5" font-weight="700" fill="#2b3138" text-anchor="middle">③ 发言者 prompt 组装</text>
+  <rect x="460" y="474" width="162" height="56" rx="5" fill="#fafbfc" stroke="#c8ced6" stroke-dasharray="4 3"/>
+  <text x="541" y="495" font-size="12" fill="#6b7280" text-anchor="middle">历史上下文</text>
+  <text x="541" y="514" font-size="11.5" fill="#8b93a0" text-anchor="middle">（按可见性过滤后注入）</text>
+  <line x1="636" y1="488" x2="658" y2="488" stroke="#9aa4b2" stroke-width="1.6" marker-end="url(#arw)"/>
+
+  <!-- N4 -->
+  <rect x="660" y="436" width="150" height="104" rx="7" fill="#ffffff" stroke="#c8ced6"/>
+  <text x="735" y="465" font-size="13.5" font-weight="700" fill="#2b3138" text-anchor="middle">④ 模型调用</text>
+  <text x="735" y="488" font-size="12" fill="#6b7280" text-anchor="middle">并行 / 顺序调用</text>
+  <text x="735" y="506" font-size="12" fill="#6b7280" text-anchor="middle">流式串接输出</text>
+  <text x="735" y="524" font-size="12" fill="#6b7280" text-anchor="middle">失败重试与降级</text>
+  <line x1="812" y1="488" x2="834" y2="488" stroke="#9aa4b2" stroke-width="1.6" marker-end="url(#arw)"/>
+
+  <!-- N5 -->
+  <rect x="836" y="436" width="134" height="104" rx="7" fill="#ffffff" stroke="#c8ced6"/>
+  <text x="903" y="465" font-size="13.5" font-weight="700" fill="#2b3138" text-anchor="middle">⑤ 输出装配</text>
+  <text x="903" y="488" font-size="12" fill="#6b7280" text-anchor="middle">发言 + 可见性标签</text>
+  <text x="903" y="506" font-size="12" fill="#6b7280" text-anchor="middle">写回会话历史</text>
+  <text x="903" y="524" font-size="12" fill="#6b7280" text-anchor="middle">→ SSE 推前端</text>
+
+  <!-- ===== v2 可见性过滤器 ===== -->
+  <rect x="976" y="416" width="196" height="156" rx="9" fill="#e8f1ff" stroke="#2f6feb" stroke-width="2.4"/>
+  <rect x="1100" y="406" width="64" height="21" rx="10.5" fill="#2f6feb"/>
+  <text x="1132" y="421" font-size="11.5" font-weight="700" fill="#ffffff" text-anchor="middle">v2 新增</text>
+  <text x="992" y="446" font-size="13.5" font-weight="700" fill="#1c4fb8">可见性过滤器</text>
+  <line x1="986" y1="456" x2="1162" y2="456" stroke="#b7d0fa" stroke-width="1.2"/>
+  <text x="992" y="476" font-size="11.5" fill="#3b4a63">每条发言带可见性标签：</text>
+  <text x="992" y="495" font-size="11.5" fill="#3b4a63">public ／ 仅某某可见</text>
+  <text x="992" y="516" font-size="11.5" fill="#3b4a63">注入某人设 prompt 之前，</text>
+  <text x="992" y="533" font-size="11.5" fill="#3b4a63">按「该人物可见集合」裁剪</text>
+  <text x="992" y="550" font-size="11.5" fill="#3b4a63">历史；悄悄话只进当事人。</text>
+  <text x="992" y="568" font-size="11.5" font-weight="700" fill="#2f6feb">人设不变，信息面不同 → 真张力</text>
+
+  <!-- v2 通路：历史上下文 → 可见性过滤器 -->
+  <path d="M580,530 L580,592 L1074,592 L1074,616" fill="none" stroke="#2f6feb" stroke-width="1.8" stroke-dasharray="6 4" marker-end="url(#arwB)"/>
+  <text x="830" y="586" font-size="11.5" fill="#2f6feb" text-anchor="end">过滤前的原始历史 + 可见性标签</text>
+
+  <!-- v2 悄悄话存储器 -->
+  <rect x="240" y="600" width="404" height="42" rx="7" fill="#fff8e6" stroke="#d9a441" stroke-width="1.5" stroke-dasharray="6 3"/>
+  <text x="256" y="618" font-size="12.5" font-weight="700" fill="#8a6414">v2 悄悄话存储器</text>
+  <text x="256" y="635" font-size="12" fill="#8a6414">私域消息（用户 → 某位在座人物）+ 到场名单</text>
+  <path d="M600,600 L600,540" fill="none" stroke="#d9a441" stroke-width="1.6" stroke-dasharray="5 3" marker-end="url(#arwB)"/>
+  <text x="740" y="558" font-size="11.5" fill="#8a6414">仅注入当事人 prompt</text>
+
+  <line x1="1235" y1="683" x2="1235" y2="669" stroke="#9aa4b2" stroke-width="1.6" marker-end="url(#arw)"/>
+  <text x="1226" y="680" font-size="11.5" fill="#8b93a0" text-anchor="end">请求上行</text>
+
+  <!-- ================= 数据层 ================= -->
+  <rect x="60" y="686" width="1130" height="66" rx="8" fill="#f2f5f8" stroke="#dbe1e7"/>
+  <text x="80" y="716" font-size="14.5" font-weight="700" fill="#2b3138">数据层</text>
+  <rect x="205" y="696" width="228" height="46" rx="6" fill="#ffffff" stroke="#c8ced6"/>
+  <text x="219" y="715" font-size="13" font-weight="700" fill="#3f4650">skills/*.md</text>
+  <text x="219" y="734" font-size="12.5" fill="#6b7280">40+ 份人格文件</text>
+  <rect x="445" y="696" width="228" height="46" rx="6" fill="#ffffff" stroke="#c8ced6"/>
+  <text x="459" y="715" font-size="13" font-weight="700" fill="#3f4650">manifest.json</text>
+  <text x="459" y="734" font-size="12.5" fill="#6b7280">人格索引与版本</text>
+  <rect x="685" y="696" width="228" height="46" rx="6" fill="#ffffff" stroke="#c8ced6"/>
+  <text x="699" y="715" font-size="13" font-weight="700" fill="#3f4650">角色元数据</text>
+  <text x="699" y="734" font-size="12.5" fill="#6b7280">头像 / 简介 / 标签</text>
+  <rect x="925" y="696" width="250" height="46" rx="6" fill="#ffffff" stroke="#c8ced6"/>
+  <text x="939" y="715" font-size="13" font-weight="700" fill="#3f4650">会话历史</text>
+  <text x="939" y="734" font-size="12.5" fill="#6b7280">发言 + 可见性标签（v2 新增字段）</text>
+
+  <line x1="1235" y1="767" x2="1235" y2="753" stroke="#9aa4b2" stroke-width="1.6" marker-end="url(#arw)"/>
+  <text x="1226" y="764" font-size="11.5" fill="#8b93a0" text-anchor="end">请求上行</text>
+
+  <!-- ================= 模型层 ================= -->
+  <rect x="60" y="770" width="1130" height="66" rx="8" fill="#f2f5f8" stroke="#dbe1e7"/>
+  <text x="80" y="800" font-size="14.5" font-weight="700" fill="#2b3138">模型层</text>
+  <rect x="205" y="780" width="330" height="46" rx="6" fill="#ffffff" stroke="#c8ced6"/>
+  <text x="219" y="799" font-size="13" font-weight="700" fill="#3f4650">智谱 glm-4-flash（默认模型）</text>
+  <text x="219" y="818" font-size="12.5" fill="#6b7280">零配置可用 · 低延迟 · 流式返回</text>
+  <rect x="547" y="780" width="330" height="46" rx="6" fill="#ffffff" stroke="#c8ced6"/>
+  <text x="561" y="799" font-size="13" font-weight="700" fill="#3f4650">BYOK：用户自带 API Key</text>
+  <text x="561" y="818" font-size="12.5" fill="#6b7280">DeepSeek 等 OpenAI 兼容端点</text>
+  <rect x="889" y="780" width="286" height="46" rx="6" fill="#ffffff" stroke="#c8ced6"/>
+  <text x="903" y="799" font-size="13" font-weight="700" fill="#3f4650">统一模型适配层</text>
+  <text x="903" y="818" font-size="12.5" fill="#6b7280">端点归一 · 流式协议对齐</text>
+
+  <line x1="1235" y1="851" x2="1235" y2="837" stroke="#9aa4b2" stroke-width="1.6" marker-end="url(#arw)"/>
+  <text x="1226" y="848" font-size="11.5" fill="#8b93a0" text-anchor="end">请求上行</text>
+
+  <!-- ================= 部署层 ================= -->
+  <rect x="60" y="854" width="1130" height="66" rx="8" fill="#f2f5f8" stroke="#dbe1e7"/>
+  <text x="80" y="884" font-size="14.5" font-weight="700" fill="#2b3138">部署层</text>
+  <rect x="205" y="864" width="480" height="46" rx="6" fill="#ffffff" stroke="#c8ced6"/>
+  <text x="219" y="883" font-size="13" font-weight="700" fill="#3f4650">阿里云香港服务器</text>
+  <text x="219" y="902" font-size="12.5" fill="#6b7280">域名 outgate.chat · HTTPS · 反向代理</text>
+  <rect x="697" y="864" width="478" height="46" rx="6" fill="#ffffff" stroke="#c8ced6"/>
+  <text x="711" y="883" font-size="13" font-weight="700" fill="#3f4650">podman 容器化部署</text>
+  <text x="711" y="902" font-size="12.5" fill="#6b7280">无 root 守护进程 · 镜像版本化 · 快速回滚</text>
+
+  <!-- ================= 数据安全设计 ================= -->
+  <rect x="60" y="936" width="1130" height="124" rx="8" fill="#fafbfc" stroke="#e2e6ea"/>
+  <text x="80" y="960" font-size="14.5" font-weight="700" fill="#2b3138">数据安全意识设计（评审要点）</text>
+  <line x1="80" y1="970" x2="1170" y2="970" stroke="#e7eaee"/>
+
+  <rect x="80" y="980" width="258" height="66" rx="7" fill="#ffffff" stroke="#c8ced6"/>
+  <text x="94" y="1000" font-size="12.5" font-weight="700" fill="#2b3138">① 可见性 = 最小权限</text>
+  <text x="94" y="1019" font-size="11.5" fill="#5b6472">悄悄话只进入当事人 prompt，服务端</text>
+  <text x="94" y="1037" font-size="11.5" fill="#5b6472">过滤而非前端隐藏，不进公共上下文。</text>
+
+  <rect x="352" y="980" width="258" height="66" rx="7" fill="#ffffff" stroke="#c8ced6"/>
+  <text x="366" y="1000" font-size="12.5" font-weight="700" fill="#2b3138">② 密钥与凭据</text>
+  <text x="366" y="1019" font-size="11.5" fill="#5b6472">默认模型 Key 仅存服务端；BYOK Key</text>
+  <text x="366" y="1037" font-size="11.5" fill="#5b6472">不落库、不写日志，随会话释放。</text>
+
+  <rect x="624" y="980" width="258" height="66" rx="7" fill="#ffffff" stroke="#c8ced6"/>
+  <text x="638" y="1000" font-size="12.5" font-weight="700" fill="#2b3138">③ 输入与传输</text>
+  <text x="638" y="1019" font-size="11.5" fill="#5b6472">导入 SKILL.md 校验格式与长度；全站</text>
+  <text x="638" y="1037" font-size="11.5" fill="#5b6472">HTTPS；接口限流，防滥用刷量。</text>
+
+  <rect x="896" y="980" width="274" height="66" rx="7" fill="#ffffff" stroke="#c8ced6"/>
+  <text x="910" y="1000" font-size="12.5" font-weight="700" fill="#2b3138">④ 部署与日志</text>
+  <text x="910" y="1019" font-size="11.5" fill="#5b6472">podman 非特权容器、最小镜像；日志</text>
+  <text x="910" y="1037" font-size="11.5" fill="#5b6472">脱敏，不留议题与私域对话原文。</text>
+</svg>

@@ -38,6 +38,32 @@ function roundRules(intl: boolean, speaker: { name: string; zhName: string }): s
 }
 // ROUND_FN_END
 
+// ===== v2 · 信息层（Information Layer）=====
+// 核心：桌上每个人掌握的上下文不再相同。发言可标为 public 或「仅某某可见」；
+// 生成某人的回复时，只喂它看得见的历史。用户可私下对某人说话 → 制造真实的信息不对称。
+// 详见 competition/docs/作品介绍文档.md
+type Vis = "public" | string[];
+type Utt = { role: "user" | "assistant"; who?: string; content: string; vis: Vis };
+
+const isPublic = (u: Utt): boolean => u.vis === "public";
+const seesUtt = (u: Utt, id: string): boolean => u.vis === "public" || (u.vis as string[]).includes(id);
+
+const WHISPER_TAG_ZH = "【有人私下对你说，桌上其他人听不到】";
+const WHISPER_TAG_EN = "[Whispered to you privately — the rest of the table cannot hear this]";
+
+// 让模型明白：这张桌上信息不对称。即使没有被私下告知，也要意识到别人可能知道你不知道的事。
+const INFO_LAYER_ZH =
+  "\n\n【信息层】这张桌子上，每个人知道的东西并不完全相同：别人看不到你和用户之间的私下交流，你也可能不知道别人私下听到了什么。你可以基于自己掌握的信息行动（质问某人、把某人的说法摆到桌面上、改变态度），但不要主动宣布「我是私下知道的」，也不要复述私下交流的原话。";
+const INFO_LAYER_EN =
+  "\n\n[Information layer] Around this table, not everyone knows the same things: the others cannot see your private exchanges with the user, and you may not know what they were told privately. You may act on what you hold (challenge someone, put their earlier remark on the table, shift your stance) — but never announce that a whisper happened, and never quote the private channel verbatim.";
+
+// 当某人确实收到过悄悄话时，追加更强的行动指令
+const WHISPER_NUDGE_ZH =
+  "\n\n【你刚掌握了一条别人不知道的信息】用户私下跟你说了些事。这一轮请基于它行动——最直接的做法是当场点名相关的人，把他们之前的说法摆出来对质。但不要说「私下」「悄悄」这类字眼，也不要复述用户原话。";
+const WHISPER_NUDGE_EN =
+  "\n\n[You now hold something the others do not] The user told you something privately. Act on it this turn — the most direct move is to name the relevant person and put their earlier remark on the table. Do not use the words \"privately\" or \"whisper\", and do not quote the user verbatim.";
+// ===== v2 · 信息层 END =====
+
 // ---- 触发式查梗（多源免费检索，失败静默跳过，不影响聊天）----
 const MEME_TRIGGER = /(什么(意思|梗)|为什么|是谁|是什么|是啥|啥意思|什么意思|什么意思啊|什么梗|求(解释|科普)|解释一下|科普一下|讲讲|知道吗|了解吗|听说过吗|认识吗|你懂吗|懂吗|查(一下|查)|搜(一下|搜)|上网(查|搜)|网上(都在说|说)|都在(说|刷|传)|最近(流行|火|刷屏)|现在(流行|火|刷屏)|网络(梗|词|热词|流行语)|热梗|热词|流行语|不懂|没听过|没看懂|不知道)/;
 
@@ -200,7 +226,8 @@ async function intlMemeSearch(q: string): Promise<{ brief: string; detail: strin
 }
 export async function POST(req: Request) {
   try {
-    const { characters: charIds, messages, mode, apiKey = "", baseURL = "", model = "", scene = "casual", userId = "", lang = "zh" } = await req.json();
+    // whisperOnly（v2 新增）：本轮只让这一个人回应（悄悄话定向发言），但桌上其他人仍在席
+    const { characters: charIds, messages, mode, apiKey = "", baseURL = "", model = "", scene = "casual", userId = "", lang = "zh", whisperOnly = "" } = await req.json();
     const intl = lang === "en";
 
     if (charIds === undefined || Array.isArray(charIds) === false || charIds.length === 0) {
@@ -222,13 +249,48 @@ export async function POST(req: Request) {
     });
     const mdl = model || (intlReady ? (process.env.INTL_MODEL || "meta-llama/llama-3.3-70b-instruct:free") : (process.env.AI_MODEL || "glm-4-flash"));
 
-    const history = messages.map((m: any) => ({
-      role: m.role === "assistant" ? "assistant" : "user",
-      content:
-        mode === "debate" && m.role === "assistant" && m.who
-          ? (intl ? m.who + ": " : m.who + "说：") + String(m.content ?? "")
-          : String(m.content ?? ""),
-    }));
+    // ---- v2：把消息升级成带可见性的发言记录 ----
+    // 前端约定：user 消息可选带 whisperTo（string | string[]）→ 该条只有目标人物看得见；
+    // 没有 whisperTo 的即 public。assistant 发言一律 public（别人看得到你说了什么，
+    // 但看不到你为什么这么说——这正是信息不对称的味道）。
+    const utts: Utt[] = (Array.isArray(messages) ? messages : []).map((m: any) => {
+      const isAssistant = m.role === "assistant";
+      let vis: Vis = "public";
+      if (!isAssistant) {
+        const w = m.whisperTo;
+        if (Array.isArray(w) && w.length) vis = w.map(String);
+        else if (typeof w === "string" && w) vis = [w];
+      }
+      return {
+        role: isAssistant ? "assistant" : "user",
+        who: m.who,
+        content: String(m.content ?? ""),
+        vis,
+      } as Utt;
+    });
+
+    // 某人看得见的历史（含「X说：」前缀；悄悄话加标记，让模型知道这是私下信息）
+    const visibleHistory = (speakerId: string) =>
+      utts
+        .filter((u) => seesUtt(u, speakerId))
+        .map((u) => {
+          if (mode === "debate" && u.role === "assistant" && u.who) {
+            return { role: "assistant", content: (intl ? u.who + ": " : u.who + "说：") + u.content };
+          }
+          if (u.role === "user" && !isPublic(u)) {
+            return { role: "user", content: (intl ? WHISPER_TAG_EN : WHISPER_TAG_ZH) + u.content };
+          }
+          return { role: u.role, content: u.content };
+        });
+
+    // 某人是否收到过悄悄话（决定是否追加行动指令）
+    const whispersFor = (speakerId: string) =>
+      utts.filter((u) => u.role === "user" && !isPublic(u) && (u.vis as string[]).includes(speakerId)).length;
+
+    const infoLayer = intl ? INFO_LAYER_EN : INFO_LAYER_ZH;
+    const whisperNudge = intl ? WHISPER_NUDGE_EN : WHISPER_NUDGE_ZH;
+    // 兼容旧引用：默认为第一位发言者视角
+    const history = visibleHistory(selected[0]?.id || "");
 
     const enc = new TextEncoder();
     const stream = new ReadableStream<Uint8Array>({
@@ -306,17 +368,50 @@ export async function POST(req: Request) {
 
         const replies: { who: string; text: string }[] = [];
         try {
-        if (selected.length === 1) {
+        // ---- v2：悄悄话定向发言（桌上仍是多人，只是这一轮只叫一个人回应）----
+        const whisperSpeakers = whisperOnly
+          ? selected.filter((s) => s.id === whisperOnly)
+          : [];
+        if (whisperSpeakers.length > 0) {
+          const sp = whisperSpeakers[0];
+          const prompt = [
+            {
+              role: "system" as const,
+              content:
+                getSkillSystem(sp.id, intl) + memeBlock +
+                (intl ? roundRules(true, sp) : roundRules(false, sp)) +
+                infoLayer +
+                (whispersFor(sp.id) > 0 ? whisperNudge : "") +
+                (intl ? ANTI_OUT_EN : ANTI_OUT) +
+                (intl ? (SCENE_RULES_EN[scene] || SCENE_RULES_EN.casual) : (SCENE_RULES[scene] || SCENE_RULES.casual)) +
+                (intl ? EN_ONLY : LANG_FOLLOW),
+            },
+            ...visibleHistory(sp.id),
+            {
+              role: "user" as const,
+              content: intl
+                ? "The user has just spoken to you privately. Answer them — and decide for yourself whether to bring it to the table."
+                : "用户刚刚私下跟你说了话。回应他——并自行决定要不要把这件事摆到台面上。",
+            },
+          ];
+          const text = await ask(sp, prompt);
+          replies.push({ who: sp.id, text });
+        } else if (selected.length === 1) {
           const singleText = await ask(selected[0], [
             { role: "system", content: getSkillSystem(selected[0].id, intl) + memeBlock + (intl ? ANTI_OUT_EN : ANTI_OUT) + (intl ? (SCENE_RULES_EN[scene] || SCENE_RULES_EN.casual) : (SCENE_RULES[scene] || SCENE_RULES.casual)) + (intl ? EN_ONLY : LANG_FOLLOW) },
-            ...history,
+            ...visibleHistory(selected[0].id),
           ]);
           replies.push({ who: selected[0].id, text: singleText });
         } else {
           const turns: { who: string; text: string }[] = [];
-          for (const speaker of selected) {
-            const debateContext = history.map((m: { role: string; content: string }) => {
-              const mm = /^([^\s：:]+)说[：:]\s*/.exec(m.content);
+          // v2：发言队列可变——被点名的人会被提到队首，实现"拉人对峙"
+          const queue: (typeof selected) = [...selected];
+          while (queue.length > 0) {
+            const speaker = queue.shift();
+            if (!speaker) break;
+            // v2：每人只喂它看得见的历史（信息层的地基）
+            const debateContext = visibleHistory(speaker.id).map((m: { role: string; content: string }) => {
+              const mm = /^([^\s：:]+)说[：:]/.exec(m.content);
               if (m.role === "assistant" && mm) {
                 const meta = getMeta(mm[1]);
                 return { ...m, content: (intl ? (meta?.name || mm[1]) + ": " : (meta?.zhName || mm[1]) + "说：") + m.content.slice(mm[0].length) };
@@ -329,6 +424,8 @@ export async function POST(req: Request) {
                 content:
                   getSkillSystem(speaker.id, intl) + memeBlock +
                   (intl ? roundRules(true, speaker) : roundRules(false, speaker)) +
+                  infoLayer +
+                  (whispersFor(speaker.id) > 0 ? whisperNudge : "") +
                   (intl ? ANTI_OUT_EN : ANTI_OUT) +
                   (intl ? (SCENE_RULES_EN[scene] || SCENE_RULES_EN.casual) : (SCENE_RULES[scene] || SCENE_RULES.casual)) +
                   (intl ? EN_ONLY : LANG_FOLLOW),
@@ -347,7 +444,15 @@ export async function POST(req: Request) {
             ];
             const text = await ask(speaker, prompt);
             turns.push({ who: speaker.id, text });
-            history.push({ role: "assistant", content: text });
+            // v2：发言公开进入桌上记录，并且带上发言人
+            //（v1 这里没有 who，导致同一轮里后面的人不知道前面是谁说的）
+            utts.push({ role: "assistant", who: intl ? speaker.name : speaker.zhName, content: text, vis: "public" });
+            // v2：拉人对峙——被点到名的人提到队首，紧接着发言
+            const nIdx = queue.findIndex((s) => text.includes(s.zhName) || (!!s.name && text.includes(s.name)));
+            if (nIdx > 0) {
+              const picked = queue.splice(nIdx, 1)[0];
+              queue.unshift(picked);
+            }
           }
           replies.push(...turns);
         }
