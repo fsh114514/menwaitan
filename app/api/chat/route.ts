@@ -101,6 +101,33 @@ const ANTI_CONSENSUS_ZH =
   "\n\n【讨论正在趋同】刚才这一轮几乎没有产生新信息，大家都在互相附和。这一轮你必须打破它：明确提出一个反对意见，或者给出一个此前没人提过的角度。不要复述任何人的观点。";
 const ANTI_CONSENSUS_EN =
   "\n\n[The discussion is converging] The last round produced almost no new information — everyone is echoing each other. Break it this turn: raise an explicit objection, or bring in an angle nobody has used yet. Do not restate anyone's point.";
+
+// ===== v2 · 主持人收尾 =====
+// 讨论被判定趋同后，由「门外谈」本人（不是任何一位思想家）出面把这场伪共识拆开。
+// 对应参考实践里那句「停止的时候 supervisor 会自动总结」。
+const HOST_ID = "__host__";
+// 注意：这个提示词被反复调过。软提示（"请把这件事说出来"）会让模型退化成复读机——
+// 实测它把几位的观点又总结了一遍，等于什么都没说。必须给数字、下禁令、明确"不是总结是拆穿"。
+const hostRulesZh = (value: number) =>
+  "你是「门外谈」的主持人，不是桌上的任何一位思想家，不站任何一边。\n"
+  + "桌上几位刚结束一轮发言，这一轮的信息新颖度只有 " + value + "%——他们在重复自己，而且没有一个人指出来。\n"
+  + "现在轮到你说话。你的任务不是总结，是拆穿。第一句就直接告诉他们：刚才这一轮等于什么都没谈成。\n"
+  + "然后像一个人当面把话挑明那样说下去：他们嘴上答成了什么、那个答成为什么经不起追问、"
+  + "真正的分歧被谁绕过去了、哪个问题从第一句起就没人敢碰。\n"
+  + "以下做法一律禁止：复述任何人的观点、逐个点评、使用编号或分点、写小标题、写「综上所述」、"
+  + "说「感谢各位发言」、说「希望大家继续思考」。\n"
+  + "四句话以内。用简体中文。";
+const hostRulesEn = (value: number) =>
+  "You are the host of Outgate, not one of the thinkers at the table and not aligned with any of them.\n"
+  + "The speakers have just finished a round whose information novelty was only " + value + "% — they are repeating themselves "
+  + "and none of them has pointed it out.\n"
+  + "It is your turn. Your job is not to summarise — it is to call it out. Open by telling them plainly that the round "
+  + "accomplished nothing. Then keep going the way a person says it to their face: what they pretend to have agreed on, "
+  + "why that agreement cannot survive a follow-up question, which real disagreement someone steered around, "
+  + "and which question nobody has dared touch since the first sentence.\n"
+  + "Forbidden: restating anyone's view, commenting on speakers one by one, numbering or bullets, headings, "
+  + "\"in conclusion\", \"thank you all for speaking\", \"let us keep thinking about this\".\n"
+  + "Four sentences or fewer. Reply in English only.";
 // ===== v2 · 信息层 END =====
 
 // v2：点名检测——只认「右边界不是汉字」的匹配。
@@ -625,6 +652,29 @@ export async function POST(req: Request) {
               const picked = queue.splice(nIdx, 1)[0];
               queue.unshift(picked);
             }
+          }
+          // v2：讨论被判定趋同 → 由「门外谈」本人收尾，把这场伪共识拆开。
+          // 放在所有发言者之后：先让他们自己试一轮（上面已注入强制反对指令），
+          // 试完还是空转，主持人才出面说清楚「你们其实什么都没谈拢」。
+          if (stagnant) {
+            try {
+              const transcript = turns
+                .map((t) => {
+                  const m = selected.find((s) => s.id === t.who);
+                  return (intl ? (m?.name || t.who) + ": " : (m?.zhName || t.who) + "说：") + t.text;
+                })
+                .join("\n\n");
+              const hostText = await ask(
+                { id: HOST_ID, zhName: intl ? "Outgate" : "门外谈", name: "Outgate", color: "#c8102e" },
+                [
+                  { role: "system" as const, content: (intl ? hostRulesEn(lastNovelty ?? 0) : hostRulesZh(lastNovelty ?? 0)) + (intl ? EN_ONLY : LANG_FOLLOW) },
+                  { role: "user" as const, content: transcript || String(messages[messages.length - 1]?.content ?? "") },
+                ],
+              );
+              turns.push({ who: HOST_ID, text: hostText });
+              // 主持人发言也进入桌上记录，但标成 public（所有人都听得到）
+              utts.push({ role: "assistant", who: intl ? "Outgate" : "门外谈", content: hostText, vis: "public" });
+            } catch { /* 主持人不参与评审，失败不影响主体流程 */ }
           }
           replies.push(...turns);
         }
