@@ -408,6 +408,8 @@ export default function RevolutionPreview() {
   const [mode, setMode] = useState<"chat" | "debate">("debate");
   // v2 信息层：当前正在私下对谁说话（空 = 公开发言）
   const [whisperTo, setWhisperTo] = useState<string>("");
+  // v2 信息层：悄悄话之后自动接的那一轮公开圆桌（用于显示「桌上正在反应」）
+  const [autoRound, setAutoRound] = useState(false);
   const [memeNote, setMemeNote] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
   const [newsOpen, setNewsOpen] = useState(false);
@@ -632,10 +634,12 @@ export default function RevolutionPreview() {
   const safeGrid = gridChars.filter((c) => !SENSITIVE_IDS.has(c.id));
   const sensGrid = gridChars.filter((c) => SENSITIVE_IDS.has(c.id));
   const charById = (id: string) => chars.find((c) => c.id === id);
-  const toggleChar = (id: string) =>
-    setSelected((prev) =>
-      prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]
-    );
+  const toggleChar = (id: string) => {
+    const next = selected.includes(id) ? selected.filter((x) => x !== id) : [...selected, id];
+    // v2：离席的人如果正是悄悄话对象，或者桌上只剩一个人（悄悄话失去意义），就退出悄悄话状态
+    if (whisperTo && (whisperTo === id || !next.includes(whisperTo) || next.length < 2)) setWhisperTo("");
+    setSelected(next);
+  };
 
 
   const dragId = useRef<string | null>(null);
@@ -990,10 +994,20 @@ export default function RevolutionPreview() {
         current = await streamChat(current, whisperTarget || undefined);
         if (r < rn - 1) await new Promise((res) => setTimeout(res, 400));
       }
-      if (whisperTarget) setWhisperTo("");
+      // v2 信息层关键一环：私下说完之后，自动接一轮公开圆桌。
+      // 这样「你悄悄告诉了他一件事 → 他转身就在桌上摊开」是一次操作完成的，
+      // 也正是这个机制最该被看见的地方。（只有圆桌模式且桌上不止一人时触发）
+      if (whisperTarget && mode === "debate" && selected.length > 1) {
+        setAutoRound(true);
+        await new Promise((res) => setTimeout(res, 500));
+        current = await streamChat(current);
+        setAutoRound(false);
+      }
     } catch (e: any) {
       setMessages((prev) => [...prev, { role: "assistant", err: true, content: (lang === "zh" ? "连接中断，请稍后再试" : "Connection interrupted, try again later") }]);
     } finally {
+      // v2：不管成功失败都退出悄悄话状态，避免卡在私聊模式
+      if (whisperTarget) setWhisperTo("");
       if (sendSeqRef.current === mySeq) {
         if (pausedRef.current) { pausedRef.current = false; setPaused(false); bumpRef.current(); }
         setLoading(false); setTyping(false);
@@ -1006,7 +1020,8 @@ export default function RevolutionPreview() {
               userId: uid,
               mode,
               characters: selected.map((id) => chars.find((c) => c.id === id)?.zhName || id),
-              messages: current,
+              // v2：悄悄话原文不进日志，只留一个标记（隐私保护 / 对应评审的"数据安全意识"）
+              messages: current.map((m) => (m.whisperTo ? { role: m.role, who: m.who, whisperTo: m.whisperTo, content: "[whisper — content not logged]" } : m)),
             }),
           }).catch(() => {});
         } catch { /* logging never breaks chat */ }
@@ -1277,6 +1292,16 @@ export default function RevolutionPreview() {
                       : "正在私下对 " + (charById(whisperTo)?.zhName || whisperTo) + " 说话 —— 桌上其他人看不到"}
                   </span>
                   <button className="cx" onClick={() => setWhisperTo("")}>{lang === "en" ? "Cancel" : "取消"}</button>
+                </div>
+              )}
+              {autoRound && (
+                <div className="rv-whisper-bar rv-whisper-auto">
+                  <span className="lk">◆</span>
+                  <span className="tx">
+                    {lang === "en"
+                      ? "The table is reacting — what you said in private is being brought up in the open"
+                      : "桌上正在反应 —— 你私下说的那件事，被人摆到台面上了"}
+                  </span>
                 </div>
               )}
               <div className="rv-chat-input">

@@ -1017,3 +1017,15 @@ html, body { overflow-x: clip; }
 }
 .rv-avatars.mini .rv-avatar:hover .wh, .rv-avatars.mini .rv-avatar .wh.on { opacity: 1; }
 .rv-avatars.mini .rv-avatar .wh.on { background: var(--red); border-color: var(--red); color: var(--paper); }
+
+/* v2：悄悄话之后自动接的那一轮公开圆桌的状态条 */
+.rv-whisper-bar.rv-whisper-auto {
+  border-style: solid; border-color: var(--gold);
+  background: rgba(168, 134, 47, 0.10);
+  color: #6f5716;
+  animation: rvWhisperPulse 1.6s var(--ease-out) infinite;
+}
+@keyframes rvWhisperPulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.62; }
+}

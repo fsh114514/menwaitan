@@ -57,12 +57,67 @@ const INFO_LAYER_ZH =
 const INFO_LAYER_EN =
   "\n\n[Information layer] Around this table, not everyone knows the same things: the others cannot see your private exchanges with the user, and you may not know what they were told privately. You may act on what you hold (challenge someone, put their earlier remark on the table, shift your stance) — but never announce that a whisper happened, and never quote the private channel verbatim.";
 
-// 当某人确实收到过悄悄话时，追加更强的行动指令
+// 场景 A·悄悄话当轮（只有你和用户在说话，桌上其他人不在场）：
+// 这一轮的任务是"听到"，不是"当众摊牌"——摊牌留给紧接着的公开圆桌。
+const WHISPER_REPLY_ZH =
+  "\n\n【这是私下交谈】用户避开旁人，单独跟你说了这些；桌上其他人此刻听不到。你现在就是面对他一个人在说话：可以表态、可以追问、也可以说清你打算怎么办。别客套，也别说「我会认真考虑」「我会谨慎行事」这类空话——要么认同、要么反驳、要么追问他什么意思。";
+const WHISPER_REPLY_EN =
+  "\n\n[This is a private exchange] The user has set the others aside and told you something; nobody else at the table can hear it right now. You are speaking to them alone: take a position, press for detail, or say plainly what you intend to do. No pleasantries, and no empty filler like \"I will give it serious thought\" — agree, push back, or ask what they mean.";
+
+// 场景 B·公开圆桌轮（你手里有一条别人不知道的信息）：
+// 这一轮才是"当众摊牌"——必须真的做出动作，而不是心里想想。
 const WHISPER_NUDGE_ZH =
-  "\n\n【你刚掌握了一条别人不知道的信息】用户私下跟你说了些事。这一轮请基于它行动——最直接的做法是当场点名相关的人，把他们之前的说法摆出来对质。但不要说「私下」「悄悄」这类字眼，也不要复述用户原话。";
+  "\n\n【你手里有一条别人不知道的信息】用户私下跟你说过一些事，桌上其他人并不知道。这一轮别再泛泛而谈：直接把相关的人点出来，把他先前的说法摆到桌面上对质。至少要做这一件事。但不要说「私下」「悄悄」「有人告诉我」这类字眼，也不要复述用户原话。";
 const WHISPER_NUDGE_EN =
-  "\n\n[You now hold something the others do not] The user told you something privately. Act on it this turn — the most direct move is to name the relevant person and put their earlier remark on the table. Do not use the words \"privately\" or \"whisper\", and do not quote the user verbatim.";
+  "\n\n[You hold something the others do not] The user told you something privately and the rest of the table does not know it. Do not stay generic this turn: name the relevant person outright and put their earlier remark on the table for them to answer. Do at least that. But never say \"privately\", \"whisper\" or \"I was told\" — and never quote the user verbatim.";
+
+// 场景 C·有人当众点了你的名：你被挑战了，必须正面接火，不许用「我同意」敷衍过去。
+// 这是伪共识的另一半——信息不对称把人推到台前，还得让他站得住。
+const CHALLENGED_ZH =
+  "\n\n【有人当众点了你的名】上一位发言人直接冲你来了。绝不要用「我同意」「你说得对」「确实如此」开场——先正面回答他抛给你的质疑，把你的立场说清楚，再往下推进。";
+const CHALLENGED_EN =
+  "\n\n[Someone just called you out] The previous speaker came straight at you. Never open with \"I agree\" or \"you're right\" — answer the challenge head-on, restate where you stand, then move the discussion forward.";
 // ===== v2 · 信息层 END =====
+
+// v2：点名检测——只认「右边界不是汉字」的匹配。
+// 否则「凯恩斯主义」会把凯恩斯提前到队首、「孔子学院」会误伤孔子。
+const escapeRe = (s: string): string => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+function mentionsSpeaker(text: string, names: string[]): boolean {
+  if (!text) return false;
+  for (const n of names) {
+    if (!n || n.length < 2) continue;
+    try {
+      if (new RegExp(escapeRe(n) + "(?![\\u4e00-\\u9fff])").test(text)) return true;
+    } catch { /* 正则异常就跳过这个名字 */ }
+  }
+  return false;
+}
+
+// v2：宽松匹配——只用来扫「这条悄悄话在讲谁」，不用于决定发言顺序。
+// 严格版会把「乔布斯那套追随内心」判成没提到乔布斯（右边是"那"），
+// 结果悄悄话的摊牌指令根本触发不了。识别话题要松，改发言顺序要紧。
+function mentionsAnywhere(text: string, names: string[]): boolean {
+  if (!text) return false;
+  for (const n of names) {
+    if (!n || n.length < 2) continue;
+    if (text.includes(n)) return true;
+  }
+  return false;
+}
+
+// v2：去掉模型给自己加的「某某说：」前缀（模仿历史格式）。
+// 桌面发言带上发言人之后这个副作用会变常见，流里已发出的不管，只清理上下文。
+function stripSelfPrefix(text: string, selfNames: string[]): string {
+  if (!text) return text;
+  for (const n of selfNames) {
+    if (!n) continue;
+    try {
+      const re = new RegExp("^\\s*" + escapeRe(n) + "\\s*(说|道|認為|认为)?\\s*[：:]\\s*");
+      if (re.test(text)) return text.replace(re, "").trimStart();
+    } catch { /* 正则异常跳过 */ }
+  }
+  return text;
+}
 
 // ---- 触发式查梗（多源免费检索，失败静默跳过，不影响聊天）----
 const MEME_TRIGGER = /(什么(意思|梗)|为什么|是谁|是什么|是啥|啥意思|什么意思|什么意思啊|什么梗|求(解释|科普)|解释一下|科普一下|讲讲|知道吗|了解吗|听说过吗|认识吗|你懂吗|懂吗|查(一下|查)|搜(一下|搜)|上网(查|搜)|网上(都在说|说)|都在(说|刷|传)|最近(流行|火|刷屏)|现在(流行|火|刷屏)|网络(梗|词|热词|流行语)|热梗|热词|流行语|不懂|没听过|没看懂|不知道)/;
@@ -287,10 +342,29 @@ export async function POST(req: Request) {
     const whispersFor = (speakerId: string) =>
       utts.filter((u) => u.role === "user" && !isPublic(u) && (u.vis as string[]).includes(speakerId)).length;
 
+    // v2：这条悄悄话里点到了桌上哪些人？→ 公开圆桌那一轮要把它变成"当众点名"。
+    // 光靠 system 里的软提示，模型会滑回泛泛而谈（实测：鲁迅回去讲道理，乔布斯直接附和）。
+    // 所以在最后一轮 user 消息里给出明确动作，点名对象由悄悄话原文里扫出来。
+    const whisperTargetsFor = (speakerId: string): string[] => {
+      const found: string[] = [];
+      for (const u of utts) {
+        if (u.role !== "user" || isPublic(u)) continue;
+        if (!(u.vis as string[]).includes(speakerId)) continue;
+        for (const s of selected) {
+          if (s.id === speakerId) continue;
+          const label = intl ? (s.name || s.zhName) : s.zhName;
+          if (found.includes(label)) continue;
+          if (mentionsAnywhere(u.content, intl ? [s.name, s.zhName] : [s.zhName])) found.push(label);
+        }
+      }
+      return found;
+    };
+
     const infoLayer = intl ? INFO_LAYER_EN : INFO_LAYER_ZH;
+    // 两个场景两套指令：私下当轮是「听到并表态」，公开圆桌轮才是「当众摊牌」
+    const whisperReply = intl ? WHISPER_REPLY_EN : WHISPER_REPLY_ZH;
     const whisperNudge = intl ? WHISPER_NUDGE_EN : WHISPER_NUDGE_ZH;
-    // 兼容旧引用：默认为第一位发言者视角
-    const history = visibleHistory(selected[0]?.id || "");
+    // 注：v2 起不再有「整桌共享」的 history。每个发言者的上下文由 visibleHistory(id) 现算。
 
     const enc = new TextEncoder();
     const stream = new ReadableStream<Uint8Array>({
@@ -299,8 +373,10 @@ export async function POST(req: Request) {
           controller.enqueue(enc.encode("data: " + JSON.stringify(obj) + "\n\n"));
         };
         // 触发式查梗：命中才搜，失败静默跳过
+        // v2 修复：只允许「公开的」用户消息触发检索。
+        // 否则一条悄悄话会被搜成「场外情报」并拼进所有发言者的 system —— 秘密就公开了。
         let memeBlock = "";
-        const lastMsg = [...messages].reverse().find((m: any) => m.role !== "assistant");
+        const lastMsg = [...messages].reverse().find((m: any) => m.role !== "assistant" && !m.whisperTo);
         const lastText = lastMsg ? String(lastMsg.content ?? "") : "";
         if ((intl ? intlShould(lastText) : shouldSearch(lastText)) && allowSearch(userId)) {
           const info = intl ? await intlMemeSearch(extractKeywordIntl(lastText)) : await fetchMemeInfo(extractKeyword(lastText));
@@ -329,7 +405,30 @@ export async function POST(req: Request) {
           throw lastErr;
         };
         // 流式取一段回复；guard=true 时一旦出现汉字就立即停手（英文模式兜底）
-        const streamOnce = async (prompt: any[], guard: boolean): Promise<{ text: string; cjk: boolean }> => {
+        // v2：桌面发言带上发言人后，模型偶尔会模仿历史里的「某某说：」给自己加前缀。
+        // 但流是一边生成一边外发的——等看完整段再判断就晚了。所以先扣住开头一小段，
+        // 确认没有自我前缀再吐出去；到阈值或出现句读就定稿放行，绝不长时间拖延输出。
+        const HOLD_MAX = 16;
+        const makeHeadGate = (selfNames: string[]) => {
+          const names = selfNames.filter(Boolean).map(escapeRe).join("|");
+          const prefixRe = names ? new RegExp("^\\s*(" + names + ")\\s*(说|道)?\\s*[：:]\\s*") : null;
+          let buf = "";
+          let open = false;
+          return (delta: string, flushAll: boolean): string => {
+            if (open) return delta;
+            buf += delta;
+            const ready = flushAll || buf.length >= HOLD_MAX || /[\n。！？!?]/.test(buf);
+            if (!ready) return "";
+            open = true;
+            if (prefixRe) {
+              const m = prefixRe.exec(buf);
+              if (m && m[0].length < buf.length) buf = buf.slice(m[0].length);
+            }
+            return buf;
+          };
+        };
+
+        const streamOnce = async (prompt: any[], guard: boolean, gateIn?: (d: string, flushAll: boolean) => string): Promise<{ text: string; cjk: boolean }> => {
           const res = await call(prompt);
           let text = "";
           let cjk = false;
@@ -339,7 +438,12 @@ export async function POST(req: Request) {
             text += delta;
             if (CJK_RE.test(delta)) cjk = true;
             if (guard && cjk) return { text, cjk: true };
-            send({ type: "delta", text: delta });
+            const outDelta = gateIn ? gateIn(delta, false) : delta;
+            if (outDelta) send({ type: "delta", text: outDelta });
+          }
+          if (gateIn) {
+            const tail = gateIn("", true);
+            if (tail) send({ type: "delta", text: tail });
           }
           return { text, cjk };
         };
@@ -347,23 +451,27 @@ export async function POST(req: Request) {
         const ask = async (speaker: { id: string; zhName: string; name: string; color: string }, prompt: any[]) => {
           send({ type: "who", who: speaker.id, name: intl ? speaker.name : speaker.zhName, color: speaker.color });
           if (intl) pinEnglish(prompt);
-          let out = await streamOnce(prompt, intl);
+          const selfNames = [speaker.zhName, speaker.name].filter(Boolean) as string[];
+          // 每次重答都要用一个全新的闸门，避免上一段的残留
+          let out = await streamOnce(prompt, intl, makeHeadGate(selfNames));
           // 英文模式防中文：模型偶尔会跟着中文提问走回中文（客户端收到 reset 会清屏）
           // 兜底顺序：原样重答 → 把自己的回答翻译成英文（翻译请求最不容易再吐出汉字）
           if (intl && out.cjk) {
             send({ type: "reset" });
-            const again = await streamOnce([...prompt, { role: "user", content: EN_RETRY }], true);
+            const again = await streamOnce([...prompt, { role: "user", content: EN_RETRY }], true, makeHeadGate(selfNames));
             out = again;
             if (again.cjk) {
               send({ type: "reset" });
               out = await streamOnce(
                 [...prompt, { role: "assistant", content: again.text }, { role: "user", content: EN_TRANSLATE }],
                 false,
+                makeHeadGate(selfNames),
               );
             }
           }
           send({ type: "done", who: speaker.id });
-          return out.text;
+          // 显示层由 makeHeadGate 清洗；这里再洗一次，保证进入下一轮上下文的是干净的正文
+          return stripSelfPrefix(out.text, selfNames);
         };
 
         const replies: { who: string; text: string }[] = [];
@@ -374,6 +482,7 @@ export async function POST(req: Request) {
           : [];
         if (whisperSpeakers.length > 0) {
           const sp = whisperSpeakers[0];
+          // 这一轮是私下当轮：只让当事人听到并表态，当众摊牌留给紧接着的公开圆桌
           const prompt = [
             {
               role: "system" as const,
@@ -381,7 +490,7 @@ export async function POST(req: Request) {
                 getSkillSystem(sp.id, intl) + memeBlock +
                 (intl ? roundRules(true, sp) : roundRules(false, sp)) +
                 infoLayer +
-                (whispersFor(sp.id) > 0 ? whisperNudge : "") +
+                (whispersFor(sp.id) > 0 ? whisperReply : "") +
                 (intl ? ANTI_OUT_EN : ANTI_OUT) +
                 (intl ? (SCENE_RULES_EN[scene] || SCENE_RULES_EN.casual) : (SCENE_RULES[scene] || SCENE_RULES.casual)) +
                 (intl ? EN_ONLY : LANG_FOLLOW),
@@ -433,13 +542,33 @@ export async function POST(req: Request) {
               ...debateContext,
               {
                 role: "user" as const,
-                content: intl
-                  ? (turns.length === 0
-                      ? "It’s your turn, " + speaker.name + ". Give the table your own take on the question just put to it — in your own voice."
-                      : "Your turn, " + speaker.name + ". Respond to the discussion above.")
-                  : (turns.length === 0
-                      ? "请你以" + speaker.zhName + "的身份，就刚才的话题发表你的观点。"
-                      : "轮到你发言了，" + speaker.zhName + "。请回应前面的讨论。"),
+                content: (() => {
+                  const tg = whisperTargetsFor(speaker.id);
+                  // v2：握有悄悄话的人，这一轮的第一动作就是当众点名——不给它"回去讲道理"的机会
+                  if (tg.length > 0) {
+                    return intl
+                      ? "Your turn, " + speaker.name + ". You hold something the others do not. Open by naming " + tg.join(" and ") + " directly and put their earlier remark in front of them to answer. Do not open with generalities — go straight at them."
+                      : "轮到你发言了，" + speaker.zhName + "。你手里有一条别人不知道的信息。第一句话就当场点名" + tg.join("、") + "，把他先前的说法摆到他面前让他回答。不要先用大道理铺陈，直接冲他去。";
+                  }
+                  // v2：上一位提到了你 → 你被推到台前了，正面接火，不许服软。
+                  // 这里用宽松匹配：他在发言里提到你的名字（哪怕是"乔布斯曾言…"），
+                  // 在圆桌上就等于点了你的名。严格匹配会漏掉绝大多数真实情况。
+                  const lastTurn = turns.length > 0 ? turns[turns.length - 1] : null;
+                  const challenged = !!lastTurn &&
+                    mentionsAnywhere(lastTurn.text, intl ? [speaker.name, speaker.zhName] : [speaker.zhName]);
+                  if (challenged) {
+                    return intl
+                      ? "Your turn, " + speaker.name + ". " + lastTurn!.who + " just called you out by name. Do not open with agreement — answer the challenge first, then say where you stand."
+                      : "轮到你发言了，" + speaker.zhName + "。刚才有人当众点了你的名，直接冲你来了。不要用「我同意」开场——先正面回答他的质疑，再说清你的立场。";
+                  }
+                  return intl
+                    ? (turns.length === 0
+                        ? "It’s your turn, " + speaker.name + ". Give the table your own take on the question just put to it — in your own voice."
+                        : "Your turn, " + speaker.name + ". Respond to the discussion above.")
+                    : (turns.length === 0
+                        ? "请你以" + speaker.zhName + "的身份，就刚才的话题发表你的观点。"
+                        : "轮到你发言了，" + speaker.zhName + "。请回应前面的讨论。");
+                })(),
               },
             ];
             const text = await ask(speaker, prompt);
@@ -448,7 +577,10 @@ export async function POST(req: Request) {
             //（v1 这里没有 who，导致同一轮里后面的人不知道前面是谁说的）
             utts.push({ role: "assistant", who: intl ? speaker.name : speaker.zhName, content: text, vis: "public" });
             // v2：拉人对峙——被点到名的人提到队首，紧接着发言
-            const nIdx = queue.findIndex((s) => text.includes(s.zhName) || (!!s.name && text.includes(s.name)));
+            // 用 mentionsSpeaker 做右边界校验；中文模式只认中文名，避免英文名乱命中
+            const nIdx = queue.findIndex((s) =>
+              mentionsSpeaker(text, intl ? [s.name, s.zhName] : [s.zhName])
+            );
             if (nIdx > 0) {
               const picked = queue.splice(nIdx, 1)[0];
               queue.unshift(picked);
