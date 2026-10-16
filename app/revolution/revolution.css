@@ -1029,3 +1029,17 @@ html, body { overflow-x: clip; }
   0%, 100% { opacity: 1; }
   50% { opacity: 0.62; }
 }
+
+/* v2：信息新颖度指示条（讨论趋同时亮灯） */
+.rv-novelty {
+  display: flex; align-items: center; gap: var(--s-2);
+  margin: 0 0 var(--s-2); padding: 0.4em 0.75em;
+  border: 1px solid var(--line); background: var(--card);
+  font-family: var(--font-serif); font-size: 0.78rem; color: var(--ink-soft);
+}
+.rv-novelty .lb { flex: 0 0 auto; letter-spacing: .08em; }
+.rv-novelty .bar { flex: 0 0 120px; height: 6px; background: var(--paper-2); border: 1px solid var(--line); position: relative; overflow: hidden; }
+.rv-novelty .bar i { display: block; height: 100%; background: var(--ink-faint); transition: width .5s var(--ease-out); }
+.rv-novelty .tx { flex: 1 1 auto; line-height: 1.4; }
+.rv-novelty.stagnant { border-color: var(--red); color: var(--red-deep); background: rgba(163, 39, 44, 0.06); }
+.rv-novelty.stagnant .bar i { background: var(--red); }

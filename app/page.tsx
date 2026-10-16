@@ -410,6 +410,8 @@ export default function RevolutionPreview() {
   const [whisperTo, setWhisperTo] = useState<string>("");
   // v2 信息层：悄悄话之后自动接的那一轮公开圆桌（用于显示「桌上正在反应」）
   const [autoRound, setAutoRound] = useState(false);
+  // v2 信息层：上一轮的信息新颖度（讨论趋同时亮灯）
+  const [novelty, setNovelty] = useState<{ value: number; stagnant: boolean } | null>(null);
   const [memeNote, setMemeNote] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
   const [newsOpen, setNewsOpen] = useState(false);
@@ -939,6 +941,9 @@ export default function RevolutionPreview() {
           if (!pausedRef.current) bump();
         } else if (ev.type === "note") {
           setMemeNote(String(ev.text || ""));
+        } else if (ev.type === "novelty") {
+          // v2：上一轮的信息新颖度（服务端本地算的 2-gram 重疊率）
+          setNovelty({ value: Number(ev.value) || 0, stagnant: !!ev.stagnant });
         } else if (ev.type === "done") {
           if (!pausedRef.current) { pushLive(); setMessages([...out]); }
         } else if (ev.type === "error") {
@@ -1282,6 +1287,18 @@ export default function RevolutionPreview() {
                   {t.defaultHint}
                   <a className="rv-hint-link" onClick={() => setTab("settings")}>{t.getKeyHint} →</a>
                 </p>
+              )}
+              {novelty && !whisperTo && (
+                <div className={"rv-novelty" + (novelty.stagnant ? " stagnant" : "")}>
+                  <span className="lb">{lang === "en" ? "Novelty" : "新颖度"}</span>
+                  <span className="bar"><i style={{ width: Math.max(2, Math.min(100, novelty.value)) + "%" }} /></span>
+                  <span className="tx">
+                    {novelty.value}%
+                    {novelty.stagnant
+                      ? (lang === "en" ? " — converging; an objection has been forced" : " —— 讨论正在趋同，已强制提出反对意见")
+                      : ""}
+                  </span>
+                </div>
               )}
               {whisperTo && (
                 <div className="rv-whisper-bar">

@@ -77,6 +77,30 @@ const CHALLENGED_ZH =
   "\n\n【有人当众点了你的名】上一位发言人直接冲你来了。绝不要用「我同意」「你说得对」「确实如此」开场——先正面回答他抛给你的质疑，把你的立场说清楚，再往下推进。";
 const CHALLENGED_EN =
   "\n\n[Someone just called you out] The previous speaker came straight at you. Never open with \"I agree\" or \"you're right\" — answer the challenge head-on, restate where you stand, then move the discussion forward.";
+
+// ===== v2 · 讨论停滞判据（信息新颖度）=====
+// 思路来自一个真实的多智能体工程实践：用「信息熵新颖度」而不是「聊够了没有」来判定讨论死活。
+// 这里不需要额外花 token——把发言切成字符 2-gram，和此前出现过的所有 2-gram 比一比：
+// 全是旧话 → 新颖度趋近 0；全是新东西 → 趋近 1。纯本地计算，零额外模型调用。
+function charNgrams(text: string, n = 2): Set<string> {
+  const s = String(text || "").replace(/[\s\p{P}\p{S}]/gu, "");
+  const out = new Set<string>();
+  for (let i = 0; i + n <= s.length; i++) out.add(s.slice(i, i + n));
+  return out;
+}
+function noveltyAgainst(seen: Set<string>, text: string): number {
+  const cur = charNgrams(text);
+  if (cur.size === 0) return 0;
+  let hit = 0;
+  cur.forEach((g) => { if (seen.has(g)) hit++; });
+  return 1 - hit / cur.size;
+}
+// 低于这个值就判定「在互相附和」→ 下一轮强制提出反对意见
+const STAGNANT_THRESHOLD = 0.34;
+const ANTI_CONSENSUS_ZH =
+  "\n\n【讨论正在趋同】刚才这一轮几乎没有产生新信息，大家都在互相附和。这一轮你必须打破它：明确提出一个反对意见，或者给出一个此前没人提过的角度。不要复述任何人的观点。";
+const ANTI_CONSENSUS_EN =
+  "\n\n[The discussion is converging] The last round produced almost no new information — everyone is echoing each other. Break it this turn: raise an explicit objection, or bring in an angle nobody has used yet. Do not restate anyone's point.";
 // ===== v2 · 信息层 END =====
 
 // v2：点名检测——只认「右边界不是汉字」的匹配。
@@ -324,6 +348,17 @@ export async function POST(req: Request) {
       } as Utt;
     });
 
+    // ===== v2 · 讨论是否正在趋同（无状态判据，每次请求现算）=====
+    // 取「最后一段连续的 assistant 发言」当作上一轮，和它之前的全部内容比新颖度。
+    // 这样不需要跨请求存状态，多用户也不会串台。
+    let runStart = utts.length;
+    while (runStart > 0 && utts[runStart - 1].role === "assistant") runStart--;
+    const lastRoundText = utts.slice(runStart).filter((u) => u.who).map((u) => u.content).join("\n");
+    const priorText = utts.slice(0, runStart).map((u) => u.content).join("\n");
+    const lastNovelty: number | null =
+      lastRoundText && priorText ? noveltyAgainst(charNgrams(priorText), lastRoundText) : null;
+    const stagnant = lastNovelty !== null && lastNovelty < STAGNANT_THRESHOLD;
+
     // 某人看得见的历史（含「X说：」前缀；悄悄话加标记，让模型知道这是私下信息）
     const visibleHistory = (speakerId: string) =>
       utts
@@ -386,6 +421,10 @@ export async function POST(req: Request) {
               : "\n\n【场外情报（网络检索，仅供参考）】\n" + info.detail + "\n以上情报仅供理解话题背景。不要照读或引用原文，用你自己的身份和口吻自然回应；与情报冲突时，保持你自己的立场。";
             try { send({ type: "note", text: info.brief }); } catch { /* ignore */ }
           }
+        }
+        // v2：把「上一轮的新颖度」发给前端做可视化（讨论趋同时前端会亮灯）
+        if (lastNovelty !== null) {
+          try { send({ type: "novelty", value: Math.round(lastNovelty * 100), stagnant }); } catch { /* ignore */ }
         }
         const call = async (prompt: any[]): Promise<any> => {
           let lastErr: any = null;
@@ -535,6 +574,7 @@ export async function POST(req: Request) {
                   (intl ? roundRules(true, speaker) : roundRules(false, speaker)) +
                   infoLayer +
                   (whispersFor(speaker.id) > 0 ? whisperNudge : "") +
+                  (stagnant ? (intl ? ANTI_CONSENSUS_EN : ANTI_CONSENSUS_ZH) : "") +
                   (intl ? ANTI_OUT_EN : ANTI_OUT) +
                   (intl ? (SCENE_RULES_EN[scene] || SCENE_RULES_EN.casual) : (SCENE_RULES[scene] || SCENE_RULES.casual)) +
                   (intl ? EN_ONLY : LANG_FOLLOW),
