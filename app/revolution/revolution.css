@@ -1043,3 +1043,79 @@ html, body { overflow-x: clip; }
 .rv-novelty .tx { flex: 1 1 auto; line-height: 1.4; }
 .rv-novelty.stagnant { border-color: var(--red); color: var(--red-deep); background: rgba(163, 39, 44, 0.06); }
 .rv-novelty.stagnant .bar i { background: var(--red); }
+
+/* ===== v2 · 悄悄话入口（可发现性改造）===== */
+/* 主入口：输入框左侧的常驻按钮 + 人选弹窗 */
+.rv-whisper-entry { position: relative; flex: none; }
+.rv-whisper-toggle {
+  height: 100%;
+  padding: 0 1em;
+  border: 1px solid var(--line-strong);
+  background: var(--card);
+  color: var(--ink-soft);
+  font-family: var(--font-serif);
+  font-size: 0.92rem;
+  letter-spacing: .04em;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: color .16s var(--ease-out), border-color .16s var(--ease-out), background .16s var(--ease-out);
+}
+.rv-whisper-toggle:hover:not(:disabled) { border-color: var(--red); color: var(--red); }
+.rv-whisper-toggle.on { background: var(--red); border-color: var(--red); color: var(--paper); }
+.rv-whisper-toggle:disabled { opacity: .45; cursor: not-allowed; }
+
+.rv-whisper-menu {
+  position: absolute; bottom: calc(100% + 8px); left: 0;
+  min-width: 240px; max-height: 280px; overflow-y: auto;
+  background: var(--card);
+  border: 1px solid var(--line-strong);
+  box-shadow: 0 10px 28px var(--shadow);
+  padding: 6px;
+  z-index: 30;
+}
+.rv-whisper-menu .hd {
+  margin: 4px 6px 8px;
+  font-family: var(--font-serif);
+  font-size: 0.76rem;
+  color: var(--ink-soft);
+  line-height: 1.5;
+}
+.rv-whisper-menu button {
+  display: flex; align-items: center; gap: 8px;
+  width: 100%; padding: 0.55em 0.7em;
+  border: none; background: transparent; cursor: pointer;
+  font-family: var(--font-serif); font-size: 0.9rem; color: var(--ink);
+  text-align: left;
+  transition: background .14s var(--ease-out), color .14s var(--ease-out);
+}
+.rv-whisper-menu button:hover { background: rgba(163, 39, 44, 0.08); color: var(--red-deep); }
+.rv-whisper-menu button.on { background: rgba(163, 39, 44, 0.12); color: var(--red-deep); font-weight: 700; }
+.rv-whisper-menu .dot { width: 8px; height: 8px; flex: none; border-radius: 999px; }
+
+/* 一次性引导条 */
+.rv-whisper-tip {
+  display: flex; align-items: center; gap: var(--s-2);
+  margin: 0 var(--s-3);
+  padding: 0.55em 0.8em;
+  border: 1px dashed var(--gold);
+  background: rgba(168, 134, 47, 0.09);
+  font-family: var(--font-serif);
+  font-size: 0.82rem;
+  color: #6f5716;
+  line-height: 1.5;
+}
+.rv-whisper-tip .ic { flex: 0 0 auto; }
+.rv-whisper-tip .tx { flex: 1 1 auto; }
+.rv-whisper-tip .cx {
+  flex: 0 0 auto; cursor: pointer;
+  border: none; background: transparent;
+  color: #6f5716; font-size: 1rem; line-height: 1;
+  padding: 0 4px; opacity: .7;
+}
+.rv-whisper-tip .cx:hover { opacity: 1; }
+
+/* 窄屏：按钮只留图标位，别把输入框挤没了 */
+@media (max-width: 720px) {
+  .rv-whisper-toggle { padding: 0 0.6em; font-size: 0.82rem; }
+  .rv-whisper-menu { min-width: 200px; }
+}

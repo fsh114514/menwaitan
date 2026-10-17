@@ -412,6 +412,10 @@ export default function RevolutionPreview() {
   const [autoRound, setAutoRound] = useState(false);
   // v2 信息层：上一轮的信息新颖度（讨论趋同时亮灯）
   const [novelty, setNovelty] = useState<{ value: number; stagnant: boolean } | null>(null);
+  // v2 信息层：输入框左侧「私下说」的人选弹窗
+  const [whisperPick, setWhisperPick] = useState(false);
+  // v2 信息层：一次性引导（用户点过「私下说」或手动关掉后永久不再出现）
+  const [whisperTipOff, setWhisperTipOff] = useState(true);
   const [memeNote, setMemeNote] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
   const [newsOpen, setNewsOpen] = useState(false);
@@ -487,6 +491,8 @@ export default function RevolutionPreview() {
       if (sp === "slow" || sp === "fast" || sp === "turbo") setSpeed(sp);
       const sc = localStorage.getItem(SCENE_KEY);
       if (sc === "serious" || sc === "heated") setScene(sc);
+      // v2：一次性的悄悄话引导，用户看过就不再打扰
+      setWhisperTipOff(localStorage.getItem("mw_whisper_tip") === "off");
     } catch { /* ignore */ }
   }, []);
 
@@ -641,6 +647,17 @@ export default function RevolutionPreview() {
     // v2：离席的人如果正是悄悄话对象，或者桌上只剩一个人（悄悄话失去意义），就退出悄悄话状态
     if (whisperTo && (whisperTo === id || !next.includes(whisperTo) || next.length < 2)) setWhisperTo("");
     setSelected(next);
+  };
+  // v2：关掉一次性引导并记住，之后不再出现
+  const dismissWhisperTip = () => {
+    setWhisperTipOff(true);
+    try { localStorage.setItem("mw_whisper_tip", "off"); } catch { /* ignore */ }
+  };
+  // v2：选中悄悄话对象（走主入口或卡片快捷方式都走这里）
+  const pickWhisper = (id: string) => {
+    setWhisperTo(id);
+    setWhisperPick(false);
+    dismissWhisperTip();
   };
 
 
@@ -1181,9 +1198,11 @@ export default function RevolutionPreview() {
                       {selected.length > 1 && (
                         <span
                           className={"wh" + (whisperTo === id ? " on" : "")}
-                          onClick={(e) => { e.stopPropagation(); setWhisperTo((w) => (w === id ? "" : id)); }}
-                          title={lang === "en" ? "Whisper to " + (c.name || c.zhName) : "私下对 " + c.zhName + " 说（其他人看不到）"}>
-                          {lang === "en" ? "Wh" : "私"}
+                          onClick={(e) => { e.stopPropagation(); whisperTo === id ? setWhisperTo("") : pickWhisper(id); }}
+                          title={lang === "en"
+                            ? "Whisper to " + (c.name || c.zhName) + " — the others won't see it"
+                            : "私下对 " + c.zhName + " 说——桌上其他人看不到"}>
+                          {whisperTo === id ? (lang === "en" ? "Wh…" : "私…") : (lang === "en" ? "Wh" : "私")}
                         </span>
                       )}
                       <span className="rm" onClick={(e) => { e.stopPropagation(); toggleChar(id); }} title={t.leave}>×</span>
@@ -1321,7 +1340,52 @@ export default function RevolutionPreview() {
                   </span>
                 </div>
               )}
+              {/* v2：一次性的悄悄话引导。只在「桌上有 2 人以上、还没用过、没关过」时出现 */}
+              {!whisperTipOff && selected.length > 1 && !whisperTo && (
+                <div className="rv-whisper-tip">
+                  <span className="ic">💡</span>
+                  <span className="tx">
+                    {lang === "en"
+                      ? "Want them to really clash? Use 「Whisper」 — say something to just one of them. The others won't know."
+                      : "想看他们真吵起来？用左边的「私下说」——把一句话只说给其中一个人听，桌上其他人不知道。"}
+                  </span>
+                  <button className="cx" onClick={dismissWhisperTip} aria-label={lang === "en" ? "Dismiss" : "知道了"}>×</button>
+                </div>
+              )}
               <div className="rv-chat-input">
+                {/* v2：悄悄话主入口。放在输入框左侧——用户注意力本来就在这儿 */}
+                <div className="rv-whisper-entry">
+                  <button
+                    className={"rv-whisper-toggle" + (whisperTo ? " on" : "")}
+                    onClick={() => setWhisperPick((v) => !v)}
+                    disabled={selected.length < 2}
+                    title={selected.length < 2
+                      ? (lang === "en" ? "Seat at least 2 thinkers first" : "先让至少两位入席")
+                      : (lang === "en" ? "Whisper to one thinker — the others won't see it" : "私下对某一位说话——其他人看不到")}>
+                    {whisperTo
+                      ? "🔒 " + (charById(whisperTo)?.zhName || whisperTo)
+                      : (lang === "en" ? "Whisper" : "私下说")}
+                  </button>
+                  {whisperPick && (
+                    <div className="rv-whisper-menu">
+                      <p className="hd">{lang === "en" ? "Whisper to whom? The others can't see it" : "私下对谁说？其他人看不到"}</p>
+                      <button className={whisperTo === "" ? "on" : ""} onClick={() => { setWhisperTo(""); setWhisperPick(false); }}>
+                        <span className="dot" style={{ background: "rgba(23,18,13,0.35)" }} />
+                        {lang === "en" ? "Everyone (public)" : "公开说（所有人可见）"}
+                      </button>
+                      {selected.map((sid) => {
+                        const c = charById(sid);
+                        if (!c) return null;
+                        return (
+                          <button key={sid} className={whisperTo === sid ? "on" : ""} onClick={() => pickWhisper(sid)}>
+                            <span className="dot" style={{ background: c.color }} />
+                            {lang === "en" ? (c.name || c.zhName) : c.zhName}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  )}
+                </div>
                 <input ref={inputRef} value={input} onChange={(e) => setInput(e.target.value)} onKeyDown={(e) => { if (e.key === "Enter" && !(e.nativeEvent as any).isComposing) send(); }} placeholder={whisperTo ? (lang === "en" ? "Type privately…" : "私下说点什么…") : t.ph} />
                 <div className="rv-send">
                   <ClickSpark sparkColor="#fff" sparkSize={10} sparkRadius={26} sparkCount={8}>
