@@ -1102,6 +1102,7 @@ export default function RevolutionPreview() {
         </header>
 
         <section className="rv-hero">
+          <div className="rv-hero-ghost" aria-hidden="true">{lang === "zh" ? "辩" : "F"}</div>
           <div className="rv-hero-top">
             <div>
               <h1 className="rv-brand">{(lang === "zh" ? "门外谈" : "Outgate Chat").split("").map((ch, i) => (<span key={i} className="rv-brand-char" style={{ animationDelay: (0.08 * i + 0.15) + "s" }}>{ch}</span>))}</h1>
@@ -1181,7 +1182,8 @@ export default function RevolutionPreview() {
                   <button className="rv-av-go" onClick={() => setTab("personas")}>{t.avGo}</button>
                 </div>
               ) : (
-                selected.map((id, i) => {
+                <div className="rv-seat-row">
+                {selected.map((id, i) => {
                   const c = charById(id);
                   if (!c) return null;
                   return (
@@ -1208,7 +1210,8 @@ export default function RevolutionPreview() {
                       <span className="rm" onClick={(e) => { e.stopPropagation(); toggleChar(id); }} title={t.leave}>×</span>
                     </div>
                   );
-                })
+                })}
+                </div>
               )}
               <p className="rv-av-hint">{t.avHint}</p>
               <p className="rv-av-note">{t.avNote}</p>
