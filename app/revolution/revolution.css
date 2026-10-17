@@ -1111,7 +1111,7 @@ html, body { overflow-x: clip; }
 
 /* ===== v2 · 印章语汇：给悄悄话做一套铅印味的标记 =====
    全站的「章」是 .rv-stamp（红框红字 + 宽字距 + 宋体），这里做一个可内联的小章，
-   替换掉原先塞进来的 🔒 / 💡 / ◆ —— emoji 是彩色贴图，和纸墨红铅印完全不搭。 */
+   替换掉原先塞进来的彩色 emoji 图标，和纸墨红铅印完全不搭。 */
 .rv-seal-mini {
   display: inline-grid;
   place-items: center;
@@ -1155,7 +1155,7 @@ html, body { overflow-x: clip; }
   transform: rotate(-2deg);
 }
 
-/* 一次性引导条：改成报纸夹注（「按」领起），去掉 💡 */
+/* 一次性引导条：改成报纸夹注（「按」领起） */
 .rv-whisper-tip {
   border-style: none;
   border-left: 3px solid var(--gold);
