@@ -1,3 +1,7 @@
+
+/* 入席卡片容器：桌面按列排；860 以下在媒体查询里改成横滑胶片条。
+   放在文件最前，保证后写的媒体查询能覆盖它。 */
+.rv-seat-row { display: flex; flex-direction: column; gap: var(--s-2); }
 /* ===== 门外谈 · 革命三方向预览 ===== */
 /* 设计原则：反 AI 默认项；得意黑+思源宋体；红色革命调；编号/印章/口号；克制但丰富的动效 */
 
@@ -968,3 +972,533 @@ html, body { overflow-x: clip; }
 .rv-avatars.mini .rv-avatar:hover { transform: translateY(-1px); }
 
 .rv-ws-recs-hint a + a { margin-left: 12px; }
+
+
+/* ===== v2 · 信息层：悄悄话（Whisper）===== */
+/* 已入席卡片上的「私」按钮 */
+.rv-avatar .wh {
+  margin-left: auto; flex: 0 0 auto;
+  font-family: var(--font-serif); font-size: 0.72rem; line-height: 1;
+  padding: 0.34em 0.44em; border: 1px solid var(--line);
+  color: var(--ink-faint); background: transparent; cursor: pointer;
+  transition: color .16s var(--ease-out), border-color .16s var(--ease-out), background .16s var(--ease-out);
+}
+.rv-avatar .wh:hover { border-color: var(--red); color: var(--red); }
+.rv-avatar .wh.on { background: var(--red); border-color: var(--red); color: var(--paper); }
+
+/* 输入框上方的悄悄话状态条 */
+.rv-whisper-bar {
+  display: flex; align-items: center; gap: var(--s-2);
+  margin: 0 0 var(--s-2); padding: 0.5em 0.75em;
+  border: 1px dashed var(--red); background: rgba(163, 39, 44, 0.06);
+  font-family: var(--font-serif); font-size: 0.84rem; color: var(--red-deep);
+}
+.rv-whisper-bar .lk { flex: 0 0 auto; }
+.rv-whisper-bar .tx { flex: 1 1 auto; line-height: 1.5; }
+.rv-whisper-bar .cx {
+  flex: 0 0 auto; cursor: pointer;
+  border: 1px solid var(--line-strong); background: transparent;
+  color: var(--ink-soft); font-family: var(--font-serif); font-size: 0.78rem;
+  padding: 0.25em 0.6em;
+  transition: color .16s var(--ease-out), border-color .16s var(--ease-out);
+}
+.rv-whisper-bar .cx:hover { border-color: var(--red); color: var(--red); }
+
+/* 悄悄话消息：像一封封起来的私信 */
+.rv-msg.rv-whisper { border-left: 2px dashed var(--red); }
+.rv-msg-whisper {
+  font-family: var(--font-serif); font-size: 0.76rem; letter-spacing: .02em;
+  color: var(--red-deep); opacity: .85; margin-bottom: 0.35em;
+}
+/* ===== v2 · 信息层 END ===== */
+
+/* v2：紧凑/迷你布局下的「私」按钮 */
+.rv-avatars.compact .rv-avatar .wh { font-size: 0.62rem; padding: 0.28em 0.36em; }
+.rv-avatars.mini .rv-avatar .wh {
+  position: absolute; top: -5px; left: -5px; width: 16px; height: 16px;
+  display: grid; place-items: center; font-size: 0.6rem; padding: 0;
+  opacity: 0; transition: opacity 0.2s var(--ease-out);
+}
+.rv-avatars.mini .rv-avatar:hover .wh, .rv-avatars.mini .rv-avatar .wh.on { opacity: 1; }
+.rv-avatars.mini .rv-avatar .wh.on { background: var(--red); border-color: var(--red); color: var(--paper); }
+
+/* v2：悄悄话之后自动接的那一轮公开圆桌的状态条 */
+/* v2：信息新颖度指示条（讨论趋同时亮灯） */
+.rv-novelty {
+  display: flex; align-items: center; gap: var(--s-2);
+  margin: 0 0 var(--s-2); padding: 0.4em 0.75em;
+  border: 1px solid var(--line); background: var(--card);
+  font-family: var(--font-serif); font-size: 0.78rem; color: var(--ink-soft);
+}
+.rv-novelty .lb { flex: 0 0 auto; letter-spacing: .08em; }
+.rv-novelty .bar { flex: 0 0 120px; height: 6px; background: var(--paper-2); border: 1px solid var(--line); position: relative; overflow: hidden; }
+.rv-novelty .bar i { display: block; height: 100%; background: var(--ink-faint); transition: width .5s var(--ease-out); }
+.rv-novelty .tx { flex: 1 1 auto; line-height: 1.4; }
+.rv-novelty.stagnant { border-color: var(--red); color: var(--red-deep); background: rgba(163, 39, 44, 0.06); }
+.rv-novelty.stagnant .bar i { background: var(--red); }
+
+/* ===== v2 · 悄悄话入口（可发现性改造）===== */
+/* 主入口：输入框左侧的常驻按钮 + 人选弹窗 */
+.rv-whisper-entry { position: relative; flex: none; }
+.rv-whisper-toggle {
+  height: 100%;
+  padding: 0 1em;
+  border: 1px solid var(--line-strong);
+  background: var(--card);
+  color: var(--ink-soft);
+  font-family: var(--font-serif);
+  font-size: 0.92rem;
+  letter-spacing: .04em;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: color .16s var(--ease-out), border-color .16s var(--ease-out), background .16s var(--ease-out);
+}
+.rv-whisper-toggle:hover:not(:disabled) { border-color: var(--red); color: var(--red); }
+.rv-whisper-toggle.on { background: var(--red); border-color: var(--red); color: var(--paper); }
+.rv-whisper-toggle:disabled { opacity: .45; cursor: not-allowed; }
+
+.rv-whisper-menu {
+  position: absolute; bottom: calc(100% + 8px); left: 0;
+  min-width: 240px; max-height: 280px; overflow-y: auto;
+  background: var(--card);
+  border: 1px solid var(--line-strong);
+  box-shadow: 0 10px 28px var(--shadow);
+  padding: 6px;
+  z-index: 30;
+}
+.rv-whisper-menu .hd {
+  margin: 4px 6px 8px;
+  font-family: var(--font-serif);
+  font-size: 0.76rem;
+  color: var(--ink-soft);
+  line-height: 1.5;
+}
+.rv-whisper-menu button {
+  display: flex; align-items: center; gap: 8px;
+  width: 100%; padding: 0.55em 0.7em;
+  border: none; background: transparent; cursor: pointer;
+  font-family: var(--font-serif); font-size: 0.9rem; color: var(--ink);
+  text-align: left;
+  transition: background .14s var(--ease-out), color .14s var(--ease-out);
+}
+.rv-whisper-menu button:hover { background: rgba(163, 39, 44, 0.08); color: var(--red-deep); }
+.rv-whisper-menu button.on { background: rgba(163, 39, 44, 0.12); color: var(--red-deep); font-weight: 700; }
+.rv-whisper-menu .dot { width: 8px; height: 8px; flex: none; border-radius: 999px; }
+
+/* 一次性引导条 */
+.rv-whisper-tip {
+  display: flex; align-items: center; gap: var(--s-2);
+  margin: 0 var(--s-3);
+  padding: 0.55em 0.8em;
+  border: 1px dashed var(--gold);
+  background: rgba(168, 134, 47, 0.09);
+  font-family: var(--font-serif);
+  font-size: 0.82rem;
+  color: #6f5716;
+  line-height: 1.5;
+}
+.rv-whisper-tip .ic { flex: 0 0 auto; }
+.rv-whisper-tip .tx { flex: 1 1 auto; }
+.rv-whisper-tip .cx {
+  flex: 0 0 auto; cursor: pointer;
+  border: none; background: transparent;
+  color: #6f5716; font-size: 1rem; line-height: 1;
+  padding: 0 4px; opacity: .7;
+}
+.rv-whisper-tip .cx:hover { opacity: 1; }
+
+/* 窄屏：按钮只留图标位，别把输入框挤没了 */
+@media (max-width: 720px) {
+  .rv-whisper-toggle { padding: 0 0.6em; font-size: 0.82rem; }
+  .rv-whisper-menu { min-width: 200px; }
+}
+
+/* ===== v2 · 印章语汇：给悄悄话做一套铅印味的标记 =====
+   全站的「章」是 .rv-stamp（红框红字 + 宽字距 + 宋体），这里做一个可内联的小章，
+   替换掉原先塞进来的彩色 emoji 图标，和纸墨红铅印完全不搭。 */
+.rv-seal-mini {
+  display: inline-grid;
+  place-items: center;
+  width: 1.45em;
+  height: 1.45em;
+  flex: none;
+  border: 1.5px solid var(--red);
+  color: var(--red);
+  background: rgba(163, 39, 44, 0.05);
+  font-family: var(--font-display);
+  font-weight: 900;
+  font-size: 0.72em;
+  line-height: 1;
+  letter-spacing: 0;
+  vertical-align: middle;
+  /* 钤印的轻微不对齐感 */
+  transform: rotate(-2deg);
+}
+/* 放在红底按钮里时反转 */
+.rv-whisper-toggle.on .rv-seal-mini {
+  border-color: var(--paper);
+  color: var(--paper);
+  background: transparent;
+}
+
+/* 自动圆桌那条：做成报纸的「红条横幅」，不用任何图标 */
+.rv-whisper-bar.rv-whisper-auto {
+  border-style: solid;
+  border-color: var(--red);
+  background: var(--red);
+  color: var(--paper);
+  animation: none;
+}
+.rv-whisper-bar.rv-whisper-auto .lk {
+  font-family: var(--font-display);
+  font-weight: 900;
+  letter-spacing: 0.16em;
+  border: 1.5px solid var(--paper);
+  padding: 0 0.4em;
+  font-size: 0.78em;
+  transform: rotate(-2deg);
+}
+
+/* 一次性引导条：改成报纸夹注（「按」领起） */
+.rv-whisper-tip {
+  border-style: none;
+  border-left: 3px solid var(--gold);
+  background: rgba(168, 134, 47, 0.09);
+}
+.rv-whisper-tip .ic {
+  font-family: var(--font-serif);
+  font-weight: 900;
+  color: var(--gold);
+  letter-spacing: 0.1em;
+  padding-right: 2px;
+}
+
+/* 深色气泡（悄悄话消息）上，印章与标记要反白才看得清 */
+.rv-msg.rv-whisper .rv-msg-whisper { color: var(--paper); opacity: .8; }
+.rv-msg.rv-whisper .rv-seal-mini {
+  border-color: var(--paper);
+  color: var(--paper);
+  background: transparent;
+}
+
+/* ============================================================
+   v2.1 视觉重修 —— 让「没做完」的地方看起来是做过的
+   ============================================================ */
+
+/* ---------- 1. 表单控件：全站统一纸墨风 ----------
+   原先 select 完全没有样式（浏览器原生下拉箭头），input 底色过白、
+   边框太淡，和纸墨红完全不在一个世界。这里一次做齐。 */
+.rv-settings-field input,
+.rv-settings-field select,
+.rv-settings-field textarea,
+.rv-workshop input,
+.rv-feedback-in,
+.rv-feedback-ta {
+  width: 100%;
+  box-sizing: border-box;
+  background: var(--card);
+  border: 1px solid var(--line-strong);
+  color: var(--ink);
+  padding: 0.7em 0.85em;
+  font-family: var(--font-serif);
+  font-size: 0.94rem;
+  line-height: 1.5;
+  outline: none;
+  border-radius: 0;
+  appearance: none;
+  -webkit-appearance: none;
+  transition: border-color 0.18s var(--ease-out), box-shadow 0.18s var(--ease-out), background 0.18s var(--ease-out);
+}
+.rv-settings-field input::placeholder,
+.rv-settings-field textarea::placeholder,
+.rv-workshop input::placeholder,
+.rv-feedback-in::placeholder,
+.rv-feedback-ta::placeholder { color: var(--ink-faint); }
+
+.rv-settings-field input:hover,
+.rv-settings-field select:hover,
+.rv-settings-field textarea:hover,
+.rv-workshop input:hover,
+.rv-feedback-in:hover,
+.rv-feedback-ta:hover { border-color: var(--ink-soft); }
+
+.rv-settings-field input:focus,
+.rv-settings-field select:focus,
+.rv-settings-field textarea:focus,
+.rv-workshop input:focus,
+.rv-feedback-in:focus,
+.rv-feedback-ta:focus {
+  border-color: var(--red);
+  background: var(--paper);
+  box-shadow: 0 0 0 3px rgba(163, 39, 44, 0.13);
+}
+
+/* select：右上角用 CSS 画一个纸墨味的小三角，替换浏览器原生箭头 */
+.rv-settings-field select {
+  cursor: pointer;
+  padding-right: 2.4em;
+  background-image:
+    linear-gradient(45deg, transparent 50%, var(--red) 50%),
+    linear-gradient(135deg, var(--red) 50%, transparent 50%);
+  background-position: calc(100% - 18px) calc(50% + 1px), calc(100% - 13px) calc(50% + 1px);
+  background-size: 6px 6px, 6px 6px;
+  background-repeat: no-repeat;
+}
+
+/* 表单标签：宋体 + 小字距，和正文同族 */
+.rv-settings-field label {
+  font-family: var(--font-serif);
+  font-size: 0.78rem;
+  letter-spacing: 0.1em;
+  color: var(--ink-soft);
+  font-weight: 700;
+  margin-bottom: 7px;
+}
+.rv-settings-field { margin: 18px 0; }
+
+/* 设置/教程等内容页给一个合理的阅读宽度，别让表单拉满又空一半 */
+.rv-panel > .rv-settings-field:first-of-type { margin-top: 24px; }
+
+/* ---------- 2. 首屏水印字：把右侧的空补成「有意的留白」 ---------- */
+.rv-hero { isolation: isolate; }
+.rv-hero-ghost {
+  position: absolute;
+  right: 16%;
+  top: 46%;
+  transform: translateY(-50%);
+  font-family: var(--font-display);
+  font-weight: 900;
+  font-size: clamp(14rem, 26vw, 24rem);
+  line-height: 0.78;
+  color: transparent;
+  -webkit-text-stroke: 1.3px var(--line-strong);
+  opacity: 0.55;
+  pointer-events: none;
+  user-select: none;
+  z-index: -1;
+  letter-spacing: -0.02em;
+}
+.rv-hero-top { position: relative; z-index: 1; }
+/* 右栏加一条竖线做锚点，让那列装饰不再凭空浮着 */
+.rv-hero-side {
+  border-left: 1px solid var(--line);
+  padding-left: var(--s-4);
+  align-self: stretch;
+  justify-content: flex-end;
+}
+
+/* ---------- 3. 人物卡：底部「入席」对齐 + 交互手感 ---------- */
+.rv-char-card {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  min-height: 168px;
+}
+.rv-char-card .enter { margin-top: auto; padding-top: 10px; }
+.rv-char-card:active { transform: translateY(-1px) scale(0.995); }
+/* 已入席卡片：左侧红规，去掉角标文字重叠的可能 */
+.rv-char-card.active { background: color-mix(in srgb, var(--card) 88%, var(--red) 12%); }
+
+/* ---------- 4. 全站键盘可达性：焦点环 ---------- */
+:where(button, a, input, select, textarea, [tabindex]):focus-visible {
+  outline: 2px solid var(--red);
+  outline-offset: 2px;
+}
+/* 已经有明显 focus 样式的输入框不重复描边 */
+.rv-settings-field input:focus-visible,
+.rv-settings-field select:focus-visible,
+.rv-workshop input:focus-visible,
+.rv-chat-input input:focus-visible { outline: none; }
+
+/* ---------- 5. 交互微反馈：按下要有「实物感」 ---------- */
+.rv-btn:active { transform: translateY(1px); }
+.rv-tab:active { transform: translateY(1px); }
+.rv-stamp-btn:active { transform: rotate(0deg) scale(0.97); }
+.rv-news-gh:active { transform: translateY(1px); }
+
+/* 尊重系统「减少动态效果」设置 */
+@media (prefers-reduced-motion: reduce) {
+  .rv-hero-ghost { transition: none; }
+}
+
+/* ============================================================
+   v2.1 移动端修复
+   ============================================================ */
+
+@media (max-width: 860px) {
+  /* BUG：.rv-avatars 基础样式是 column，旧断点只改了 flex-wrap 没改 direction，
+     结果入席人物仍然竖着堆，把聊天区顶到视口外。改成横滑胶片条。 */
+  /* 只让「卡片那一排」横滑，侧栏的标签/说明/设置仍保持纵向 */
+  .rv-seat-row {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    gap: 8px;
+    padding-bottom: 8px;
+    scroll-snap-type: x proximity;
+    -webkit-overflow-scrolling: touch;
+  }
+  .rv-seat-row .rv-avatar {
+    flex: 0 0 auto;
+    scroll-snap-align: start;
+  }
+  /* 设置项的长说明在手机上太占版面，收成一行 */
+  .rv-set-desc {
+    flex: 1 0 100%;
+    font-size: 0.7rem;
+    line-height: 1.65;
+    margin-top: 2px;
+  }
+  /* 首屏水印字会和 CTA 按钮叠在一起，窄屏直接不显示 */
+  .rv-hero-ghost { display: none; }
+  .rv-hero-side { border-left: none; padding-left: 0; }
+}
+
+@media (max-width: 560px) {
+  /* 标签栏：6 个短标签在 390px 里横向滚动很难被发现，改成换行，一行放得下 */
+  .rv-tabs {
+    flex-wrap: wrap;
+    overflow-x: visible;
+    gap: 4px 14px;
+  }
+  .rv-tab { padding: 8px 0; }
+  /* 移动端把「模式 / 交锋 / 轮次」的说明压到最小，把聊天区让出来 */
+  .rv-dialog-settings { margin-top: var(--s-3); gap: 8px; }
+  .rv-set-desc { font-size: 0.66rem; line-height: 1.55; }
+}
+
+/* 移动端最后一段收紧：把非必要长文案收掉，让聊天区尽早出现 */
+@media (max-width: 560px) {
+  .rv-av-note { display: none; }
+  .rv-av-hint { font-size: 0.64rem; margin-top: 2px; }
+  .rv-set-desc { font-size: 0.62rem; line-height: 1.5; }
+  .rv-set-desc::before { margin-right: 5px; }
+  .rv-dialog-settings { gap: 6px; padding-top: var(--s-2); }
+  .rv-set-row { gap: 6px; }
+  .rv-av-label { font-size: 0.62rem; margin-bottom: 2px; }
+  /* 聊天卡片顶部那条 title 在手机上没必要占一行 */
+  .rv-chat-head { padding: 8px 10px; }
+}
+
+/* ============================================================
+   v2.1 消息区重做 —— 从「聊天气泡」改成「报纸引文」
+   原来的 AI 气泡是实色方块 + 1px 灰边，很平。报纸里引述某人的话，
+   用的是左侧一道红规 + 姓名小字，而不是把话装进盒子里。
+   ============================================================ */
+.rv-chat-body { padding: var(--s-5) var(--s-4); gap: 0; }
+
+.rv-msg {
+  max-width: 76%;
+  padding: 0;
+  font-size: 0.94rem;
+  line-height: 1.85;
+  text-wrap: pretty;
+  margin-bottom: 1.55em;
+}
+
+/* AI 发言：左侧红规 + 无底色，像报纸引文 */
+.rv-msg.ai {
+  align-self: flex-start;
+  background: transparent;
+  border: none;
+  border-left: 2px solid var(--red);
+  padding: 0 0 0 1.05em;
+  color: var(--ink);
+}
+/* 用户发言：实心墨块，短而紧凑 */
+.rv-msg.user {
+  align-self: flex-end;
+  background: var(--ink);
+  color: var(--paper);
+  padding: 0.8em 1.05em;
+  max-width: 70%;
+  border: none;
+}
+
+/* 发言人姓名：小字 + 字距，名字后面拖一条细线收束 */
+.rv-msg-who {
+  display: flex;
+  align-items: center;
+  gap: 0.6em;
+  font-family: var(--font-display);
+  font-size: 0.76rem;
+  font-weight: 900;
+  letter-spacing: 0.16em;
+  margin-bottom: 0.55em;
+  line-height: 1;
+}
+.rv-msg.ai .rv-msg-who::after { content: ""; flex: 1 1 auto; height: 1px; background: var(--line); }
+
+/* 错误提示保留红框，但别和引文规线打架 */
+.rv-msg.rv-err {
+  border-left: 2px solid var(--red);
+  background: color-mix(in srgb, var(--paper) 82%, var(--red) 18%);
+  padding: 0.7em 0.9em;
+  color: var(--red-deep);
+}
+
+/* 悄悄话消息：比公开发言更窄、更「贴身」，深色 + 红虚线 + 印章 */
+.rv-msg.user.rv-whisper {
+  max-width: 62%;
+  border: none;
+  border-left: 2px dashed var(--red);
+  padding: 0.8em 1.05em;
+}
+.rv-msg-whisper {
+  display: flex;
+  align-items: center;
+  gap: 0.5em;
+  font-family: var(--font-serif);
+  font-size: 0.72rem;
+  letter-spacing: 0.08em;
+  color: var(--paper);
+  opacity: 0.82;
+  margin-bottom: 0.6em;
+}
+.rv-msg.rv-whisper .rv-msg-whisper { color: var(--paper); opacity: 0.82; }
+
+/* 系统插入的提示（气氛升级等）：居中细字，前后各一道短线 */
+.rv-msg-auto {
+  display: flex;
+  align-items: center;
+  gap: 0.7em;
+  font-family: var(--font-serif);
+  font-size: 0.72rem;
+  letter-spacing: 0.1em;
+  color: var(--red);
+  opacity: 0.8;
+  margin: 1.1em 0;
+}
+.rv-msg-auto::before, .rv-msg-auto::after {
+  content: "";
+  flex: 0 0 22px;
+  height: 1px;
+  background: currentColor;
+  opacity: 0.5;
+}
+
+/* 聊天卡片顶栏：稍微抬高一点可读性 */
+.rv-chat-head {
+  padding: 10px var(--s-4);
+  font-size: 0.7rem;
+  letter-spacing: 0.2em;
+  background: color-mix(in srgb, var(--card) 88%, var(--ink) 12%);
+}
+
+/* 新颖度条：光给百分比没人看得懂，补一句人话结论 + 三档配色 */
+.rv-novelty .num {
+  flex: 0 0 auto;
+  font-family: var(--font-display);
+  font-weight: 900;
+  font-size: 0.86rem;
+  letter-spacing: 0.04em;
+  color: var(--ink);
+  min-width: 3.1em;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+.rv-novelty.fresh { border-color: var(--line-strong); }
+.rv-novelty.fresh .bar i { background: #5c7a4a; }
+.rv-novelty.fresh .num { color: #3f5a32; }
+.rv-novelty.stagnant .num { color: var(--red-deep); }

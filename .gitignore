@@ -53,3 +53,15 @@ next-env.d.ts
 
 # dsh tool artifacts
 .dsh-*/
+
+# 参赛材料中的大文件
+competition/video/*.mp4
+competition/video/*.mov
+competition/screenshots/_raw/
+
+# 文书导出的中间产物
+competition/docs/pdf/*.html
+
+# 参赛材料与私人交接文档：只留在本地分支，不进公开仓库
+competition/
+会话交接-门外谈.md
