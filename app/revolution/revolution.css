@@ -1485,3 +1485,20 @@ html, body { overflow-x: clip; }
   letter-spacing: 0.2em;
   background: color-mix(in srgb, var(--card) 88%, var(--ink) 12%);
 }
+
+/* 新颖度条：光给百分比没人看得懂，补一句人话结论 + 三档配色 */
+.rv-novelty .num {
+  flex: 0 0 auto;
+  font-family: var(--font-display);
+  font-weight: 900;
+  font-size: 0.86rem;
+  letter-spacing: 0.04em;
+  color: var(--ink);
+  min-width: 3.1em;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+.rv-novelty.fresh { border-color: var(--line-strong); }
+.rv-novelty.fresh .bar i { background: #5c7a4a; }
+.rv-novelty.fresh .num { color: #3f5a32; }
+.rv-novelty.stagnant .num { color: var(--red-deep); }

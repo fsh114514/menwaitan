@@ -1312,14 +1312,22 @@ export default function RevolutionPreview() {
                 </p>
               )}
               {novelty && !whisperTo && (
-                <div className={"rv-novelty" + (novelty.stagnant ? " stagnant" : "")}>
-                  <span className="lb">{lang === "en" ? "Novelty" : "新颖度"}</span>
+                <div className={"rv-novelty" + (novelty.stagnant ? " stagnant" : "") + (novelty.value >= 60 ? " fresh" : "")}>
+                  <span className="lb">{lang === "en" ? "New info" : "本轮新信息"}</span>
                   <span className="bar"><i style={{ width: Math.max(2, Math.min(100, novelty.value)) + "%" }} /></span>
+                  <span className="num">{novelty.value}%</span>
                   <span className="tx">
-                    {novelty.value}%
-                    {novelty.stagnant
-                      ? (lang === "en" ? " — converging; an objection has been forced" : " —— 讨论正在趋同，已强制提出反对意见")
-                      : ""}
+                    {lang === "en"
+                      ? (novelty.value >= 60
+                          ? "— they are actually adding new things"
+                          : novelty.value >= 34
+                            ? "— some of it is repetition"
+                            : "— they are echoing each other; an objection was forced")
+                      : (novelty.value >= 60
+                          ? "—— 他们在讲新东西"
+                          : novelty.value >= 34
+                            ? "—— 有一半在重复自己"
+                            : "—— 在互相附和，已强制提出反对意见")}
                   </span>
                 </div>
               )}
