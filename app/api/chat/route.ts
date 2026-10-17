@@ -378,9 +378,14 @@ export async function POST(req: Request) {
     // ===== v2 · 讨论是否正在趋同（无状态判据，每次请求现算）=====
     // 取「最后一段连续的 assistant 发言」当作上一轮，和它之前的全部内容比新颖度。
     // 这样不需要跨请求存状态，多用户也不会串台。
-    let runStart = utts.length;
+    // 注意：请求到达时，messages 的最后一条**永远是用户刚发的那句**。
+    // 所以不能直接从末尾往回走（那样会立刻停在 user 上，永远切不出「上一轮」）。
+    // 正确顺序：先跳过末尾的非 assistant 消息，再从那里往回吃一段连续的 assistant 发言。
+    let runEnd = utts.length;
+    while (runEnd > 0 && utts[runEnd - 1].role !== "assistant") runEnd--;
+    let runStart = runEnd;
     while (runStart > 0 && utts[runStart - 1].role === "assistant") runStart--;
-    const lastRoundText = utts.slice(runStart).filter((u) => u.who).map((u) => u.content).join("\n");
+    const lastRoundText = utts.slice(runStart, runEnd).filter((u) => u.who).map((u) => u.content).join("\n");
     const priorText = utts.slice(0, runStart).map((u) => u.content).join("\n");
     const lastNovelty: number | null =
       lastRoundText && priorText ? noveltyAgainst(charNgrams(priorText), lastRoundText) : null;

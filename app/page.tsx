@@ -959,8 +959,22 @@ export default function RevolutionPreview() {
         } else if (ev.type === "note") {
           setMemeNote(String(ev.text || ""));
         } else if (ev.type === "novelty") {
-          // v2：上一轮的信息新颖度（服务端本地算的 2-gram 重疊率）
+          // v2：上一轮的新信息比例。用户不需要盯着百分比——
+          // 所以不显示常驻指标，只在「判定趋同」这个事件发生时，插一条系统按语，
+          // 告诉他「系统看到了什么、做了什么」。
           setNovelty({ value: Number(ev.value) || 0, stagnant: !!ev.stagnant });
+          if (ev.stagnant) {
+            const pct = Math.round(Number(ev.value) || 0);
+            pushLive();
+            out = [...out, {
+              role: "assistant",
+              auto: true,
+              content: lang === "zh"
+                ? "这一轮几无新意（新信息 " + pct + "%）—— 已请诸位另换角度"
+                : "Little new ground this round (" + pct + "% new) — each speaker has been asked for a fresh angle",
+            }];
+            if (!pausedRef.current) setMessages([...out]);
+          }
         } else if (ev.type === "done") {
           if (!pausedRef.current) { pushLive(); setMessages([...out]); }
         } else if (ev.type === "error") {
@@ -1310,26 +1324,6 @@ export default function RevolutionPreview() {
                   {t.defaultHint}
                   <a className="rv-hint-link" onClick={() => setTab("settings")}>{t.getKeyHint} →</a>
                 </p>
-              )}
-              {novelty && !whisperTo && (
-                <div className={"rv-novelty" + (novelty.stagnant ? " stagnant" : "") + (novelty.value >= 60 ? " fresh" : "")}>
-                  <span className="lb">{lang === "en" ? "New info" : "本轮新信息"}</span>
-                  <span className="bar"><i style={{ width: Math.max(2, Math.min(100, novelty.value)) + "%" }} /></span>
-                  <span className="num">{novelty.value}%</span>
-                  <span className="tx">
-                    {lang === "en"
-                      ? (novelty.value >= 60
-                          ? "— they are actually adding new things"
-                          : novelty.value >= 34
-                            ? "— some of it is repetition"
-                            : "— they are echoing each other; an objection was forced")
-                      : (novelty.value >= 60
-                          ? "—— 他们在讲新东西"
-                          : novelty.value >= 34
-                            ? "—— 有一半在重复自己"
-                            : "—— 在互相附和，已强制提出反对意见")}
-                  </span>
-                </div>
               )}
               {whisperTo && (
                 <div className="rv-whisper-bar">
