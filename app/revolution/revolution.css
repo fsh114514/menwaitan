@@ -2,6 +2,13 @@
 /* 入席卡片容器：桌面按列排；860 以下在媒体查询里改成横滑胶片条。
    放在文件最前，保证后写的媒体查询能覆盖它。 */
 .rv-seat-row { display: flex; flex-direction: column; gap: var(--s-2); }
+/* .rv-seat-row 是后来加的包裹层，用来做移动端横滑。
+   但它是 flex column，会挡住 .rv-avatars.compact / .mini 原本的「横向铺开」，
+   导致席位一多就纵向堆成一条，卡片还被压扁。这里让包裹层跟随父级模式。 */
+.rv-avatars.compact .rv-seat-row { flex-direction: row; flex-wrap: wrap; gap: var(--s-1) var(--s-2); }
+.rv-avatars.compact .rv-seat-row .rv-avatar { flex: 0 0 auto; }
+.rv-avatars.mini .rv-seat-row { flex-direction: row; flex-wrap: wrap; gap: 4px; }
+.rv-avatars.mini .rv-seat-row .rv-avatar { flex: 0 0 auto; }
 /* ===== 门外谈 · 革命三方向预览 ===== */
 /* 设计原则：反 AI 默认项；得意黑+思源宋体；红色革命调；编号/印章/口号；克制但丰富的动效 */
 
