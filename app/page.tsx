@@ -168,7 +168,7 @@ const I18N = {
     note: "免责声明：本网站角色对话由 AI 基于公开资料生成，不代表任何真实人物本人观点；内容仅供思想交流。",
     whatsNew: "近日更新",
     viewAll: "查看全部 →",
-    sponsor: "赞助 ♥",
+    sponsor: "赞助",
     feedback: "反馈",
     zoomClose: "点任意处关闭",
     changelog: [
@@ -308,7 +308,7 @@ const I18N = {
     note: "Disclaimer: character dialogues are AI-generated from public materials and do not represent the views of any real person; for thought exchange only.",
     whatsNew: "What's new",
     viewAll: "View all →",
-    sponsor: "Sponsor ♥",
+    sponsor: "Sponsor",
     feedback: "Feedback",
     zoomClose: "Click anywhere to close",
     changelog: [
@@ -878,7 +878,7 @@ export default function RevolutionPreview() {
       setMessages((prev) => [...prev, {
         role: "assistant",
         auto: true,
-        content: (zh ? "🔥 气氛上来了，已自动升级到「" : "🔥 Heat rising — auto-escalated to ") + t.sceneLabel[next] + (zh ? "」" : ""),
+        content: (zh ? "气氛上来了，已自动升级到「" : "Heat rising — auto-escalated to ") + t.sceneLabel[next] + (zh ? "」" : ""),
       }]);
     }
   };
@@ -1284,9 +1284,10 @@ export default function RevolutionPreview() {
                       <div key={i} className={"rv-msg " + (m.role === "user" ? "user" : "ai") + (m.err ? " rv-err" : "") + (m.whisperTo ? " rv-whisper" : "")} style={{ animationDelay: (0.05 * i) + "s" }}>
                         {m.whisperTo && (
                           <div className="rv-msg-whisper">
-                            🔒 {lang === "en"
+                            <span className="rv-seal-mini">{lang === "en" ? "P" : "密"}</span>{" "}
+                            {lang === "en"
                               ? "Whispered — only " + (charById(m.whisperTo)?.name || charById(m.whisperTo)?.zhName || m.whisperTo) + " can see this"
-                              : "私下说的 — 只有 " + (charById(m.whisperTo)?.zhName || m.whisperTo) + " 看得到"}
+                              : "只有 " + (charById(m.whisperTo)?.zhName || m.whisperTo) + " 看得到"}
                           </div>
                         )}
                         {m.who && <div className="rv-msg-who" style={{ color: m.color }}>■ {m.who}</div>}
@@ -1321,7 +1322,7 @@ export default function RevolutionPreview() {
               )}
               {whisperTo && (
                 <div className="rv-whisper-bar">
-                  <span className="lk">🔒</span>
+                  <span className="lk"><span className="rv-seal-mini">{lang === "en" ? "P" : "密"}</span></span>
                   <span className="tx">
                     {lang === "en"
                       ? "Whispering to " + (charById(whisperTo)?.name || charById(whisperTo)?.zhName || whisperTo) + " — the others cannot see this"
@@ -1332,7 +1333,7 @@ export default function RevolutionPreview() {
               )}
               {autoRound && (
                 <div className="rv-whisper-bar rv-whisper-auto">
-                  <span className="lk">◆</span>
+                  <span className="lk">{lang === "en" ? "TABLE" : "场上"}</span>
                   <span className="tx">
                     {lang === "en"
                       ? "The table is reacting — what you said in private is being brought up in the open"
@@ -1343,7 +1344,7 @@ export default function RevolutionPreview() {
               {/* v2：一次性的悄悄话引导。只在「桌上有 2 人以上、还没用过、没关过」时出现 */}
               {!whisperTipOff && selected.length > 1 && !whisperTo && (
                 <div className="rv-whisper-tip">
-                  <span className="ic">💡</span>
+                  <span className="ic">{lang === "en" ? "N.B." : "按"}</span>
                   <span className="tx">
                     {lang === "en"
                       ? "Want them to really clash? Use 「Whisper」 — say something to just one of them. The others won't know."
@@ -1363,7 +1364,7 @@ export default function RevolutionPreview() {
                       ? (lang === "en" ? "Seat at least 2 thinkers first" : "先让至少两位入席")
                       : (lang === "en" ? "Whisper to one thinker — the others won't see it" : "私下对某一位说话——其他人看不到")}>
                     {whisperTo
-                      ? "🔒 " + (charById(whisperTo)?.zhName || whisperTo)
+                      ? <><span className="rv-seal-mini">{lang === "en" ? "P" : "密"}</span>{" " + (charById(whisperTo)?.zhName || whisperTo)}</>
                       : (lang === "en" ? "Whisper" : "私下说")}
                   </button>
                   {whisperPick && (

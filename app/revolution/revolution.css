@@ -1019,17 +1019,6 @@ html, body { overflow-x: clip; }
 .rv-avatars.mini .rv-avatar .wh.on { background: var(--red); border-color: var(--red); color: var(--paper); }
 
 /* v2：悄悄话之后自动接的那一轮公开圆桌的状态条 */
-.rv-whisper-bar.rv-whisper-auto {
-  border-style: solid; border-color: var(--gold);
-  background: rgba(168, 134, 47, 0.10);
-  color: #6f5716;
-  animation: rvWhisperPulse 1.6s var(--ease-out) infinite;
-}
-@keyframes rvWhisperPulse {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.62; }
-}
-
 /* v2：信息新颖度指示条（讨论趋同时亮灯） */
 .rv-novelty {
   display: flex; align-items: center; gap: var(--s-2);
@@ -1118,4 +1107,72 @@ html, body { overflow-x: clip; }
 @media (max-width: 720px) {
   .rv-whisper-toggle { padding: 0 0.6em; font-size: 0.82rem; }
   .rv-whisper-menu { min-width: 200px; }
+}
+
+/* ===== v2 · 印章语汇：给悄悄话做一套铅印味的标记 =====
+   全站的「章」是 .rv-stamp（红框红字 + 宽字距 + 宋体），这里做一个可内联的小章，
+   替换掉原先塞进来的 🔒 / 💡 / ◆ —— emoji 是彩色贴图，和纸墨红铅印完全不搭。 */
+.rv-seal-mini {
+  display: inline-grid;
+  place-items: center;
+  width: 1.45em;
+  height: 1.45em;
+  flex: none;
+  border: 1.5px solid var(--red);
+  color: var(--red);
+  background: rgba(163, 39, 44, 0.05);
+  font-family: var(--font-display);
+  font-weight: 900;
+  font-size: 0.72em;
+  line-height: 1;
+  letter-spacing: 0;
+  vertical-align: middle;
+  /* 钤印的轻微不对齐感 */
+  transform: rotate(-2deg);
+}
+/* 放在红底按钮里时反转 */
+.rv-whisper-toggle.on .rv-seal-mini {
+  border-color: var(--paper);
+  color: var(--paper);
+  background: transparent;
+}
+
+/* 自动圆桌那条：做成报纸的「红条横幅」，不用任何图标 */
+.rv-whisper-bar.rv-whisper-auto {
+  border-style: solid;
+  border-color: var(--red);
+  background: var(--red);
+  color: var(--paper);
+  animation: none;
+}
+.rv-whisper-bar.rv-whisper-auto .lk {
+  font-family: var(--font-display);
+  font-weight: 900;
+  letter-spacing: 0.16em;
+  border: 1.5px solid var(--paper);
+  padding: 0 0.4em;
+  font-size: 0.78em;
+  transform: rotate(-2deg);
+}
+
+/* 一次性引导条：改成报纸夹注（「按」领起），去掉 💡 */
+.rv-whisper-tip {
+  border-style: none;
+  border-left: 3px solid var(--gold);
+  background: rgba(168, 134, 47, 0.09);
+}
+.rv-whisper-tip .ic {
+  font-family: var(--font-serif);
+  font-weight: 900;
+  color: var(--gold);
+  letter-spacing: 0.1em;
+  padding-right: 2px;
+}
+
+/* 深色气泡（悄悄话消息）上，印章与标记要反白才看得清 */
+.rv-msg.rv-whisper .rv-msg-whisper { color: var(--paper); opacity: .8; }
+.rv-msg.rv-whisper .rv-seal-mini {
+  border-color: var(--paper);
+  color: var(--paper);
+  background: transparent;
 }
