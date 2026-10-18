@@ -1,29 +1,5 @@
 [
   {
-    "id": "mako",
-    "zhName": "常陆茉子",
-    "name": "Tokiwa Mako",
-    "initial": "茉",
-    "school": "常陆家 · 忍者",
-    "tag": "高攻低防",
-    "color": "#2f2f33",
-    "skillDir": "mako",
-    "imported": true,
-    "repo": "https://github.com/fsh114514/MakoCode"
-  },
-  {
-    "id": "murasame",
-    "zhName": "丛雨",
-    "name": "Murasame",
-    "initial": "丛",
-    "school": "神刀丛雨丸 · 刀灵",
-    "tag": "五百岁少女",
-    "color": "#3d8b57",
-    "skillDir": "murasame",
-    "imported": true,
-    "repo": "https://github.com/LemonQu-GIT/MurasamePet"
-  },
-  {
     "id": "plato-skill",
     "zhName": "柏拉图视角",
     "name": "plato-perspective",
@@ -186,50 +162,6 @@
     "tag": "极度透明",
     "color": "#7a5d3a",
     "skillDir": "dalio-skill",
-    "imported": true
-  },
-  {
-    "id": "trump-skill",
-    "zhName": "特朗普",
-    "name": "trump-perspective",
-    "initial": "特",
-    "school": "商业 · 政治",
-    "tag": "MAGA",
-    "color": "#8a2e2e",
-    "skillDir": "trump-skill",
-    "imported": true
-  },
-  {
-    "id": "ace-taffy-skill",
-    "zhName": "永雏塔菲",
-    "name": "ace-taffy",
-    "initial": "塔",
-    "school": "虚拟主播 · 乐子人",
-    "tag": "啊？",
-    "color": "#c9a24a",
-    "skillDir": "ace-taffy-skill",
-    "imported": true
-  },
-  {
-    "id": "luo-xiang-skill",
-    "zhName": "罗翔",
-    "name": "luo-xiang-perspective",
-    "initial": "罗",
-    "school": "刑法 · 普法",
-    "tag": "法外狂徒张三",
-    "color": "#a0582e",
-    "skillDir": "luo-xiang-skill",
-    "imported": true
-  },
-  {
-    "id": "huchenfeng-skill",
-    "zhName": "户子",
-    "name": "huchenfeng-perspective",
-    "initial": "户",
-    "school": "真实主义 · 反差",
-    "tag": "全网最穷？",
-    "color": "#b0452e",
-    "skillDir": "huchenfeng-skill",
     "imported": true
   },
   {
@@ -418,17 +350,5 @@
     "color": "#8a6a2e",
     "skillDir": "shakespeare",
     "imported": true
-  },
-  {
-    "id": "sun-yuchen-perspective",
-    "zhName": "孙哥",
-    "name": "Justin Sun",
-    "initial": "孙",
-    "school": "注意力 · 营销",
-    "tag": "割味十足",
-    "color": "#d4a017",
-    "skillDir": "sun-yuchen-perspective",
-    "imported": true,
-    "repo": "https://github.com/alchaincyf/sun-yuchen-perspective"
   }
 ]
