@@ -104,7 +104,7 @@ html, body { overflow-x: clip; }
 .rv-tab.active::after { content: ""; position: absolute; left: 0; right: 0; bottom: -2px; height: 3px; background: var(--red); }
 
 /* ============ 双栏 ============ */
-.rv-main { display: grid; grid-template-columns: 220px 1fr; gap: var(--s-5); align-items: start; }
+.rv-main { display: grid; grid-template-columns: 260px 1fr; gap: var(--s-5); align-items: start; }
 .rv-avatars { position: sticky; top: var(--s-5); display: flex; flex-direction: column; gap: var(--s-2); }
 .rv-av-label { font-size: 0.68rem; letter-spacing: 0.24em; color: var(--ink-faint); margin: 0 0 var(--s-2); }
 .rv-av-note { font-size: 0.64rem; letter-spacing: 0.06em; color: var(--ink-faint); line-height: 1.7; margin: var(--s-2) 0 0; }
@@ -1509,3 +1509,248 @@ html, body { overflow-x: clip; }
 .rv-novelty.fresh .bar i { background: #5c7a4a; }
 .rv-novelty.fresh .num { color: #3f5a32; }
 .rv-novelty.stagnant .num { color: var(--red-deep); }
+
+/* ============================================================
+   v2.2 视觉重修 · 第一批
+   老师反馈：字体虚、开始对谈底下空、两个模式不突出、界面简陋
+   ============================================================ */
+
+/* ---------- ① 墨色与字号：治「虚」 ----------
+   原来 --ink-faint 只有 38% 不透明度，对纸底对比度 2.41（WCAG 正文要 4.5）。
+   宋体横画细，小字再压淡就彻底糊了。这里把浓度提上来。 */
+:root {
+  --ink-soft: rgba(23, 18, 13, 0.78);
+  --ink-faint: rgba(23, 18, 13, 0.62);
+  --font-ui: -apple-system, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", system-ui, sans-serif;
+}
+
+/* 说明性小字统一换黑体、压字距、抬字号 —— 宋体只留给大字与引文 */
+.rv-sub,
+.rv-hero-side .meta,
+.rv-av-label,
+.rv-av-hint,
+.rv-av-note,
+.rv-set-desc,
+.rv-set-tag,
+.rv-personas-hint,
+.rv-char-card .bio,
+.rv-char-card .sc,
+.rv-ws-sub,
+.rv-detail p,
+.rv-help-text {
+  font-family: var(--font-ui);
+  letter-spacing: 0.01em;
+}
+
+.rv-sub { font-size: 1rem; color: var(--ink-soft); }
+.rv-hero-side .meta { font-size: 0.74rem; letter-spacing: 0.06em; }
+.rv-av-label { font-size: 0.74rem; letter-spacing: 0.06em; color: var(--ink-soft); }
+.rv-av-hint { font-size: 0.72rem; letter-spacing: 0.01em; color: var(--ink-soft); }
+.rv-av-note { font-size: 0.7rem; letter-spacing: 0.01em; color: var(--ink-faint); line-height: 1.75; }
+.rv-set-desc { font-size: 0.78rem; letter-spacing: 0.01em; color: var(--ink-soft); line-height: 1.7; }
+.rv-set-tag { font-size: 0.74rem; letter-spacing: 0.04em; color: var(--ink-soft); }
+.rv-char-card .bio { font-size: 0.76rem; letter-spacing: 0.01em; line-height: 1.6; color: var(--ink-soft); }
+.rv-char-card .sc { font-size: 0.68rem; letter-spacing: 0.02em; color: var(--ink-faint); }
+/* 教程与关于页正文 */
+.rv-panel p, .rv-panel li { color: var(--ink-soft); }
+
+/* ---------- ② 首屏插画 ---------- */
+.rv-hero-art {
+  position: absolute;
+  right: clamp(40px, 7vw, 110px);
+  bottom: 0;
+  width: clamp(240px, 25vw, 360px);
+  color: var(--ink);
+  opacity: 0.34;
+  pointer-events: none;
+  z-index: 0;
+}
+.rv-hero-art svg { width: 100%; height: auto; display: block; }
+@media (max-width: 980px) { .rv-hero-art { display: none; } }
+
+/* ---------- ③ 首屏三步 ---------- */
+.rv-hero-steps {
+  display: flex;
+  gap: 0;
+  margin-top: var(--s-5);
+  padding: 0;
+  list-style: none;
+  max-width: 34em;
+  border-top: 1px solid var(--line);
+}
+.rv-hero-steps li {
+  flex: 1 1 0;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 11px 0 0;
+  font-family: var(--font-ui);
+  font-size: 0.8rem;
+  letter-spacing: 0.02em;
+  color: var(--ink-soft);
+}
+.rv-hero-steps li + li { border-left: 1px solid var(--line); padding-left: 14px; margin-left: 14px; }
+.rv-hero-steps i {
+  font-style: normal;
+  font-family: var(--font-serif);
+  font-weight: 700;
+  color: var(--red);
+  font-size: 0.86rem;
+}
+@media (max-width: 620px) {
+  .rv-hero-steps { flex-direction: column; gap: 8px; border-top: none; }
+  .rv-hero-steps li { padding-top: 0; }
+  .rv-hero-steps li + li { border-left: none; padding-left: 0; margin-left: 0; }
+}
+
+/* ---------- ④ 空状态：插画 + 明显的请人入席 ---------- */
+.rv-av-empty {
+  border: 1px dashed var(--line-strong);
+  background: var(--card);
+  padding: 16px 14px 18px;
+  text-align: center;
+}
+.rv-av-empty-art {
+  width: 100%;
+  max-width: 240px;
+  margin: 0 auto 12px;
+  color: var(--ink);
+  opacity: 0.5;
+}
+.rv-av-empty-art svg { width: 100%; height: auto; display: block; }
+.rv-av-empty p {
+  font-family: var(--font-ui);
+  font-size: 0.8rem;
+  line-height: 1.65;
+  color: var(--ink-soft);
+  margin: 0 0 12px;
+}
+.rv-av-empty .rv-av-go {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  padding: 10px 14px;
+  background: var(--red);
+  color: var(--paper);
+  border: 1px solid var(--red);
+  font-family: var(--font-serif);
+  font-weight: 700;
+  font-size: 0.86rem;
+  letter-spacing: 0.12em;
+  cursor: pointer;
+  transition: transform 0.14s var(--ease-out), box-shadow 0.2s;
+  animation: rvInvite 2.4s ease-in-out infinite;
+}
+.rv-av-empty .rv-av-go:hover { transform: translateY(-1px); box-shadow: 0 4px 14px rgba(163, 39, 44, 0.28); animation-play-state: paused; }
+.rv-av-empty .rv-av-go::after { content: "→"; margin-left: 8px; }
+@keyframes rvInvite {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(163, 39, 44, 0.4); }
+  55% { box-shadow: 0 0 0 7px rgba(163, 39, 44, 0); }
+}
+
+/* 插画「动笔」：只在空状态启用 */
+.ts-draw .ts-figures path,
+.ts-draw .ts-figures ellipse {
+  stroke-dasharray: 320;
+  stroke-dashoffset: 320;
+  animation: tsDraw 1.5s var(--ease-out) forwards;
+}
+.ts-draw .ts-figures > *:nth-child(1) { animation-delay: 0.05s; }
+.ts-draw .ts-figures > *:nth-child(2) { animation-delay: 0.14s; }
+.ts-draw .ts-figures > *:nth-child(3) { animation-delay: 0.23s; }
+.ts-draw .ts-figures > *:nth-child(4) { animation-delay: 0.32s; }
+.ts-draw .ts-figures > *:nth-child(5) { animation-delay: 0.41s; }
+.ts-draw .ts-figures > *:nth-child(6) { animation-delay: 0.50s; }
+.ts-draw .ts-table-line path,
+.ts-draw .ts-table-line ellipse { stroke-dasharray: 760; stroke-dashoffset: 760; animation: tsDraw 1.1s 0.6s var(--ease-out) forwards; }
+@keyframes tsDraw { to { stroke-dashoffset: 0; } }
+@media (prefers-reduced-motion: reduce) {
+  .ts-draw .ts-figures path, .ts-draw .ts-figures ellipse,
+  .ts-draw .ts-table-line path, .ts-draw .ts-table-line ellipse { animation: none; stroke-dashoffset: 0; }
+  .rv-av-empty .rv-av-go { animation: none; }
+}
+
+/* ---------- ⑤ 两个模式：从小方块改成两张卡片 ----------
+   老师的原话是「两个模式不突出」。原来它们是和「随口/较真/上头」同级的小按钮，
+   但这是全站最重要的分流——决定你是在单聊还是在开圆桌。 */
+.rv-mode-cards {
+  display: grid;
+  grid-template-columns: 1fr;   /* 侧栏只有 220px，两列会挤到 106px、字全折行 */
+  gap: 8px;
+  margin: 2px 0 8px;
+}
+.rv-mode-card {
+  display: grid;
+  grid-template-columns: 1fr;
+  grid-template-rows: auto auto;
+  row-gap: 2px;
+  padding: 9px 10px;
+  background: var(--card);
+  border: 1px solid var(--line-strong);
+  font-family: var(--font-ui);
+  text-align: left;
+  cursor: pointer;
+  transition: border-color 0.2s, background 0.2s, transform 0.14s var(--ease-out);
+}
+.rv-mode-card:hover { border-color: var(--red); transform: translateY(-1px); }
+.rv-mode-card .icon {
+  flex: none;
+  width: 16px;
+  height: 16px;
+  color: var(--ink-faint);
+  transition: color 0.2s;
+}
+.rv-mode-card .icon svg { width: 100%; height: 100%; display: block; }
+.rv-mode-card b {
+  grid-row: 1;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--font-serif);
+  font-size: 0.9rem;
+  font-weight: 900;
+  letter-spacing: 0.06em;
+  color: var(--ink);
+  line-height: 1.2;
+}
+.rv-mode-card i {
+  grid-row: 2;
+  font-style: normal;
+  font-size: 0.68rem;
+  letter-spacing: 0.01em;
+  color: var(--ink-soft);
+  line-height: 1.3;
+}
+.rv-mode-card.active {
+  background: var(--ink);
+  border-color: var(--ink);
+}
+.rv-mode-card.active b { color: var(--paper); }
+.rv-mode-card.active i { color: rgba(244, 239, 227, 0.72); }
+.rv-mode-card.active .icon { color: var(--red); }
+.rv-mode-card.active::after {
+  content: "";
+  position: absolute;
+  inset: auto 0 0 0;
+  height: 2px;
+  background: var(--red);
+}
+.rv-mode-card { position: relative; }
+@media (max-width: 560px) {
+  .rv-mode-cards { grid-template-columns: 1fr; }
+}
+
+/* 空对话区：放一张淡插画，避免一大片白 */
+.rv-chat-empty-art {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: min(420px, 70%);
+  transform: translate(-50%, -50%);
+  color: var(--ink);
+  opacity: 0.12;
+  pointer-events: none;
+}
+.rv-chat-empty-art svg { width: 100%; height: auto; display: block; }
+.rv-chat-body { position: relative; }
