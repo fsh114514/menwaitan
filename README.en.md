@@ -6,13 +6,18 @@
 
 ![Next.js](https://img.shields.io/badge/Next.js-16-black) ![React](https://img.shields.io/badge/React-19-61dafb) ![TypeScript](https://img.shields.io/badge/TypeScript-5-blue) ![License](https://img.shields.io/badge/License-MIT-green)
 
-> Pick a seat, throw a question, and watch Zhang Xuefeng, Luo Xiang, Marx and Confucius argue it out — in a revolutionary editorial aesthetic of paper and ink red.
+> Pick a seat, throw a question, and watch Lu Xun, Marx, Confucius and Steve Jobs argue it out — in a paper-and-ink editorial aesthetic.
+>
+> **v2's core idea: an information layer on top of the round table.** A message can be visible to one speaker only.
+> You can whisper to a single persona; the others have no idea. Whoever you told will eventually call the other out in public —
+> so the discussion stops being turn-taking and becomes a game with undercurrents.
 
 ![Menwai Tan screenshot](docs/screenshot-v2.jpg)
 
 ## Features
 
-- **Roster of thinkers** — one SKILL.md per persona, distilled by the open-source community
+- **Information layer (v2)** — visibility / whisper / call-out / novelty / host wrap-up, five mechanisms forming one chain
+- **Roster of thinkers** — 35 personas, one SKILL.md each, distilled by the open-source community
 - **One-on-one or round table** — chat solo, or pit several thinkers against each other in turns
 - **Scene system** — Casual / Serious / Heated control answer length & tone, with auto-escalation
 - **Streaming replies** — SSE with a typewriter effect
