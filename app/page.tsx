@@ -1,5 +1,6 @@
 "use client";
 import { useState, useEffect, useLayoutEffect, useRef, Fragment } from "react";
+import TableScene from "@/components/bits/TableScene";
 import { characterMeta as baseChars } from "@/lib/characterMeta";
 import SplitText from "@/components/bits/SplitText";
 import ClickSpark from "@/components/bits/ClickSpark";
@@ -1111,13 +1112,18 @@ export default function RevolutionPreview() {
         </header>
 
         <section className="rv-hero">
-          <div className="rv-hero-ghost" aria-hidden="true">{lang === "zh" ? "辩" : "F"}</div>
+          <div className="rv-hero-art" aria-hidden="true"><TableScene /></div>
           <div className="rv-hero-top">
             <div>
               <h1 className="rv-brand">{(lang === "zh" ? "门外谈" : "Outgate Chat").split("").map((ch, i) => (<span key={i} className="rv-brand-char" style={{ animationDelay: (0.08 * i + 0.15) + "s" }}>{ch}</span>))}</h1>
               <SplitText key={lang} text={t.slogan} tag="p" className="rv-slogan" splitType="chars" textAlign="left" />
               <p className="rv-sub">{t.sub}</p>
               <div className="rv-hero-cta"><button className="rv-btn" onClick={() => { setTab("debate"); setTimeout(() => { document.querySelector(".rv-panel")?.scrollIntoView({ behavior: "smooth", block: "start" }); }, 80); }}>{t.cta}</button></div>
+              <ol className="rv-hero-steps">
+                <li><i>①</i>{lang === "zh" ? "选人入席" : "Seat the thinkers"}</li>
+                <li><i>②</i>{lang === "zh" ? "抛一个议题" : "Pose a question"}</li>
+                <li><i>③</i>{lang === "zh" ? "看他们交锋" : "Watch them clash"}</li>
+              </ol>
             </div>
             <div className="rv-hero-side">
               <div className="rv-type" aria-hidden="true"><span className="tp-caret"></span>{typed}</div>
@@ -1187,6 +1193,7 @@ export default function RevolutionPreview() {
               <p className="rv-av-label">{t.avLabel}</p>
               {selected.length === 0 ? (
                 <div className="rv-av-empty">
+                  <div className="rv-av-empty-art"><TableScene draw /></div>
                   <p>{t.avEmpty}</p>
                   <button className="rv-av-go" onClick={() => setTab("personas")}>{t.avGo}</button>
                 </div>
@@ -1227,9 +1234,15 @@ export default function RevolutionPreview() {
               <div className="rv-dialog-settings">
                 <div className="rv-set-row">
                   <span className="rv-set-tag">{t.modeTag}</span>
-                  <div className="rv-mode">
-                    <button className={mode === "chat" ? "active" : ""} onClick={() => setMode("chat")}>{t.chat}</button>
-                    <button className={mode === "debate" ? "active" : ""} onClick={() => setMode("debate")}>{t.round}</button>
+                  <div className="rv-mode-cards">
+                    <button className={"rv-mode-card" + (mode === "chat" ? " active" : "")} onClick={() => setMode("chat")}>
+                      <b><span className="icon" aria-hidden="true"><svg viewBox="0 0 32 32" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round"><path d="M5 9h22M5 16h15M5 23h8"/><circle cx="26" cy="22" r="4"/></svg></span>{t.chat}</b>
+                      <i>{lang === "zh" ? "和一个人深聊" : "Talk with one"}</i>
+                    </button>
+                    <button className={"rv-mode-card" + (mode === "debate" ? " active" : "")} onClick={() => setMode("debate")}>
+                      <b><span className="icon" aria-hidden="true"><svg viewBox="0 0 32 32" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round"><circle cx="16" cy="16" r="9"/><circle cx="8" cy="9" r="3"/><circle cx="24" cy="9" r="3"/><circle cx="8" cy="23" r="3"/><circle cx="24" cy="23" r="3"/></svg></span>{t.round}</b>
+                      <i>{lang === "zh" ? "看几个人交锋" : "Watch them clash"}</i>
+                    </button>
                   </div>
                   <HelpDesc text={t.modeHelp} hot={mode === "chat" ? [t.chat] : [t.round]} />
                 </div>
@@ -1286,6 +1299,9 @@ export default function RevolutionPreview() {
               ) : (
                 <div className="rv-chat-wrap">
                 <div className="rv-chat-body" ref={chatBodyRef} onScroll={handleChatScroll}>
+                {messages.length <= 1 && (
+                  <div className="rv-chat-empty-art" aria-hidden="true"><TableScene /></div>
+                )}
                   {memeNote && (
                     <div className="rv-meme-note">{lang === "zh" ? "注：据网络检索，" : "Note (web): "}{memeNote}</div>
                   )}
@@ -1462,7 +1478,6 @@ export default function RevolutionPreview() {
               })()
             ) : (
               <>
-                <p className="rv-personas-hint">{t.personasHint}</p>
                 <div className="rv-char-grid">
               {shownGrid.map(renderCard)}
                 </div>
