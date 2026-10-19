@@ -1800,3 +1800,18 @@ html, body { overflow-x: clip; }
   to { opacity: 1; transform: none; }
 }
 .rv-av-empty-art { opacity: 0.42; }
+
+/* 插画挪到关于页：右上角一张淡的圆桌俯视图 */
+.rv-about-art {
+  float: right;
+  width: clamp(170px, 19vw, 240px);
+  margin: 4px 8px 22px 34px;
+  color: var(--ink);
+  opacity: 0.42;
+  pointer-events: none;
+}
+.rv-about-art svg { width: 100%; height: auto; display: block; }
+@media (max-width: 760px) {
+  .rv-about-art { float: none; width: 150px; margin: 0 auto 18px; }
+}
+.rv-hero-art { display: none; }   /* 首屏不再用插画，恢复「辩」水印 */

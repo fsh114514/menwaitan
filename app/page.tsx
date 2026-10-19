@@ -1116,7 +1116,7 @@ export default function RevolutionPreview() {
         </header>
 
         <section className="rv-hero">
-          <div className="rv-hero-art" aria-hidden="true"><TableScene /></div>
+          <div className="rv-hero-ghost" aria-hidden="true">{lang === "zh" ? "辩" : "F"}</div>
           <div className="rv-hero-top">
             <div>
               <h1 className="rv-brand">{(lang === "zh" ? "门外谈" : "Outgate Chat").split("").map((ch, i) => (<span key={i} className="rv-brand-char" style={{ animationDelay: (0.08 * i + 0.15) + "s" }}>{ch}</span>))}</h1>
@@ -1191,7 +1191,8 @@ export default function RevolutionPreview() {
 
         {tab === "debate" && (
           <section className="rv-panel">
-            <div className="rv-section-head"><span className="no">{t.tab1}</span><span className="tt">{t.tab1}</span></div>
+            <div className="rv-section-head">
+<span className="no">{t.tab1}</span><span className="tt">{t.tab1}</span></div>
             <div className="rv-main">
               <aside ref={avatarsRef} className={"rv-avatars" + (mini ? " mini" : compact ? " compact" : "")}>
               <p className="rv-av-label">{t.avLabel}</p>
@@ -1548,6 +1549,7 @@ export default function RevolutionPreview() {
         {tab === "about" && (
           <section className="rv-panel rv-about">
             <div className="rv-section-head"><span className="no">{t.tab4}</span><span className="tt">{t.aboutName}</span></div>
+            <div className="rv-about-art" aria-hidden="true"><TableScene /></div>
             <p className="rv-about-lede">{t.aboutLede}</p>
             <div className="rv-about-grid">
               <div className="rv-about-item"><span className="no">{t.nums[0]}</span><b>{t.a1}</b><p>{t.a1d}</p></div>

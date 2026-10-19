@@ -1,71 +1,87 @@
-/* 三人围桌 · 实心剪影
-   之前是线描人脸，五官一歪就显丑。改成剪影：只留轮廓，不画脸。
-   这是老报纸插图最常见的处理，也最不容易画坏。 */
+/* 圆桌 · 俯视图
+   不画人物。画谁都会显丑——改成一张俯视的圆桌：
+   一圈座位，其中两个之间连着一条红色虚线。
+   那条虚线就是「悄悄话」：只有这两个座位知道同一件事。
+   纯几何，怎么画都不会丑。 */
 
 type Props = {
   className?: string;
   draw?: boolean;
 };
 
-const TABLE_Y = 272;
+const CX = 200;
+const CY = 200;
+const TABLE_R = 104;
+const SEAT_R = 15;
+const ORBIT = 152;
 
-function figure(cx: number, headY: number, r: number, halfW: number) {
-  const neckY = headY + r + 6;   // 脖子与肩的接缝
-  const bodyTop = headY + r - 2;
-  return (
-    <g key={cx}>
-      <circle cx={cx} cy={headY} r={r} />
-      <path
-        d={
-          `M${cx - halfW} ${TABLE_Y} ` +
-          `C${cx - halfW + 2} ${neckY + 54} ${cx - 26} ${neckY + 22} ${cx - 11} ${neckY} ` +
-          `L${cx - 11} ${bodyTop} L${cx + 11} ${bodyTop} L${cx + 11} ${neckY} ` +
-          `C${cx + 26} ${neckY + 22} ${cx + halfW - 2} ${neckY + 54} ${cx + halfW} ${TABLE_Y} Z`
-        }
-      />
-    </g>
-  );
+// 7 个座位；第 2 与第 5 座之间是那条悄悄话
+const SEATS = [0, 1, 2, 3, 4, 5, 6].map((i) => {
+  const a = (-90 + i * (360 / 7)) * (Math.PI / 180);
+  return { i, x: CX + Math.cos(a) * ORBIT, y: CY + Math.sin(a) * ORBIT };
+});
+const WHISPER = [SEATS[1], SEATS[5]];
+
+function whisperPath(a: { x: number; y: number }, b: { x: number; y: number }) {
+  // 从两座之间往圆心绕一道弧，像把话压低着递过去
+  const mx = (a.x + b.x) / 2;
+  const my = (a.y + b.y) / 2;
+  const pull = 0.62; // 往圆心收
+  const cxp = CX + (mx - CX) * pull;
+  const cyp = CY + (my - CY) * pull;
+  return `M${a.x} ${a.y} Q${cxp} ${cyp} ${b.x} ${b.y}`;
 }
 
 export default function TableScene({ className, draw = false }: Props) {
   return (
     <svg
       className={"ts-scene" + (draw ? " ts-draw" : "") + (className ? " " + className : "")}
-      viewBox="0 0 480 340"
+      viewBox="0 0 400 400"
       role="img"
-      aria-label="三位人物围坐桌旁对谈"
+      aria-label="圆桌俯视图：一圈座位，其中两个之间有一条私下的连线"
       fill="none"
     >
-      <g className="ts-figures" fill="currentColor" stroke="none">
-        {figure(120, 150, 23, 52)}
-        {figure(240, 140, 24, 56)}
-        {figure(360, 158, 21, 48)}
-        {/* 中间那位的帽檐 */}
-        <rect x={240 - 30} y={140 - 24 - 5} width={60} height={5} rx={2.5} />
+      {/* 桌沿：内外两圈 */}
+      <g className="ts-table-line" stroke="currentColor" strokeWidth={2.2}>
+        <circle cx={CX} cy={CY} r={TABLE_R} />
+        <circle cx={CX} cy={CY} r={TABLE_R - 9} strokeWidth={1.2} opacity={0.55} />
       </g>
 
-      {/* 桌子：填底色遮住下半身，再描边 */}
+      {/* 桌面上的东西：茶碗、纸、笔 */}
+      <g className="ts-things" stroke="currentColor" strokeWidth={1.8} strokeLinecap="round" opacity={0.75}>
+        <path d={`M${CX - 34} ${CY - 18} q12 -8 24 0 l-4 8 h-16 z`} />
+        <path d={`M${CX + 16} ${CY + 22} q11 -7 22 0 l-3 7 h-16 z`} />
+        <path d={`M${CX - 16} ${CY + 34} h26`} />
+        <path d={`M${CX + 4} ${CY + 42} l10 -5`} />
+      </g>
+
+      {/* 座位圈 */}
+      <g className="ts-figures">
+        {SEATS.map((s) => (
+          <circle
+            key={s.i}
+            cx={s.x}
+            cy={s.y}
+            r={SEAT_R}
+            fill="currentColor"
+            opacity={WHISPER.some((w) => w.i === s.i) ? 1 : 0.34}
+          />
+        ))}
+      </g>
+
+      {/* 悄悄话：两座之间的红色虚线 */}
       <path
-        d={`M22 ${TABLE_Y} a218 46 0 1 0 436 0 a218 46 0 1 0 -436 0 z`}
-        fill="var(--card)"
-        stroke="none"
+        className="ts-whisper"
+        d={whisperPath(WHISPER[0], WHISPER[1])}
+        stroke="var(--red)"
+        strokeWidth={2.2}
+        strokeDasharray="7 6"
+        strokeLinecap="round"
       />
-      <g className="ts-table-line" stroke="currentColor" strokeWidth={2.4} fill="none" strokeLinecap="round">
-        <ellipse cx="240" cy={TABLE_Y} rx="218" ry="46" />
-        <path d={`M22 ${TABLE_Y} q14 46 218 46 q204 0 218 -46`} />
-      </g>
-
-      <g className="ts-things" fill="none" stroke="currentColor" strokeWidth={2.2} strokeLinecap="round">
-        <path d="M150 262 q13-9 26 0 l-4 9 h-18 z" />
-        <path d="M304 260 q13-9 26 0 l-4 9 h-18 z" />
-        <path d="M228 280 h24" />
-        <path d="M276 276 l14 -6" />
-      </g>
-
-      <g fill="none" stroke="var(--red)" strokeWidth={2.4} strokeLinecap="round">
-        <path d="M74 96 q16-10 32 0" />
-        <path d="M86 118 q14-9 28 0" />
-        <path d="M376 106 q16-10 32 0" />
+      {/* 一句低声的话 */}
+      <g stroke="var(--red)" strokeWidth={2.2} strokeLinecap="round" opacity={0.9}>
+        <path d={`M${CX - 26} ${CY - 52} q16 -9 32 0`} />
+        <path d={`M${CX - 16} ${CY - 66} q12 -7 24 0`} />
       </g>
     </svg>
   );
