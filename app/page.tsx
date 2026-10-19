@@ -62,24 +62,19 @@ const SPEEDS: Record<SpeedLevel, { qn: number; qt: number; bn: number; bt: numbe
 };
 
 const EFFECT: Record<string, number> = {
-  zhangxuefeng: 35, fengge: 26, "luo-xiang-skill": 33, "marx-skill": 32, "kongzi-skill": 31, maoxuan: 30, luxun: 29,
-  "sun-yuchen-perspective": 30,
-  "steve-jobs-skill": 28, "elon-musk-skill": 27, "trump-skill": 26,
-  "huchenfeng-skill": 24, "leijun-skill": 20, "huangrenxun-skill": 19, "ace-taffy-skill": 16,
-  murasame: 15, mako: 15,
-  "buffett-skill": 14, "dalio-skill": 13,
+  "marx-skill": 32, "kongzi-skill": 31, luxun: 29,
+  "steve-jobs-skill": 28, "elon-musk-skill": 27, "leijun-skill": 20, "huangrenxun-skill": 19, "buffett-skill": 14, "dalio-skill": 13,
   "nietzsche-skill": 8, "foucault-skill": 7, "beauvoir-skill": 7, "socrates-skill": 6, "wittgenstein-skill": 5,
   "einstein-skill": 4, "turing-skill": 3, hayek: 2, keynes: 2, "plato-skill": 1,
   shakespeare: 13, aristotle: 12, kant: 11, smith: 10, darwin: 9, churchill: 9, newton: 8, camus: 8, russell: 7, orwell: 7, holmes: 6, alice: 6, schrodinger: 6, vangogh: 5, schopenhauer: 5, mlk: 5,
 };
 
 const EFFECT_INTL: Record<string, number> = {
-  shakespeare: 38, aristotle: 37, kant: 36, "sun-yuchen-perspective": 36, "plato-skill": 35, "socrates-skill": 34, "nietzsche-skill": 33, "marx-skill": 32, smith: 31, churchill: 30, holmes: 29, alice: 28, newton: 27, darwin: 26, schrodinger: 25, "einstein-skill": 24, "turing-skill": 23, "steve-jobs-skill": 22, "elon-musk-skill": 21, "trump-skill": 20, vangogh: 19, camus: 18, russell: 17, orwell: 16, schopenhauer: 15, "foucault-skill": 14, "wittgenstein-skill": 13, hayek: 12, keynes: 11, "beauvoir-skill": 10, mlk: 9, "buffett-skill": 8, "dalio-skill": 7, "kongzi-skill": 6, luxun: 5, murasame: 4, mako: 3, fengge: 2, "ace-taffy-skill": 2, "leijun-skill": 2, "huangrenxun-skill": 2, zhangxuefeng: 1, "huchenfeng-skill": 1, maoxuan: 1, "luo-xiang-skill": 1,
-};
+  shakespeare: 38, aristotle: 37, kant: 36, "plato-skill": 35, "socrates-skill": 34, "nietzsche-skill": 33, "marx-skill": 32, smith: 31, churchill: 30, holmes: 29, alice: 28, newton: 27, darwin: 26, schrodinger: 25, "einstein-skill": 24, "turing-skill": 23, "steve-jobs-skill": 22, "elon-musk-skill": 21, vangogh: 19, camus: 18, russell: 17, orwell: 16, schopenhauer: 15, "foucault-skill": 14, "wittgenstein-skill": 13, hayek: 12, keynes: 11, "beauvoir-skill": 10, mlk: 9, "buffett-skill": 8, "dalio-skill": 7, "kongzi-skill": 6, luxun: 5, "leijun-skill": 2, "huangrenxun-skill": 2, };
 
-const SENSITIVE_IDS = new Set([
-  "zhangxuefeng", "luo-xiang-skill", "huchenfeng-skill", "maoxuan",
-]);
+/* 敏感人物区已废弃：相关角色已于 2026-10-18 从人格库移除。
+   原「展开更多角色」按钮改为「展开剩余人物」（前 12 位常驻，其余折叠）。 */
+const GRID_PAGE = 12;
 
 const WELCOME_EN: Msg = { role: "ai", who: "Outgate Chat", color: "#c8102e", content: "The round table is set. Pick one or several thinkers, pose a question — they will answer in their own way." };
 
@@ -183,7 +178,7 @@ const I18N = {
       "停止发言：点「停止」立即中断回答、保留已说内容，不再一直转圈；新对话不再残留加载",
       "圆桌交锋：先表明立场再给独立理由，不复述不附和，跑题时把话题拉回来",
       "人格校准：10 位思想家回归本人（鲁迅、哈耶克、凯恩斯、柏拉图、尼采等），不再被带偏或变成旁观者",
-      "角色自然化：去掉平台层调教，每个角色用自己的方式说话——峰哥会用峰哥的腔调接你的问候",
+      "角色自然化：去掉平台层调教，每个角色用自己的方式说话——鲁迅会先反问你一句，乔布斯会直接给你一个判断",
       "回复克制：较真模式「宁短勿长」，杜绝长篇大论",
     ],
     foot1: "跨越时空，让思想交锋",
@@ -196,7 +191,7 @@ const I18N = {
     wsTitle: "请新人入席",
     aboutName: "门外谈",
     a4: "致谢",
-    a4d: "角色人格蒸馏自开源社区项目：dot-skill（colleague-skill）、女娲.skill（awesome-nuwa），以及张雪峰.skill、峰哥、毛选.skill、鲁迅.skill、哈耶克.skill、凯恩斯.skill——向各位作者致谢。",
+    a4d: "角色人格蒸馏自开源社区项目：dot-skill（colleague-skill）、女娲.skill（awesome-nuwa），以及鲁迅.skill、哈耶克.skill、凯恩斯.skill 等——向各位作者致谢。",
     setTitle: "设置",
     setKey: "API Key（选填，用自己的）",
     setProvider: "选择服务商",
@@ -231,7 +226,7 @@ const I18N = {
       { n: "贰", t: "提问", b: "在输入框写下你的问题，点「发言」或按回车。回答会一个字一个字地冒出来——别急，这是 AI 在边想边说。" },
       { n: "叁", t: "切换语言", b: "右上角「EN / 中」一键切换全站中英文。" },
       { n: "肆", t: "用自己的 API Key（可选）", b: "不填也能用（走站点默认）。想用自己的：在任意支持 OpenAI 兼容接口的服务商注册（如 DeepSeek、Moonshot Kimi、智谱、通义、OpenRouter 等）；在它的控制台创建并复制 API Key（一般 sk- 开头）；回到本站「设置」，把 Key 粘贴到「API Key」栏；「Base URL」和「模型」填服务商给你的地址和模型名（每家不同，看它的控制台或文档）；点「保存」。举例：DeepSeek 填 https://api.deepseek.com + deepseek-chat；Kimi 填 https://api.moonshot.cn + moonshot-v1-8k。Key 只存在你自己的浏览器本地，不会上传服务器。" },
-      { n: "伍", t: "导入新人物", b: "在「创意工坊」粘贴一个 GitHub 仓库链接，点「导入」，几秒后新人物就出现在人物志。要求：仓库根目录必须有一个 SKILL.md 文件——这是「蒸馏人格」的标准格式。想找现成人物？去 GitHub 搜蒸馏人格 skill 仓库，比如张雪峰、鲁迅、哈耶克等。" },
+      { n: "伍", t: "导入新人物", b: "在「创意工坊」粘贴一个 GitHub 仓库链接，点「导入」，几秒后新人物就出现在人物志。要求：仓库根目录必须有一个 SKILL.md 文件——这是「蒸馏人格」的标准格式。想找现成人物？去 GitHub 搜蒸馏人格 skill 仓库，比如鲁迅、哈耶克、康德等。" },
       { n: "陆", t: "常见问题", b: "没反应？① 检查设置里 API Key / Base URL / 模型是否填对（注意别多空格）；② 清空 Key 试试站点默认；③ 刷新页面重来。导入失败？确认链接是 GitHub 仓库地址，且根目录有 SKILL.md。" },
     ],
     nums: ["壹", "贰", "叁", "肆"],
@@ -639,8 +634,8 @@ export default function RevolutionPreview() {
                 );
   };
 
-  const safeGrid = gridChars.filter((c) => !SENSITIVE_IDS.has(c.id));
-  const sensGrid = gridChars.filter((c) => SENSITIVE_IDS.has(c.id));
+  const safeGrid = gridChars;
+  const shownGrid = showSensitive ? safeGrid : safeGrid.slice(0, GRID_PAGE);
   const charById = (id: string) => chars.find((c) => c.id === id);
   const toggleChar = (id: string) => {
     const next = selected.includes(id) ? selected.filter((x) => x !== id) : [...selected, id];
@@ -1110,7 +1105,7 @@ export default function RevolutionPreview() {
           <div className="rv-mast-rule" />
           <div className="rv-ticker" aria-hidden="true">
             <div className="rv-ticker-track">
-              {[...chars.filter((c) => !SENSITIVE_IDS.has(c.id)), ...chars.filter((c) => !SENSITIVE_IDS.has(c.id))].map((c, i) => (<span key={i}>{lang === "en" ? c.name : c.zhName}</span>))}
+              {[...chars, ...chars].map((c, i) => (<span key={i}>{lang === "en" ? c.name : c.zhName}</span>))}
             </div>
           </div>
         </header>
@@ -1469,15 +1464,14 @@ export default function RevolutionPreview() {
               <>
                 <p className="rv-personas-hint">{t.personasHint}</p>
                 <div className="rv-char-grid">
-              {safeGrid.map(renderCard)}
+              {shownGrid.map(renderCard)}
                 </div>
-              <div className="rv-char-more-wrap">
-                <button className="rv-char-more" onClick={() => setShowSensitive((o) => !o)}>
-                  {showSensitive ? t.lessChars : t.moreChars} {showSensitive ? "▴" : "▾"}
-                </button>
-              </div>
-              {showSensitive && sensGrid.length > 0 && (
-                <div className="rv-char-grid rv-char-grid-sens">{sensGrid.map(renderCard)}</div>
+              {safeGrid.length > GRID_PAGE && (
+                <div className="rv-char-more-wrap">
+                  <button className="rv-char-more" onClick={() => setShowSensitive((o) => !o)}>
+                    {showSensitive ? t.lessChars : t.moreChars} {showSensitive ? "▴" : "▾"}
+                  </button>
+                </div>
               )}
               </>
             )}
