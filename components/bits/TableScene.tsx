@@ -1,80 +1,71 @@
-/* 三人围桌 · 线描插画
-   民国报刊线描的语汇：单色墨线 + 一笔红，不填色、不描阴影。
-   用于首屏与「请人入席」空状态。 */
+/* 三人围桌 · 实心剪影
+   之前是线描人脸，五官一歪就显丑。改成剪影：只留轮廓，不画脸。
+   这是老报纸插图最常见的处理，也最不容易画坏。 */
 
 type Props = {
   className?: string;
-  /** 是否开启动笔动画（空状态用） */
   draw?: boolean;
 };
 
-const P1 = { cx: 120, hy: 128, rx: 20, ry: 23, w: 52 };
-const P2 = { cx: 240, hy: 120, rx: 20, ry: 23, w: 54 };
-const P3 = { cx: 360, hy: 136, rx: 19, ry: 22, w: 50 };
-const TABLE_Y = 268;
+const TABLE_Y = 272;
 
-function person({ cx, hy, rx, ry, w }: typeof P1) {
-  const hl = hy + ry;      // 头底
-  const nl = hl + 16;      // 脖子底
-  const l = cx - 11;
-  const r = cx + 11;
+function figure(cx: number, headY: number, r: number, halfW: number) {
+  const neckY = headY + r + 6;   // 脖子与肩的接缝
+  const bodyTop = headY + r - 2;
   return (
     <g key={cx}>
-      <ellipse cx={cx} cy={hy} rx={rx} ry={ry} />
-      <path d={`M${l} ${hl} v16 M${r} ${hl} v16`} />
-      <path d={`M${cx - w} ${TABLE_Y} C${cx - w + 2} ${nl + 42} ${cx - 34} ${nl + 14} ${l} ${nl}`} />
-      <path d={`M${cx + w} ${TABLE_Y} C${cx + w - 2} ${nl + 42} ${cx + 34} ${nl + 14} ${r} ${nl}`} />
-      <path d={`M${cx - 13} ${nl + 6} L${cx} ${nl + 26} L${cx + 13} ${nl + 6}`} />
+      <circle cx={cx} cy={headY} r={r} />
+      <path
+        d={
+          `M${cx - halfW} ${TABLE_Y} ` +
+          `C${cx - halfW + 2} ${neckY + 54} ${cx - 26} ${neckY + 22} ${cx - 11} ${neckY} ` +
+          `L${cx - 11} ${bodyTop} L${cx + 11} ${bodyTop} L${cx + 11} ${neckY} ` +
+          `C${cx + 26} ${neckY + 22} ${cx + halfW - 2} ${neckY + 54} ${cx + halfW} ${TABLE_Y} Z`
+        }
+      />
     </g>
   );
 }
 
 export default function TableScene({ className, draw = false }: Props) {
-  const anim = draw ? " ts-draw" : "";
   return (
     <svg
-      className={"ts-scene" + anim + (className ? " " + className : "")}
+      className={"ts-scene" + (draw ? " ts-draw" : "") + (className ? " " + className : "")}
       viewBox="0 0 480 340"
       role="img"
       aria-label="三位人物围坐桌旁对谈"
       fill="none"
-      stroke="currentColor"
-      strokeWidth={2.4}
-      strokeLinecap="round"
-      strokeLinejoin="round"
     >
-      <g className="ts-figures">
-        {person(P1)}
-        <path d="M103 110 C110 96 130 96 137 110" />
-        {person(P2)}
-        <path d="M213 88 h54" />
-        <path d="M219 88 C224 68 256 68 261 88" />
-        {person(P3)}
-        <path d="M345 118 C352 106 368 106 375 118" />
+      <g className="ts-figures" fill="currentColor" stroke="none">
+        {figure(120, 150, 23, 52)}
+        {figure(240, 140, 24, 56)}
+        {figure(360, 158, 21, 48)}
+        {/* 中间那位的帽檐 */}
+        <rect x={240 - 30} y={140 - 24 - 5} width={60} height={5} rx={2.5} />
       </g>
 
-      {/* 桌子：先填纸色遮住下半身，再描边 */}
+      {/* 桌子：填底色遮住下半身，再描边 */}
       <path
-        className="ts-table"
         d={`M22 ${TABLE_Y} a218 46 0 1 0 436 0 a218 46 0 1 0 -436 0 z`}
         fill="var(--card)"
         stroke="none"
       />
-      <g className="ts-table-line">
+      <g className="ts-table-line" stroke="currentColor" strokeWidth={2.4} fill="none" strokeLinecap="round">
         <ellipse cx="240" cy={TABLE_Y} rx="218" ry="46" />
         <path d={`M22 ${TABLE_Y} q14 46 218 46 q204 0 218 -46`} />
       </g>
 
-      <g className="ts-things" strokeWidth={2.2}>
-        <path d="M150 258 q13-9 26 0 l-4 9 h-18 z" />
-        <path d="M304 256 q13-9 26 0 l-4 9 h-18 z" />
-        <path d="M228 276 h24" />
-        <path d="M276 272 l14 -6" />
+      <g className="ts-things" fill="none" stroke="currentColor" strokeWidth={2.2} strokeLinecap="round">
+        <path d="M150 262 q13-9 26 0 l-4 9 h-18 z" />
+        <path d="M304 260 q13-9 26 0 l-4 9 h-18 z" />
+        <path d="M228 280 h24" />
+        <path d="M276 276 l14 -6" />
       </g>
 
-      <g className="ts-red" stroke="var(--red)" strokeWidth={2.2}>
-        <path d="M78 96 q14-8 28 0" />
-        <path d="M390 106 q14-8 28 0" />
+      <g fill="none" stroke="var(--red)" strokeWidth={2.4} strokeLinecap="round">
+        <path d="M74 96 q16-10 32 0" />
+        <path d="M86 118 q14-9 28 0" />
+        <path d="M376 106 q16-10 32 0" />
       </g>
     </svg>
   );

@@ -218,6 +218,7 @@ const I18N = {
     sceneTag: "交锋",
     sceneDesc: { casual: "两三句，先碰个面", serious: "认真辩，有来有往", heated: "放开打，不设限" },
     modeTag: "模式",
+    roundTag: "轮次",
     modeHelp: "对谈 = 和思想者单独聊；圆桌 = 多位思想者轮流交锋",
     sceneHelp: "交锋 = 回答的长短火候：随口很短、较真适中、上头放开。气氛上来时会自动升级",
     back: "返回人物志",
@@ -359,6 +360,7 @@ const I18N = {
     sceneTag: "Clash",
     sceneDesc: { casual: "Two lines, feel the room", serious: "Real debate, back and forth", heated: "No limits, go all out" },
     modeTag: "Mode",
+    roundTag: "Rounds",
     modeHelp: "One-on-One = talk with a thinker; Round Table = several thinkers take turns clashing",
     sceneHelp: "Clash = how long answers are: Casual is short, Serious is measured, Heated lets loose. It auto-escalates as the heat rises",
     back: "Back to gallery",
@@ -1262,10 +1264,13 @@ export default function RevolutionPreview() {
                 </div>
               </div>
               {mode === "debate" && (
-                <div className="rv-rounds">
-                  {[1, 2, 3, 4].map((n) => (
-                    <button key={n} className={rounds === n ? "active" : ""} onClick={() => setRounds(n)}>{n}</button>
-                  ))}
+                <div className="rv-set-row">
+                  <span className="rv-set-tag">{t.roundTag}</span>
+                  <div className="rv-rounds">
+                    {[1, 2, 3, 4].map((n) => (
+                      <button key={n} className={rounds === n ? "active" : ""} onClick={() => setRounds(n)} title={lang === "zh" ? `每人各说 ${n} 轮` : `${n} turn${n > 1 ? "s" : ""} each`}>{n}</button>
+                    ))}
+                  </div>
                 </div>
               )}
             </aside>

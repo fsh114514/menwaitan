@@ -121,17 +121,6 @@
     "imported": true
   },
   {
-    "id": "leijun-skill",
-    "zhName": "雷军",
-    "name": "leijun-perspective",
-    "initial": "雷",
-    "school": "极致性价比",
-    "tag": "Are you OK",
-    "color": "#5d8a2e",
-    "skillDir": "leijun-skill",
-    "imported": true
-  },
-  {
     "id": "huangrenxun-skill",
     "zhName": "黄仁勋",
     "name": "huangrenxun-perspective",
