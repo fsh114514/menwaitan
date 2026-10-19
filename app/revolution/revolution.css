@@ -1754,3 +1754,8 @@ html, body { overflow-x: clip; }
 }
 .rv-chat-empty-art svg { width: 100%; height: auto; display: block; }
 .rv-chat-body { position: relative; }
+
+/* 模式卡片在 .rv-set-row（flex wrap）里会被挤到 92px，强制占满一行 */
+.rv-mode-cards { flex: 1 1 100%; }
+/* 工坊：自己导入那一块的小标题 */
+.rv-ws-own { margin-top: var(--s-5); }

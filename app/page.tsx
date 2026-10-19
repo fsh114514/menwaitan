@@ -132,11 +132,12 @@ const I18N = {
     ph: "抛出一个议题，让思想家们交锋…",
     enter: "入席 →",
     entered: "已入席",
-    wsSub: "粘贴一个蒸馏人格格式的 GitHub 仓库地址（仓库根目录含 SKILL.md），即可导入为可对话角色。",
+    wsSub: "站内已有几十位人物。想再添新的，可以从下面的现成仓库挑一个，也可以贴一个你自己的。",
     wsImport: "导入",
     wsImporting: "导入中…",
-    wsRec: "更多人物 · 站外现成（点一下填入链接，再点导入）：",
-    wsRecHint: "以下人物站内还没有，点按钮填入链接即可导入。想淘更多，去合集页逛一逛。",
+    wsRec: "更多人物 · 站外现成（点一下，自动填进下面的输入框）",
+    wsRecHint: "以下人物站内还没有。想淘更多，去合集页逛一逛。",
+    wsOwn: "自己导入一个人物（仓库根目录需含 SKILL.md）",
     wsOrg: "nuwa-skills 组织",
     wsOrgUrl: "https://github.com/nuwa-skills",
     wsGallery: "合集页",
@@ -271,11 +272,12 @@ const I18N = {
     ph: "Pose a question for the thinkers…",
     enter: "Seat →",
     entered: "Seated",
-    wsSub: "Paste a distilled-persona GitHub repo URL (SKILL.md at root) to import a new character.",
+    wsSub: "The site already has dozens of personas. To add one, pick a ready-made repo below or paste your own.",
     wsImport: "Import",
     wsImporting: "Importing…",
-    wsRec: "More personas · ready-made repos (click to fill, then Import):",
-    wsRecHint: "None of these are in the site yet — click a button to fill the link and import. For more, browse the collections.",
+    wsRec: "More personas · ready-made repos (click to fill the box below)",
+    wsRecHint: "None of these are in the site yet. For more, browse the collections.",
+    wsOwn: "Import your own (SKILL.md must sit at the repo root)",
     wsOrg: "nuwa-skills org",
     wsOrgUrl: "https://github.com/nuwa-skills",
     wsGallery: "the gallery",
@@ -1497,14 +1499,6 @@ export default function RevolutionPreview() {
           <section className="rv-panel rv-workshop">
             <div className="rv-section-head"><span className="no">{t.tab3}</span><span className="tt">{t.wsTitle}</span></div>
             <p className="rv-sub">{t.wsSub}</p>
-            <div className="rv-ws-row">
-              <input value={importUrl} onChange={(e) => setImportUrl(e.target.value)} placeholder="https://github.com/owner/repo" />
-              <div className="rv-send">
-                <ClickSpark sparkColor="#fff" sparkSize={8} sparkRadius={20} sparkCount={6}>
-                  <button className="rv-btn" onClick={doImport} disabled={importing}>{importing ? t.wsImporting : t.wsImport}</button>
-                </ClickSpark>
-              </div>
-            </div>
             <div className="rv-ws-recs">
               <p className="rv-ws-recs-label">{t.wsRec}</p>
               <div className="rv-ws-recs-list">
@@ -1517,6 +1511,15 @@ export default function RevolutionPreview() {
                 )}
               </div>
               <p className="rv-ws-recs-hint">{t.wsRecHint} <a href={t.wsGalleryUrl} target="_blank" rel="noreferrer">{t.wsGallery} ↗</a> · <a href={t.wsOrgUrl} target="_blank" rel="noreferrer">{t.wsOrg} ↗</a></p>
+            </div>
+            <p className="rv-ws-recs-label rv-ws-own">{t.wsOwn}</p>
+            <div className="rv-ws-row">
+              <input value={importUrl} onChange={(e) => setImportUrl(e.target.value)} placeholder="https://github.com/owner/repo" />
+              <div className="rv-send">
+                <ClickSpark sparkColor="#fff" sparkSize={8} sparkRadius={20} sparkCount={6}>
+                  <button className="rv-btn" onClick={doImport} disabled={importing}>{importing ? t.wsImporting : t.wsImport}</button>
+                </ClickSpark>
+              </div>
             </div>
             {importMsg && <p className="rv-ws-status">{importMsg}</p>}
           </section>
