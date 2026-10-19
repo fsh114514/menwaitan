@@ -1815,3 +1815,32 @@ html, body { overflow-x: clip; }
   .rv-about-art { float: none; width: 150px; margin: 0 auto 18px; }
 }
 .rv-hero-art { display: none; }   /* 首屏不再用插画，恢复「辩」水印 */
+
+/* 关于页插图：公有领域版画，做成淡墨印在纸上的效果 */
+.rv-about-art {
+  float: right;
+  width: clamp(230px, 26vw, 340px);
+  margin: 6px 6px 24px 34px;
+  padding: 0;
+}
+.rv-about-art img {
+  width: 100%;
+  height: auto;
+  display: block;
+  opacity: 0.62;
+  mix-blend-mode: multiply;
+  filter: contrast(1.06);
+}
+.rv-about-art figcaption {
+  margin-top: 7px;
+  font-family: var(--font-ui);
+  font-size: 0.66rem;
+  letter-spacing: 0.02em;
+  color: var(--ink-faint);
+  text-align: right;
+  line-height: 1.5;
+}
+@media (max-width: 760px) {
+  .rv-about-art { float: none; width: 100%; max-width: 340px; margin: 0 auto 22px; }
+  .rv-about-art figcaption { text-align: center; }
+}

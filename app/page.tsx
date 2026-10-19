@@ -1549,7 +1549,10 @@ export default function RevolutionPreview() {
         {tab === "about" && (
           <section className="rv-panel rv-about">
             <div className="rv-section-head"><span className="no">{t.tab4}</span><span className="tt">{t.aboutName}</span></div>
-            <div className="rv-about-art" aria-hidden="true"><TableScene /></div>
+            <figure className="rv-about-art">
+              <img src="/art/disputation.jpg" alt="一群人在争论——十九世纪炭笔速写" loading="lazy" />
+              <figcaption>{lang === "zh" ? "争论 · 十九世纪炭笔速写 · 公有领域" : "A Disputation · 19th-c. sketch · public domain"}</figcaption>
+            </figure>
             <p className="rv-about-lede">{t.aboutLede}</p>
             <div className="rv-about-grid">
               <div className="rv-about-item"><span className="no">{t.nums[0]}</span><b>{t.a1}</b><p>{t.a1d}</p></div>
