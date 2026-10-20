@@ -16,7 +16,7 @@ from pptx.util import Inches, Pt
 from pptx.dml.color import RGBColor
 from pptx.enum.shapes import MSO_SHAPE
 from pptx.enum.text import PP_ALIGN, MSO_ANCHOR
-from PIL import Image
+from PIL import Image, ImageDraw, ImageFont
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 
@@ -109,7 +109,11 @@ def head(slide, kicker, title, tsize=40):
     hair(slide, ML, HEAD_RULE_Y, CW)
     rect(slide, ML, 0.60, 0.085, 0.70, RED)
     tb(slide, ML + 0.28, 0.58, 9.0, 0.30, kicker, 11.5, True, RED, spacing=2.4)
-    tb(slide, ML + 0.28, 0.92, CW - 0.3, 0.78, title, tsize, True, INK, font=SERIF, spacing=1.2, line=1.0)
+    if _HAVE_DISPLAY:
+        display(slide, ML + 0.28, 0.90, title, tsize, max_w=CW - 0.3)
+    else:
+        tb(slide, ML + 0.28, 0.92, CW - 0.3, 0.78, title, tsize, True, INK,
+           font=SERIF, spacing=1.2, line=1.0)
 
 
 def foot(slide):
@@ -128,20 +132,75 @@ def pic(slide, relpath, x, y, w=None, h=None):
     return slide.shapes.add_picture(path, Inches(x), Inches(y), Inches(w), Inches(h))
 
 
+
+# ---------- 得意黑：大标题一律渲成图片 ----------
+# 得意黑不是系统字体。写成字体名，评委电脑上没有就会掉回默认字体，
+# 你在自己机器上看是好的，交上去就变样。所以大标题全部渲成透明 PNG。
+DISPLAY_TTF = "/tmp/SmileySans.ttf"
+_HAVE_DISPLAY = os.path.exists(DISPLAY_TTF)
+
+
+def display_png(text, pt, color=INK, spacing=0.04, out="/tmp/dt.png", pad=0.06):
+    """把多行文字渲成紧贴的透明 PNG，返回 (路径, 宽高比)。"""
+    px = max(12, int(pt * 4))                     # 4x 超采样，缩放后不糊
+    font = ImageFont.truetype(DISPLAY_TTF, px)
+    sp = px * spacing
+    lines = text.split("\n")
+    adv = []
+    for ln in lines:
+        w = sum(font.getlength(ch) for ch in ln) + sp * max(0, len(ln) - 1)
+        adv.append(w)
+    asc, desc = font.getmetrics()
+    line_h = (asc + desc) * 1.02
+    W = int(max(adv) + px * pad * 2)
+    H = int(line_h * len(lines) + px * pad * 2)
+    img = Image.new("RGBA", (W, H), (0, 0, 0, 0))
+    d = ImageDraw.Draw(img)
+    y = px * pad
+    for ln, w in zip(lines, adv):
+        x = px * pad
+        for ch in ln:
+            d.text((x, y), ch, font=font, fill=(color[0], color[1], color[2], 255))
+            x += font.getlength(ch) + sp
+        y += line_h
+    # 裁掉透明边距 —— 字体自带的行高留白会让缩放后的字形缩水
+    bbox = img.getbbox()
+    if bbox:
+        img = img.crop(bbox)
+    img.save(out)
+    return out, img.width / img.height, len(lines)
+
+
+def display(slide, x, y, text, pt, color=INK, spacing=0.04, max_w=None, align="left"):
+    """放一段得意黑大字。按字号定高，宽度由 PNG 比例推出。"""
+    path, ratio, nlines = display_png(text, pt, color, spacing)
+    h = (pt / 72) * 1.06 * nlines
+    w = h * ratio
+    if max_w and w > max_w:
+        w = max_w
+        h = w / ratio
+    px = x if align == "left" else (x - w if align == "right" else x - w / 2)
+    slide.shapes.add_picture(path, Inches(px), Inches(y), Inches(w), Inches(h))
+    return w, h
+
+
 SH = "screenshots"
 
 # ============================================================
 # 01 封面
 # ============================================================
 s = new_slide()
-tb(s, 6.55, 0.72, 6.4, 6.0, "辩", 250, True, GHOST, font=SERIF, align=PP_ALIGN.CENTER, line=1.0)
+tb(s, 7.15, 0.68, 5.7, 6.1, "辩", 250, True, GHOST, font=SERIF, align=PP_ALIGN.CENTER, line=1.0)
 rect(s, 0, 0, W, 0.10, RED)
-tb(s, ML, 0.95, 9.0, 0.30, "2026 年第十四届全国大学生数字媒体科技作品及创意竞赛",
+tb(s, ML, 0.86, 9.0, 0.28, "2026 年第十四届全国大学生数字媒体科技作品及创意竞赛",
    11.5, True, RED, spacing=1.6)
-tb(s, ML, 1.30, 6.6, 1.42, "门外谈", 92, True, INK, font=SERIF, spacing=6, line=1.0)
-tb(s, ML, 2.86, 8.2, 0.44, "——基于信息不对称机制的多智能体圆桌辩论系统",
-   21, False, INK_SOFT, font=UI, spacing=0.6)
-hair(s, ML, 3.48, 3.2, RED, 3)
+if _HAVE_DISPLAY:
+    display(s, ML, 1.42, "门外谈", 100, spacing=0.10)
+else:
+    tb(s, ML, 1.42, 6.6, 1.47, "门外谈", 100, True, INK, font=SERIF, spacing=6, line=1.0)
+tb(s, ML, 3.10, 6.9, 0.40, "——基于信息不对称机制的多智能体圆桌辩论系统",
+   17.5, False, INK_SOFT, font=UI, spacing=0.4)
+hair(s, ML, 3.68, 3.2, RED, 3)
 
 meta = [
     ("作品编号", "375993"),
@@ -150,7 +209,7 @@ meta = [
     ("指导教师", "胡芳驰 · 霍镜宇"),
     ("在线地址", "https://outgate.chat"),
 ]
-yy = 3.92
+yy = 4.10
 for k, v in meta:
     tb(s, ML, yy, 1.15, 0.26, k, 10.5, False, INK_FAINT, spacing=1.2)
     tb(s, ML + 1.25, yy - 0.01, 6.2, 0.28, v, 12, False, INK, spacing=0.4)
@@ -163,8 +222,11 @@ foot(s)
 s = new_slide()
 rect(s, 0, 0, W, 0.10, RED)
 tb(s, ML, 1.05, 4.0, 0.28, "一句话", 11.5, True, RED, spacing=3)
-tb(s, ML, 1.62, 10.6, 2.6, "给 AI 圆桌加一层\n「谁被谁看见了」。",
-   54, True, INK, font=SERIF, line=1.45, spacing=2)
+if _HAVE_DISPLAY:
+    display(s, ML, 1.50, "给 AI 圆桌加一层\n「谁被谁看见了」。", 62, spacing=0.06, max_w=10.6)
+else:
+    tb(s, ML, 1.62, 10.6, 2.6, "给 AI 圆桌加一层\n「谁被谁看见了」。",
+       54, True, INK, font=SERIF, line=1.45, spacing=2)
 hair(s, ML, 4.42, 3.4, RED, 3)
 tb(s, ML, 4.78, 8.6, 0.9,
    "大多数多智能体产品比拼的是人格写得多像；\n这里动的是另一件事——每个人掌握了什么信息。",
