@@ -477,17 +477,19 @@ foot(s)
 # ============================================================
 s = new_slide()
 rect(s, 0, 0, W, 0.10, RED)
-tb(s, ML, 1.05, 6.6, 0.28, "一句话 · 这就是我们的答案", 11.5, True, RED, spacing=3)
+tb(s, ML, 0.86, 8.0, 0.28, "一句话 · 这就是我们的答案", 11.5, True, RED, spacing=3)
 if _HAVE_DISPLAY:
-    display(s, ML, 1.50, "给 AI 圆桌加一层\n「谁被谁看见了」。", 62, spacing=0.06, max_w=10.6)
+    display(s, ML, 1.24, "让他们掌握的信息，\n不再相同。", 58, spacing=0.06, max_w=10.4)
 else:
-    tb(s, ML, 1.62, 10.6, 2.6, "给 AI 圆桌加一层\n「谁被谁看见了」。",
-       54, True, INK, font=SERIF, line=1.45, spacing=2)
+    tb(s, ML, 1.34, 10.6, 2.4, "让他们掌握的信息，\n不再相同。",
+       52, True, INK, font=SERIF, line=1.42, spacing=2)
+tb(s, ML, 3.62, 10.6, 0.46,
+   "——给 AI 圆桌加一层「谁被谁看见了」", 22, False, RED, font=SERIF, line=1.4)
 hair(s, ML, 4.42, 3.4, RED, 3)
-tb(s, ML, 4.78, 9.2, 0.9,
-   "人格写得多像是上一层；这里动的是下面一层——\n"
-   "每个人掌握了什么信息，以及谁被谁看见了。",
-   15, False, INK_SOFT, line=1.75)
+tb(s, ML, 4.78, 9.6, 1.1,
+   "上一页那句「原因」就是全部线索：他们掌握的信息完全相同，所以只能顺着说。\n"
+   "那就让每个人的信息不再相同——可见性怎么分，就决定了他们还吵不吵得起来。",
+   14.5, False, INK_SOFT, line=1.8)
 foot(s)
 
 # ============================================================
@@ -513,7 +515,13 @@ for i, (no, name, desc) in enumerate(MECHS):
         tb(s, bx + bw - 0.02, by + 0.62, gap + 0.04, 0.34, "→", 15, True, RED, align=PP_ALIGN.CENTER)
     bx += bw + gap
 
-tb(s, ML, 4.42, CW, 0.34, "前三个构成信息层，第四个判断讨论是否空转，第五个兜底。",
+# 分组标注：①②③ 解决上一页的「信息相同」；④⑤ 解决另一个问题——打太极
+g1w = bw * 3 + gap * 2
+tb(s, ML, BODY_Y - 0.06, g1w, 0.26,
+   "解决第 7 页的原因：信息完全相同", 10, True, RED, spacing=1.2)
+tb(s, ML + g1w + gap, BODY_Y - 0.06, bw * 2 + gap, 0.26,
+   "解决另一个问题：讨论空转", 10, True, INK_FAINT, spacing=1.2)
+tb(s, ML, 4.42, CW, 0.34, "前三个构成信息层；后两个负责判断要不要介入、怎么介入。",
    12.5, False, INK_FAINT, line=1.6)
 hair(s, ML, 4.92, CW)
 tb(s, ML, 5.14, CW, 0.62,
