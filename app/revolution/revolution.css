@@ -1844,3 +1844,68 @@ html, body { overflow-x: clip; }
   .rv-about-art { float: none; width: 100%; max-width: 340px; margin: 0 auto 22px; }
   .rv-about-art figcaption { text-align: center; }
 }
+
+/* 关于页与教程页：原来 max-width: 46em（约 736px），在宽屏上右边一大片空 */
+.rv-about { max-width: 76em; }
+.rv-guide { max-width: 72em; }
+@media (min-width: 900px) {
+  .rv-about-grid { grid-template-columns: 1fr 1fr; align-items: start; }
+}
+/* 关于页插图在宽版下靠右，不再压住正文 */
+@media (min-width: 1100px) {
+  .rv-about-art { width: clamp(260px, 22vw, 330px); margin-right: 0; }
+}
+/* 教程：条目本身加宽，正文行宽控制在可读范围 */
+.rv-guide-list { max-width: 52em; }
+.rv-guide-item p { max-width: 46em; }
+
+/* 教程页：左侧正文 + 右侧粘性目录，填掉右半屏的空白 */
+.rv-guide-wrap {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 210px;
+  gap: clamp(28px, 4vw, 64px);
+  align-items: start;
+  margin-top: var(--s-5);
+}
+.rv-guide-wrap .rv-guide-list { margin-top: 0; }
+.rv-guide-toc {
+  position: sticky;
+  top: 24px;
+  border-left: 1px solid var(--line);
+  padding-left: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+}
+.rv-guide-toc-label {
+  font-family: var(--font-ui);
+  font-size: 0.7rem;
+  letter-spacing: 0.14em;
+  color: var(--ink-faint);
+  margin: 0 0 4px;
+}
+.rv-guide-toc a {
+  display: flex;
+  gap: 8px;
+  align-items: baseline;
+  font-family: var(--font-ui);
+  font-size: 0.8rem;
+  line-height: 1.5;
+  color: var(--ink-soft);
+  text-decoration: none;
+  transition: color 0.18s;
+}
+.rv-guide-toc a:hover { color: var(--red); }
+.rv-guide-toc i {
+  font-style: normal;
+  font-family: var(--font-serif);
+  font-size: 0.72rem;
+  color: var(--red);
+  flex: none;
+  min-width: 1.6em;
+}
+@media (max-width: 900px) {
+  .rv-guide-wrap { grid-template-columns: 1fr; }
+  .rv-guide-toc { position: static; border-left: none; padding-left: 0;
+                  border-top: 1px solid var(--line); padding-top: 16px; }
+}
