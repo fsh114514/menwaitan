@@ -1,15 +1,3 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-"""门外谈 · 答辩 PPT（v3 重做）
-
-三条硬规矩：
-  1. 字体只用 Windows 自带（微软雅黑 + 宋体）——旧版写了 PingFang SC，
-     评委在 Windows 打开会掉字体，整套设计就散了
-  2. 每页一个主张，正文 ≤ 90 字
-  3. 内容不超过版面 60%，留白要真留
-
-用法： <python> make_ppt.py
-"""
 import os
 from pptx import Presentation
 from pptx.util import Inches, Pt
@@ -37,8 +25,8 @@ UI = "微软雅黑"
 W, H = 13.333, 7.5
 ML = 0.9
 CW = 11.53
-HEAD_RULE_Y = 1.86
-BODY_Y = 2.15
+HEAD_RULE_Y = 1.62
+BODY_Y = 1.95
 FOOT_Y = 7.02
 
 prs = Presentation()
@@ -107,20 +95,23 @@ def hair(slide, x, y, w, color=LINE, h=1):
     return rect(slide, x, y, w, h / 96, color)
 
 
-def head(slide, kicker, title, tsize=40):
-    # 先画细线：它必须沉在文字底下，否则会横穿标题的底部笔画
+def head(slide, no, section, title, tsize=27):
+    """版头：序号 + 红字章节名（小）+ 黑字本页标题（比上一版小一号）+ 贯通细线。
+    老师要求：左上角标题要代表内容；序号独立；同类页分类名统一；黑字放小。"""
     hair(slide, ML, HEAD_RULE_Y, CW)
-    rect(slide, ML, 0.60, 0.085, 0.70, RED)
-    tb(slide, ML + 0.28, 0.58, 9.0, 0.30, kicker, 11.5, True, RED, spacing=2.4)
+    rect(slide, ML, 0.58, 0.075, 0.62, RED)
+    tb(slide, ML + 0.24, 0.50, 0.62, 0.26, no, 12.5, True, RED, spacing=1.6)
+    tb(slide, ML + 0.92, 0.50, 7.6, 0.26, section, 12.5, True, RED, spacing=1.8)
     if _HAVE_DISPLAY:
-        display(slide, ML + 0.28, 0.90, title, tsize, max_w=CW - 0.3)
+        display(slide, ML + 0.24, 0.86, title, tsize, max_w=CW - 0.3)
     else:
-        tb(slide, ML + 0.28, 0.92, CW - 0.3, 0.78, title, tsize, True, INK,
-           font=SERIF, spacing=1.2, line=1.0)
+        tb(slide, ML + 0.24, 0.88, CW - 0.3, 0.56, title, tsize, True, INK,
+           font=SERIF, spacing=1.0, line=1.0)
 
 
 def foot(slide):
-    tb(slide, ML, FOOT_Y, 6.0, 0.26, "门外谈 · 作品编号 375993", 9.5, False, INK_FAINT)
+    tb(slide, ML, FOOT_Y, 6.0, 0.26, "门外谈 · 作品编号 375993 · https://outgate.chat",
+       9.5, False, INK_FAINT)
     tb(slide, ML + CW - 1.2, FOOT_Y, 1.2, 0.26, f"{_page['n']:02d}", 10, True, INK_FAINT,
        align=PP_ALIGN.RIGHT)
 
@@ -187,28 +178,9 @@ def display(slide, x, y, text, pt, color=INK, spacing=0.04, max_w=None, align="l
     return w, h
 
 
+
 SH = "screenshots"
 
-
-# ---------- 幻灯片切换：淡入（低风险的那一层动画）----------
-# 逐元素入场动画要手写 <p:timing>，而渲染器不执行动画、本机无法验证，
-# 一份坏掉的 XML 会让 PowerPoint 弹「需要修复」——那个代价太大。
-# 所以只加切换效果：结构简单、位置固定（cSld → clrMapOvr → transition）。
-def add_fade(slide, spd="fast"):
-    from pptx.oxml.ns import qn
-    from lxml import etree
-    sld = slide._element
-    old = sld.find(qn("p:transition"))
-    if old is not None:
-        sld.remove(old)
-    tr = etree.SubElement(sld, qn("p:transition"))
-    tr.set("spd", spd)
-    etree.SubElement(tr, qn("p:fade"))
-
-
-
-
-# ---------- 截图裁切：整页截图缩到幻灯片上字只有 4px，必须裁到关键区域 ----------
 _SHOT_CROPS = {
     "04-圆桌辩论-公开交锋.png":   (330, 296, 1224, 727),
     "05-悄悄话消息-仅一人可见.png": (340, 92, 1222, 530),
@@ -219,56 +191,189 @@ _SHOT_CROPS = {
 
 
 def shot(relpath):
-    """返回裁切后的临时路径；没有裁切规则就用原图。"""
+    """整页截图缩到幻灯片上字只有 4px，必须裁到关键区域。"""
     import tempfile
     name = os.path.basename(relpath)
     box = _SHOT_CROPS.get(name)
     if not box:
         return relpath
     src = os.path.join(HERE, relpath)
-    out = os.path.join(tempfile.gettempdir(), "shot_" + name)
+    out = os.path.join(tempfile.gettempdir(), "v4shot_" + name)
     im = Image.open(src).convert("RGB")
     x0, y0, x1, y1 = box
-    im.crop((max(0, x0), max(0, y0), min(im.width, x1), min(im.height, y1))).save(out)
+    im.crop((max(0, x0), max(0, y0), min(im.width, x1),
+             min(im.height, y1))).save(out)
     return out
-
-
 
 # ============================================================
 # 01 封面
 # ============================================================
 s = new_slide()
-tb(s, 7.15, 0.68, 5.7, 6.1, "辩", 250, True, GHOST, font=SERIF, align=PP_ALIGN.CENTER, line=1.0)
+tb(s, 6.55, 0.72, 6.4, 6.0, "辩", 250, True, GHOST, font=SERIF,
+   align=PP_ALIGN.CENTER, line=1.0)
 rect(s, 0, 0, W, 0.10, RED)
-tb(s, ML, 0.86, 9.0, 0.28, "2026 年第十四届全国大学生数字媒体科技作品及创意竞赛",
-   11.5, True, RED, spacing=1.6)
+tb(s, ML, 0.86, 9.4, 0.28,
+   "2026 年第十四届全国大学生数字媒体科技作品及创意竞赛", 11.5, True, RED, spacing=1.6)
 if _HAVE_DISPLAY:
-    display(s, ML, 1.42, "门外谈", 100, spacing=0.10)
+    display(s, ML, 1.40, "门外谈", 100, spacing=0.10)
 else:
-    tb(s, ML, 1.42, 6.6, 1.47, "门外谈", 100, True, INK, font=SERIF, spacing=6, line=1.0)
-tb(s, ML, 3.10, 6.9, 0.40, "——基于信息不对称机制的多智能体圆桌辩论系统",
-   17.5, False, INK_SOFT, font=UI, spacing=0.4)
-hair(s, ML, 3.68, 3.2, RED, 3)
-
-meta = [
+    tb(s, ML, 1.40, 6.6, 1.47, "门外谈", 100, True, INK, font=SERIF, spacing=6, line=1.0)
+tb(s, ML, 3.06, 6.9, 0.40,
+   "——基于信息不对称机制的多智能体圆桌辩论系统", 17.5, False, INK_SOFT, spacing=0.4)
+tb(s, ML, 3.58, 6.9, 0.30,
+   "一个让多位思想者同桌交锋的思辨工具", 13, False, RED, spacing=0.8)
+hair(s, ML, 4.04, 3.2, RED, 3)
+META = [
     ("作品编号", "375993"),
     ("参赛分类", "自主选题类 · 移动与网络应用开发"),
     ("完成人", "冯思涵 · 张耀羽（哈尔滨金融学院）"),
     ("指导教师", "胡芳驰 · 霍镜宇"),
     ("在线地址", "https://outgate.chat"),
 ]
-yy = 4.10
-for k, v in meta:
+yy = 4.34
+for k, v in META:
     tb(s, ML, yy, 1.15, 0.26, k, 10.5, False, INK_FAINT, spacing=1.2)
-    tb(s, ML + 1.25, yy - 0.01, 6.2, 0.28, v, 12, False, INK, spacing=0.4)
-    yy += 0.42
+    tb(s, ML + 1.25, yy - 0.01, 6.4, 0.28, v, 11.5, False, INK, spacing=0.3)
+    yy += 0.40
+
+# ============================================================
+# 02 目录
+# ============================================================
+s = new_slide()
+rect(s, 0, 0, W, 0.10, RED)
+if _HAVE_DISPLAY:
+    display(s, ML, 1.55, "目录", 78, spacing=0.08)
+else:
+    tb(s, ML, 1.60, 4.0, 1.15, "目录", 78, True, INK, font=SERIF, spacing=8, line=1.0)
+tb(s, ML, 3.02, 4.0, 0.28, "CONTENT", 13, True, RED, spacing=5)
+hair(s, ML, 3.50, 2.6, LINE)
+
+TOC = [
+    ("01", "选题背景", "为什么做这个"),
+    ("02", "作品设计", "它由什么构成"),
+    ("03", "系统实现", "怎么落地"),
+    ("04", "验证与效果", "改前改后差在哪"),
+    ("05", "创新与应用", "新在哪、给谁用"),
+    ("06", "在线体验", "现在就能打开"),
+]
+TX = 6.35
+TW = ML + CW - TX
+for i, (no, name, desc) in enumerate(TOC):
+    y = 1.62 + i * 0.86
+    tb(s, TX, y, 0.55, 0.28, no, 11.5, True, RED, spacing=1.4)
+    tb(s, TX + 0.62, y - 0.10, 2.5, 0.40, name, 19, True, INK, font=SERIF, spacing=1.2)
+    tb(s, TX + 3.30, y + 0.04, TW - 3.3, 0.28, desc, 11, False, INK_FAINT)
+    hair(s, TX, y + 0.56, TW, LINE)
 foot(s)
 
 # ============================================================
-# 02 人格（蒸馏）
+# 03 一、选题背景｜多人一起讨论，为什么总是聊不出东西
 # ============================================================
 s = new_slide()
-head(s, "02 · 人格", "为什么这些角色像真人")
+head(s, "01", "一、选题背景", "多人一起讨论，为什么总是聊不出东西")
+
+tb(s, ML, BODY_Y + 0.06, 5.30, 2.6,
+   "一次小组讨论，通常是这样结束的：\n"
+   "说得最大声的那个人定了调，其余的人点头；\n"
+   "真正不同意的那个，从头到尾没开口。",
+   14.5, False, INK_SOFT, line=2.0)
+
+tb(s, ML, 4.62, 5.30, 0.30, "于是问题被绕过去了。", 13, True, RED, spacing=0.6)
+
+PROBS = [
+    ("抢话", "谁先开口，谁就定了调子"),
+    ("重复", "三个人说的是同一件事"),
+    ("沉默", "最该说话的人不开口"),
+]
+XR = 6.55
+for i, (k, v) in enumerate(PROBS):
+    y = BODY_Y + 0.10 + i * 1.22
+    tb(s, XR, y, 0.36, 0.28, f"0{i+1}", 11, True, RED)
+    tb(s, XR + 0.48, y - 0.06, 1.4, 0.34, k, 17, True, INK, font=SERIF, spacing=2)
+    tb(s, XR + 2.05, y, 4.3, 0.30, v, 12, False, INK_SOFT)
+    if i < 2:
+        hair(s, XR, y + 0.86, 4.9, LINE)
+
+tb(s, ML, 6.30, CW, 0.34,
+   "讨论不是没进行，是没有产生分歧——而分歧恰恰是讨论唯一有价值的东西。",
+   13, False, INK, line=1.6)
+foot(s)
+
+# ============================================================
+# 04 一、选题背景｜现有工具的三个缺口
+# ============================================================
+s = new_slide()
+head(s, "02", "一、选题背景", "现有工具的三个缺口")
+
+GAPS = [
+    ("缺口一", "群聊没有结构",
+     "谁都能随时说话，等于谁都不必对一句话负责。\n"
+     "没有次序，就没有交锋。"),
+    ("缺口二", "一对一 AI 只会顺着你",
+     "问「我该不该放弃这个专业」，它先肯定你，再补充几个角度。\n"
+     "聊完，疑问还在原处。"),
+    ("缺口三", "缺少信息差",
+     "所有参与者掌握的信息一样多，就没有人比别人多知道一点什么。\n"
+     "没有信息差，就没有真正的分歧。"),
+]
+CY = BODY_Y + 0.06
+for i, (tag, name, body) in enumerate(GAPS):
+    y = CY + i * 1.36
+    tb(s, ML, y + 0.02, 1.1, 0.26, tag, 10.5, True, RED, spacing=1.6)
+    tb(s, ML + 1.22, y - 0.04, 3.3, 0.34, name, 16, True, INK, font=SERIF, spacing=0.8)
+    tb(s, ML + 4.70, y, 6.8, 0.70, body, 12, False, INK_SOFT, line=1.75)
+    hair(s, ML, y + 1.10, CW, LINE)
+
+rect(s, ML, 6.20, 0.055, 0.52, RED)
+tb(s, ML + 0.26, 6.24, CW - 0.3, 0.46,
+   "三个缺口指向同一件事：谁掌握了什么信息，从来没人管。", 14, True, INK, line=1.5)
+foot(s)
+
+# ============================================================
+# 05 一、选题背景｜概念：一张给思想者摆的桌子
+# ============================================================
+s = new_slide()
+head(s, "03", "一、选题背景", "概念：一张给思想者摆的桌子")
+
+tb(s, ML, BODY_Y + 0.06, 5.20, 2.5,
+   "门外谈是一张桌子。\n\n"
+   "你把一个问题摆在桌上，请几位古今思想者入席，\n"
+   "看他们当场各执一词。\n\n"
+   "他们看得见彼此说过的话，也可以被单独告知\n一些别人不知道的事。",
+   13.5, False, INK_SOFT, line=1.9)
+
+# 右侧三层结构示意图：共边堆叠，读成「层」而不是三个盒子
+LX, LW = 6.55, 4.90
+LY = BODY_Y + 0.06
+ROW = 1.14
+LAYERS = [
+    ("信息层", "谁被谁看见了　·　本届新增", True),
+    ("圆桌层", "多位思想者轮流发言，后说的人看得到前文", False),
+    ("人格层", "34 位蒸馏人格，各自带着自己的立场", False),
+]
+for i, (name, desc, hot) in enumerate(LAYERS):
+    y = LY + i * ROW
+    rect(s, LX, y, LW, ROW, CARD, RED if hot else LINE)
+    tb(s, LX + 0.26, y + 0.18, 1.6, 0.34, name, 16, True,
+       RED if hot else INK, font=SERIF, spacing=1.6)
+    tb(s, LX + 0.26, y + 0.66, LW - 0.48, 0.30, desc, 10.5,
+       False, RED if hot else INK_SOFT)
+tb(s, LX, LY + 3 * ROW + 0.16, LW, 0.30,
+   "红色这一层，是本届新做的部分。", 10, False, INK_FAINT)
+
+# 左下角补一句总结，填掉左侧的空白
+rect(s, ML, 5.28, 0.055, 1.10, RED)
+tb(s, ML + 0.28, 5.32, 5.0, 1.05,
+   "人格决定他们想什么，\n圆桌决定他们怎么说话，\n信息层决定他们会不会吵起来。",
+   13.5, True, INK, line=1.8)
+foot(s)
+
+
+# ============================================================
+# 06 二、作品设计｜人物介绍（一）为什么这些角色像真人
+# ============================================================
+s = new_slide()
+head(s, "04", "二、作品设计", "人物介绍（一）为什么这些角色像真人")
 
 tb(s, ML, BODY_Y + 0.04, 5.30, 1.15,
    "一般做法是给模型一句人设：「你是鲁迅，说话犀利」。\n"
@@ -278,343 +383,148 @@ tb(s, ML, BODY_Y + 0.04, 5.30, 1.15,
 
 PARTS = [
     ("核心身份", "他是谁。第一人称发言，明确不是替你写作的工具"),
-    ("思想根基", "在什么问题上必然持什么立场：批判精神、国民性、文学救国"),
-    ("语言特征", "句式、修辞、结构、意象，逐条写成约束，而不是一句形容词"),
+    ("思想根基", "在什么问题上必然持什么立场"),
+    ("语言特征", "句式、修辞、结构、意象，逐条写成约束"),
     ("语录库", "收他的原话，用来校准语气"),
 ]
 yy = 3.92
 for i, (k, v) in enumerate(PARTS):
-    tb(s, ML, yy, 0.34, 0.28, f"0{i+1}", 11, True, RED)
+    tb(s, ML, yy, 0.34, 0.28, f"0{i+1}", 10.5, True, RED)
     tb(s, ML + 0.44, yy - 0.02, 1.05, 0.30, k, 12, True, INK, font=SERIF, spacing=0.4)
-    tb(s, ML + 1.58, yy - 0.02, 3.75, 0.62, v, 11, False, INK_SOFT, line=1.6)
+    tb(s, ML + 1.58, yy - 0.02, 3.75, 0.62, v, 10.5, False, INK_SOFT, line=1.6)
     yy += 0.60
 
 rect(s, ML, 6.34, 0.055, 0.40, RED)
 tb(s, ML + 0.24, 6.38, 5.2, 0.36,
-   "所以他不顺着你说话——因为他本来就有立场。", 12.5, True, INK, line=1.5)
+   "所以他不顺着你说话——因为他本来就有立场。", 12, True, INK, line=1.5)
 
-# 右侧：真实 SKILL.md 片段
 XR = 6.85
-rect(s, XR, BODY_Y + 0.02, 5.55, 4.42, CARD, LINE)
-tb(s, XR + 0.30, BODY_Y + 0.24, 4.95, 3.95,
+rect(s, XR, BODY_Y + 0.02, 5.55, 4.28, CARD, LINE)
+tb(s, XR + 0.30, BODY_Y + 0.24, 4.95, 3.80,
    "---\nname: luxun\n---\n\n"
    "# 鲁迅 · 人物志\n\n"
    "你就是鲁迅本人，不是任何人的视角替身，\n更不是写作工具。\n\n"
    "## 思想根基\n批判精神 · 国民性分析 · 文学救国\n\n"
    "## 写作风格指南\n语言特征 · 修辞技法 · 结构模式 · 意象体系",
    10.5, False, INK_SOFT, line=1.55)
-tb(s, XR, BODY_Y + 4.54, 5.55, 0.30,
+tb(s, XR, BODY_Y + 4.40, 5.55, 0.28,
    "鲁迅那份 SKILL.md 的真实开头 · 站内 34 份、合计约 40 万字节", 9.5, False, INK_FAINT)
 foot(s)
 
 # ============================================================
-# 03 人物库
+# 07 二、作品设计｜人物介绍（二）34 位从哪来
 # ============================================================
-NAMES = ["鲁迅", "哈耶克", "凯恩斯", "柏拉图", "孔子", "马克思", "乔布斯", "马斯克", "尼采", "福柯", "苏格拉底", "维特根斯坦", "爱因斯坦", "图灵", "黄仁勋", "巴菲特", "达利欧", "波伏娃", "亚里士多德", "亚当·斯密", "康德", "达尔文", "罗素", "奥威尔", "加缪", "马丁·路德·金", "福尔摩斯", "梵高", "薛定谔", "丘吉尔", "爱丽丝", "牛顿", "叔本华", "莎士比亚"]
 s = new_slide()
-head(s, "03 · 人物", "把这些散落的人格，收成一份名单")
+head(s, "05", "二、作品设计", "人物介绍（二）34 位人物从哪来")
 
-tb(s, ML, BODY_Y + 0.04, 4.35, 3.6,
-   "桌上的思想者不是我们凭空造的。\n\n"
+NAMES = "鲁迅 哈耶克 凯恩斯 柏拉图 孔子 马克思 乔布斯 马斯克 尼采 福柯 苏格拉底 维特根斯坦 爱因斯坦 图灵 黄仁勋 巴菲特 达利欧 波伏娃 亚里士多德 亚当·斯密 康德 达尔文 罗素 奥威尔 加缪 马丁·路德·金 福尔摩斯 梵高 薛定谔 丘吉尔 爱丽丝 牛顿 叔本华 莎士比亚".split()
+
+tb(s, ML, BODY_Y + 0.04, 4.20, 3.4,
+   "桌上的人物不是我们凭空造的。\n\n"
    "它们原本散落在开源社区的不同仓库里：格式统一为 SKILL.md，"
-   "但体例、文案、可用程度各不相同，彼此不知道对方存在。\n\n"
+   "但体例、文案、可用程度各不相同。\n\n"
    "本作品做的是把它们汇总、筛选、补齐、接入——"
-   "统一中英文名与首字标记，补齐介绍与代表言论，"
-   "标注每一份的上游仓库，并逐位调校到能在同一张桌上说话不跑题。\n\n"
-   "人物志里点开任何一位，都能顺着他找到原始出处。",
-   12.5, False, INK_SOFT, line=1.85)
+   "统一中英文名与首字标记，标注每一份的上游仓库，"
+   "并逐位调校到能在同一张桌上说话不跑题。\n\n"
+   "站内没有的人物，用户可以在「创意工坊」粘贴仓库地址实时导入。",
+   11.5, False, INK_SOFT, line=1.8)
 
-# 右侧：34 个名字的名单（证据）
-XR, YR = 5.75, BODY_Y + 0.02
-tb(s, XR, YR, 6.6, 0.28,
-   f"站内人格 {len(NAMES)} 位（3 位内置 + {len(NAMES)-3} 位开源社区导入）",
-   10.5, False, INK_FAINT, spacing=0.6)
-hair(s, XR, YR + 0.36, 6.62, LINE)
-
+XR, YR = 5.55, BODY_Y - 0.02
+tb(s, XR, YR, 6.9, 0.26,
+   f"站内人物 {len(NAMES)} 位（3 位内置 + {len(NAMES)-3} 位开源社区导入）",
+   10, False, INK_FAINT, spacing=0.4)
+hair(s, XR, YR + 0.32, 6.88, LINE)
 cols = 5
-cw = 6.62 / cols
+cwid = 6.88 / cols
 for i, nm in enumerate(NAMES):
     r, c = divmod(i, cols)
-    x = XR + c * cw
-    y = YR + 0.52 + r * 0.42
-    tb(s, x, y, cw - 0.06, 0.30, nm, 11,
-       False, INK if i < 3 else INK_SOFT, line=1.2)
-
-tb(s, XR, YR + 0.52 + 7 * 0.42 + 0.10, 6.6, 0.30,
+    tb(s, XR + c * cwid, YR + 0.46 + r * 0.42, cwid - 0.06, 0.30, nm,
+       10.5, False, INK if i < 3 else INK_SOFT, line=1.2)
+tb(s, XR, YR + 0.46 + 7 * 0.42 + 0.06, 6.9, 0.26,
    "深色为内置，浅色为开源社区导入。", 9.5, False, INK_FAINT)
 foot(s)
 
 # ============================================================
-# 04 界面
+# 08 二、作品设计｜圆桌：让发言有次序
 # ============================================================
 s = new_slide()
-head(s, "04 · 界面", "一张报纸的版式，做成一网页")
+head(s, "06", "二、作品设计", "圆桌：让发言有次序")
 
-IW = 5.58
-IH = IW * 727 / 1316
-pic(s, f"{SH}/01-首页.png", ML, BODY_Y + 0.02, w=IW)
-pic(s, f"{SH}/02-人物志.png", ML + CW - IW, BODY_Y + 0.02, w=IW)
-tb(s, ML, BODY_Y + 0.02 + IH + 0.10, IW, 0.28,
-   "首页 · 大字刊名 + 描边「辩」字水印", 10, False, INK_FAINT)
-tb(s, ML + CW - IW, BODY_Y + 0.02 + IH + 0.10, IW, 0.28,
-   "人物志 · 34 位，点卡片入席", 10, False, INK_FAINT)
-
-hair(s, ML, 6.10, CW)
-NOTES = [
-    ("纸墨红三色", "纸 #F4EFE3 · 墨 #17120D · 红 #A3272C"),
-    ("版头", "得意黑大字刊名（自托管）＋竖排小字，模拟报纸版头"),
-    ("双语", "全站中英一键切换，人物名与文案同步"),
+RULE = [
+    ("轮流发言", "每位依次开口，后说的人能看到前面说了什么"),
+    ("座次可调", "拖动卡片调整发言顺序，手机上长按拖"),
+    ("人数定形式", "1 位＝单人对谈，2 位以上＝圆桌辩论"),
+    ("火候三档", "随口 / 较真 / 上头，控制回答长短，气氛上来自动升级"),
 ]
-nx = ML
-for k, v in NOTES:
-    tb(s, nx, 6.22, 0.10, 0.26, "", 9)   # 占位对齐
-    tb(s, nx, 6.20, 3.6, 0.26, k, 10.5, True, RED, spacing=1.2)
-    tb(s, nx, 6.48, 3.6, 0.30, v, 10, False, INK_SOFT, line=1.4)
-    nx += CW / 3 + 0.05
+for i, (k, v) in enumerate(RULE):
+    y = BODY_Y + 0.10 + i * 0.98
+    tb(s, ML, y, 0.36, 0.28, f"0{i+1}", 10.5, True, RED)
+    tb(s, ML + 0.46, y - 0.04, 1.5, 0.32, k, 14, True, INK, font=SERIF, spacing=1.0)
+    tb(s, ML + 2.10, y, 3.45, 0.62, v, 10.5, False, INK_SOFT, line=1.6)
+
+rect(s, ML, 6.06, 0.055, 0.50, RED)
+tb(s, ML + 0.26, 6.10, 5.4, 0.44,
+   "次序解决的是「谁能说」，还没解决「为什么吵」。", 12.5, True, INK, line=1.5)
+
+img = shot(f"{SH}/04-圆桌辩论-公开交锋.png")
+iw, ih = Image.open(os.path.join(HERE, img)).size
+w_ = 5.90
+pic(s, img, ML + CW - w_, BODY_Y + 0.06, w=w_)
+tb(s, ML + CW - w_, BODY_Y + 0.06 + w_ * ih / iw + 0.10, w_, 0.26,
+   "真实圆桌对话 · 三位已入席", 9.5, False, INK_FAINT)
 foot(s)
 
 # ============================================================
-# 05 上手（手把手）
+# 09–12 二、作品设计｜信息层三页 + 打太极
 # ============================================================
-s = new_slide()
-head(s, "05 · 上手", "三步就能开始")
-
-STEPS = [
-    ("01", "选人入席",
-     "在「人物志」点卡片，或点左侧列表。\n1 位＝单人对谈，2 位以上＝圆桌。\n入席后卡片排到前面，可拖动调座位。",
-     f"{SH}/02-人物志.png", "点卡片上的「入席」"),
-    ("02", "抛一个议题",
-     "在输入框写下问题，回车或点「发言」。\n回答会一个字一个字冒出来。\n火候三档控制长短：随口 / 较真 / 上头。",
-     f"{SH}/04-圆桌辩论-公开交锋.png", "他们就在这儿交锋"),
-    ("03", "私下说一句",
-     "点输入框左边的「私下说」，选一个人。\n这句话只有他看得到。\n下一轮，他往往会当众把这句带出来。",
-     f"{SH}/07-悄悄话入口与人选.png", "私聊对象只有你自己知道"),
-]
-
-COLW = 3.58
-GAP = (CW - COLW * 3) / 2
-for i, (no, title, body, img, cap) in enumerate(STEPS):
-    x = ML + i * (COLW + GAP)
-    tb(s, x, BODY_Y + 0.02, 0.40, 0.26, no, 11, True, RED)
-    tb(s, x + 0.44, BODY_Y + 0.00, COLW - 0.44, 0.30, title, 16, True, INK, font=SERIF, spacing=0.8)
-    tb(s, x, BODY_Y + 0.52, COLW, 0.95, body, 10.5, False, INK_SOFT, line=1.75)
-    img2 = shot(img)
-    iw, ih = Image.open(os.path.join(HERE, img2)).size
-    w_ = COLW
-    h_ = w_ * ih / iw
-    pic(s, img2, x, BODY_Y + 1.45, w=w_)
-    # 三张图比例不同（第 2 步与「问题」页共用裁切框），图注固定在一条线上
-    tb(s, x, 5.95, COLW, 0.26, cap, 9.5, False, INK_FAINT)
-
-rect(s, ML, 6.40, 0.055, 0.38, RED)
-tb(s, ML + 0.24, 6.44, CW - 0.3, 0.32,
-   "没有第四步了——接下来就是看他们吵。你不用会提问，抛一句话就够。", 12.5, True, INK, line=1.5)
-foot(s)
-
-# ============================================================
-# 04 起点（v1 的创意本身）
-# ============================================================
-s = new_slide()
-head(s, "06 · 起点", "一次只能跟一个人聊")
-
-tb(s, ML, BODY_Y + 0.04, 5.55, 4.5,
-   "最初只是想找个能真正交流的 AI。问「我该不该放弃这个专业」，\n"
-   "回答是「这取决于你的兴趣和目标」——聊完，疑问还在原处。\n\n"
-   "后来在 GitHub 上看到，有人把名人整理成可对话的人格包。\n"
-   "接进去才发现：这些角色并不好说话。\n\n"
-   "但一次只能跟一个人，本质上还是我问、他答。\n"
-   "我更好奇的是他们彼此之间的分歧——\n"
-   "把鲁迅和乔布斯放在一起，立场几乎不可能调和。\n\n"
-   "于是做了圆桌：几位依次发言，后说的人能看到前面说了什么。",
-   13, False, INK_SOFT, line=1.86)
-
-# 右侧：引文 + 版本标注
-rect(s, 7.05, BODY_Y + 0.08, 0.055, 1.60, RED)
-tb(s, 7.35, BODY_Y + 0.16, 4.9, 1.0,
-   "「凭什么认为\n退学是一条路。」", 20, False, INK, font=SERIF, line=1.6)
-tb(s, 7.35, BODY_Y + 1.18, 4.9, 0.62,
-   "问鲁迅该不该退学，他没有分析利弊，而是反问。\n这种被追问的感觉，比被安慰更有用。",
-   11.5, False, INK_FAINT, line=1.7)
-
-hair(s, 7.05, 4.95, 4.9, LINE)
-tb(s, 7.05, 5.08, 4.9, 0.70,
-   "「选个位子，抛一个问题，看他们吵起来。」", 12.5, True, INK, line=1.6)
-tb(s, 7.05, 5.72, 4.9, 0.26, "—— 第一版的项目介绍", 10, False, INK_FAINT)
-
-hair(s, 7.05, 6.06, 4.9, LINE)
-tb(s, 7.05, 6.16, 4.9, 0.62,
-   "2026-08-24 首次提交　·　v1 已做出：\n圆桌　·　火候三档（随口 / 较真 / 上头）　·　人物志",
-   10.5, False, INK_FAINT, line=1.7)
-foot(s)
-
-# ============================================================
-# 05 问题
-# ============================================================
-s = new_slide()
-head(s, "07 · 问题", "可他们很快聊成一团和气")
-tb(s, ML, BODY_Y + 0.10, 5.62, 2.5,
-   "圆桌跑起来之后，有一件事很扫兴：\n"
-   "前面的人说了什么，后面的人就顺着说。\n"
-   "几轮之后气氛融洽——和最初那种「你的想法很有道理」\n"
-   "并没有本质区别。",
-   14, False, INK_SOFT, line=1.95)
-
-# 「原因」提出来，作为独立判断
-rect(s, ML, 4.22, 0.055, 0.52, RED)
-tb(s, ML + 0.26, 4.28, 5.4, 0.46,
-   "原因：他们掌握的信息完全相同。", 15, True, INK, line=1.5)
-rect(s, ML, 5.22, 0.055, 1.05, RED)
-tb(s, ML + 0.26, 5.30, 5.5, 0.92,
-   "「我同意鲁迅的观点。」\n——立场最互斥的两人，第一轮就合流。",
-   17, False, INK, line=1.85)
-pic(s, shot(f"{SH}/04-圆桌辩论-公开交锋.png"), 6.78, BODY_Y + 0.06, w=5.62)
-tb(s, 6.78, BODY_Y + 0.06 + 5.62 * (727-296) / (1224-330) + 0.10, 5.62, 0.26,
-   "v1 实测截图 · 加了「别和稀泥」也没用", 9.5, False, INK_FAINT)
-foot(s)
-
-# ============================================================
-# 06 转折：一句话
-# ============================================================
-s = new_slide()
-rect(s, 0, 0, W, 0.10, RED)
-tb(s, ML, 0.86, 8.0, 0.28, "一句话 · 这就是我们的答案", 11.5, True, RED, spacing=3)
-if _HAVE_DISPLAY:
-    display(s, ML, 1.24, "让他们掌握的信息，\n不再相同。", 58, spacing=0.06, max_w=10.4)
-else:
-    tb(s, ML, 1.34, 10.6, 2.4, "让他们掌握的信息，\n不再相同。",
-       52, True, INK, font=SERIF, line=1.42, spacing=2)
-tb(s, ML, 3.62, 10.6, 0.46,
-   "——给 AI 圆桌加一层「谁被谁看见了」", 22, False, RED, font=SERIF, line=1.4)
-hair(s, ML, 4.42, 3.4, RED, 3)
-tb(s, ML, 4.78, 9.6, 1.1,
-   "上一页那句「原因」就是全部线索：他们掌握的信息完全相同，所以只能顺着说。\n"
-   "那就让每个人的信息不再相同——可见性怎么分，就决定了他们还吵不吵得起来。",
-   14.5, False, INK_SOFT, line=1.8)
-foot(s)
-
-# ============================================================
-# 04 五个机制
-# ============================================================
-s = new_slide()
-head(s, "08 · 结构", "加的不是功能，是一层结构")
-MECHS = [
-    ("①", "可见性", "发言可以只让\n某一位看到"),
-    ("②", "悄悄话", "私下对一个人说\n其他人不知道"),
-    ("③", "点名对质", "被私下告知的人\n当众点名对方"),
-    ("④", "新颖度", "估算这一轮\n说出了多少新东西"),
-    ("⑤", "主持人收尾", "仍无新意\n由主持人拆穿"),
-]
-bw, gap = 1.98, 0.30
-bx, by = ML, 2.42
-for i, (no, name, desc) in enumerate(MECHS):
-    rect(s, bx, by, bw, 1.62, CARD, LINE)
-    tb(s, bx + 0.16, by + 0.14, 0.5, 0.30, no, 15, True, RED)
-    tb(s, bx + 0.16, by + 0.50, bw - 0.3, 0.34, name, 16, True, INK, font=SERIF, spacing=0.8)
-    tb(s, bx + 0.16, by + 0.92, bw - 0.28, 0.60, desc, 10.5, False, INK_SOFT, line=1.5)
-    if i < 4:
-        tb(s, bx + bw - 0.02, by + 0.62, gap + 0.04, 0.34, "→", 15, True, RED, align=PP_ALIGN.CENTER)
-    bx += bw + gap
-
-# 分组标注：①②③ 解决上一页的「信息相同」；④⑤ 解决另一个问题——打太极
-g1w = bw * 3 + gap * 2
-tb(s, ML, BODY_Y - 0.06, g1w, 0.26,
-   "解决第 7 页的原因：信息完全相同", 10, True, RED, spacing=1.2)
-tb(s, ML + g1w + gap, BODY_Y - 0.06, bw * 2 + gap, 0.26,
-   "解决另一个问题：讨论空转", 10, True, INK_FAINT, spacing=1.2)
-tb(s, ML, 4.42, CW, 0.34, "前三个构成信息层；后两个负责判断要不要介入、怎么介入。",
-   12.5, False, INK_FAINT, line=1.6)
-hair(s, ML, 4.92, CW)
-tb(s, ML, 5.14, CW, 0.62,
-   "它们不是五个功能点，是一条链：私下说 → 当众摊牌 → 被点名者接火 → 若开始打太极就强制反对 → 仍无新意则由主持人收尾。",
-   14, False, INK, line=1.75)
-foot(s)
-
-# ============================================================
-# 05–08 机制页
-# ============================================================
-MECH_SLIDES = [
-    ("09 · 机制 ①", "可见性：每个人的历史不一样",
+MECH = [
+    ("07", "信息层（一）可见性", "可见性：每个人的历史不一样",
      "每条发言带一个可见性标记（public 或某个人）。\n"
      "生成每位发言者的回复时，只投喂他有权读到的那部分历史——\n"
      "不是前端隐藏，是根本没有进入他的上下文。",
      "结果：同一张桌子上，三个人拿着三份不同的信息。",
-     f"{SH}/05-悄悄话消息-仅一人可见.png",
-     "这条消息只有一个人看得到"),
+     f"{SH}/05-悄悄话消息-仅一人可见.png", "这条消息只有一个人看得到"),
 
-    ("09 · 机制 ②", "悄悄话：入口在输入框左边",
+    ("08", "信息层（二）悄悄话", "悄悄话：入口在输入框左边",
      "点「私下说」，选一个人。说出的话只有他看得到。\n"
      "选定后按钮变红并显示对方名字，上方出现状态栏提醒你正在对谁低语。",
      "悄悄话原文不写日志，也不参与联网检索——否则会被搜成场外情报。",
-     f"{SH}/07-悄悄话入口与人选.png",
-     "入口与人选"),
+     f"{SH}/07-悄悄话入口与人选.png", "入口与人选"),
 
-    ("09 · 机制 ③", "点名对质：他自己把这句带上了台面",
+    ("09", "信息层（三）点名对质", "点名对质：他自己把这句带上了台面",
      "被私下告知的人，往往会在下一轮把这句公开带出来，当众点名对方。\n"
      "被点名的人不知道情报从哪来，只能正面接。",
      "被点名者被要求不得用「我同意」开场——讨论从轮流发言变成有暗流的博弈。",
-     f"{SH}/06-点名对质-当众摊牌.png",
-     "鲁迅当众点名乔布斯"),
+     f"{SH}/06-点名对质-当众摊牌.png", "鲁迅当众点名乔布斯"),
 
-    ("09 · 机制 ④⑤", "讨论真的在打太极时",
+    ("10", "机制兜底", "讨论打太极时：趋同检测与主持人",
      "每一轮用字符 2-gram 重叠率估算这一轮说出了多少新东西。\n"
      "判定趋同，先强制每位发言者提一个反对意见；仍无新意，主持人亲自出面拆穿。",
      "这个数字不展示给用户看——只在他们真的开始互相附和时，变成一条系统按语。",
-     f"{SH}/03-主持人收尾-拆穿伪共识.png",
-     "系统按语 + 主持人收尾"),
+     f"{SH}/03-主持人收尾-拆穿伪共识.png", "系统按语 + 主持人收尾"),
 ]
-
-for kicker, title, body, quote, img, cap in MECH_SLIDES:
+for no, section, title, body, quote, img, cap in MECH:
     s = new_slide()
-    head(s, kicker, title, 33)
-    tb(s, ML, BODY_Y + 0.08, 5.12, 2.2, body, 14, False, INK_SOFT, line=1.95)
-    rect(s, ML, BODY_Y + 2.58, 0.055, 1.05, RED)
-    tb(s, ML + 0.24, BODY_Y + 2.64, 4.85, 1.0, quote, 12.5, False, INK, line=1.7)
-
+    head(s, no, "二、作品设计", title, 25)
+    tb(s, ML, BODY_Y + 0.06, 5.12, 2.2, body, 13, False, INK_SOFT, line=1.95)
+    rect(s, ML, BODY_Y + 2.40, 0.055, 1.05, RED)
+    tb(s, ML + 0.24, BODY_Y + 2.46, 4.85, 1.0, quote, 12, False, INK, line=1.7)
     img2 = shot(img)
-    path = os.path.join(HERE, img2)
-    iw, ih = Image.open(path).size
-    maxw, maxh = 5.75, 4.20
+    iw, ih = Image.open(os.path.join(HERE, img2)).size
+    maxw, maxh = 5.75, 4.10
     w_ = min(maxw, maxh * iw / ih)
     h_ = w_ * ih / iw
-    px = ML + CW - w_  # 右对齐到内容右边界
+    px = ML + CW - w_
     py = BODY_Y + 0.02 + (maxh - h_) / 2
     pic(s, img2, px, py, w=w_)
     tb(s, px, py + h_ + 0.10, w_, 0.26, cap, 9.5, False, INK_FAINT)
     foot(s)
 
 # ============================================================
-# 09 效果对照
+# 13 三、系统实现｜技术架构
 # ============================================================
 s = new_slide()
-head(s, "10 · 效果", "同一桌人，同一议题")
-tb(s, ML, BODY_Y + 0.06, 5.2, 0.30, "v1 · 没有信息层", 13, True, INK_FAINT, spacing=2)
-hair(s, ML, BODY_Y + 0.44, 5.2)
-tb(s, ML, BODY_Y + 0.62, 5.2, 2.9,
-   "鲁迅：学外语的意义，绝不仅仅在于翻译与写作……\n\n"
-   "乔布斯：我同意鲁迅的观点。\n\n"
-   "→ 两个立场最互斥的人，第一轮就合流。",
-   13.5, False, INK_SOFT, line=1.85)
-
-rect(s, ML + 5.55, BODY_Y + 0.05, 0.012, 4.05, LINE)
-
-XR = ML + 5.95
-tb(s, XR, BODY_Y + 0.06, 5.2, 0.30, "v2 · 有信息层", 13, True, RED, spacing=2)
-hair(s, XR, BODY_Y + 0.44, 5.2, RED, 2)
-tb(s, XR, BODY_Y + 0.62, 5.2, 2.9,
-   "鲁迅（收到悄悄话）：乔布斯那套「追随内心」，我怀疑是幸存者偏差——\n\n"
-   "乔布斯（被点名）：你说得对，我不是一个人做成的。\n\n"
-   "→ 桌上有人揣着话，有人被点了名。",
-   13.5, False, INK, line=1.85)
-
-tb(s, ML, 6.22, CW, 0.30,
-   "差别不在人格写得多像，在于这几个人掌握的信息不再相同。", 12.5, False, INK_FAINT)
-foot(s)
-
-# ============================================================
-# 10 技术架构（原生绘制，不用截图）
-# ============================================================
-s = new_slide()
-head(s, "11 · 架构", "可见性在服务端收口，前端拿不到")
+head(s, "11", "三、系统实现", "可见性在服务端收口，前端拿不到")
 
 LAYERS = [
     ("客户端", ["浏览器 Web", "移动端 Web"]),
@@ -624,89 +534,143 @@ LAYERS = [
     ("模型层", ["智谱 GLM-4-Flash（默认）", "BYOK · 任意 OpenAI 兼容接口"]),
     ("部署层", ["阿里云香港 · podman", "nginx 反代 · HTTPS"]),
 ]
-LY = 2.02
-ROW_H = 0.62
-GAP = 0.16
+LY, ROW_H, GAP = BODY_Y - 0.02, 0.60, 0.15
 for i, (label, items) in enumerate(LAYERS):
     y = LY + i * (ROW_H + GAP)
     core = (label == "核心层")
-    tb(s, ML, y + 0.14, 1.05, 0.30, label, 11, True,
-       RED if core else INK_FAINT, spacing=1.6)
-    # 该层的内容区
+    tb(s, ML, y + 0.14, 1.05, 0.30, label, 11, True, RED if core else INK_FAINT, spacing=1.6)
     x = ML + 1.18
     wtotal = CW - 1.18
     n = len(items)
     if n == 1:
         rect(s, x, y, wtotal, ROW_H, CARD, RED if core else LINE)
-        tb(s, x + 0.16, y + 0.15, wtotal - 0.3, 0.32, items[0], 12.5, core,
+        tb(s, x + 0.16, y + 0.14, wtotal - 0.3, 0.32, items[0], 12, core,
            RED if core else INK, spacing=0.4)
     else:
-        iw = (wtotal - 0.14 * (n - 1)) / n
+        iw2 = (wtotal - 0.14 * (n - 1)) / n
         for j, it in enumerate(items):
-            ix = x + j * (iw + 0.14)
-            rect(s, ix, y, iw, ROW_H, CARD, LINE)
-            tb(s, ix + 0.14, y + 0.15, iw - 0.26, 0.32, it, 12, False, INK, spacing=0.3)
-
-tb(s, ML, 6.72, CW, 0.30,
-   "每条发言带「public / 仅某人可见」标记；组装 prompt 之前按可见性裁剪历史，消息不会进入不可见者的上下文。",
+            ix = x + j * (iw2 + 0.14)
+            rect(s, ix, y, iw2, ROW_H, CARD, LINE)
+            tb(s, ix + 0.14, y + 0.14, iw2 - 0.26, 0.32, it, 11.5, False, INK, spacing=0.3)
+tb(s, ML, 6.62, CW, 0.30,
+   "每条发言带「public / 仅某人可见」标记；组装 prompt 之前按可见性裁剪历史。",
    11, False, INK_FAINT)
 foot(s)
 
 # ============================================================
-# 11 诚实的边界
+# 14 四、验证与效果｜v1 到 v2
 # ============================================================
 s = new_slide()
-head(s, "12 · 边界", "现在还不好用的地方")
-tb(s, ML, BODY_Y + 0.02, 10.6, 0.34,
-   "这些不打算藏——评委自己发现，反而更难看。", 13, False, INK_SOFT)
+head(s, "12", "四、验证与效果", "v1 到 v2：同一桌人的两种表现")
 
-LIMITS = [
-    ("新颖度是个近似",
-     "用字符 2-gram 重叠率估算「说了多少新东西」。它不理解语义：\n用新词讲旧观点会被判成新的，反过来也会误判。便宜、即时，但不准。"),
-    ("主持人收尾看模型脸色",
-     "第五个机制完全靠提示词约束模型。模型状态不好时，收尾会退化成\n一次平庸的总结，而不是拆穿。"),
-    ("悄悄话一次只能对一个人",
-     "同时告知多人、形成临时小圈子，还没做。这是下一步最想要的能力。"),
-]
-yy = 2.98
-for i, (t, d) in enumerate(LIMITS):
-    tb(s, ML, yy, 0.42, 0.30, f"0{i+1}", 12, True, RED)
-    tb(s, ML + 0.52, yy - 0.02, 3.0, 0.32, t, 15, True, INK, font=SERIF, spacing=0.6)
-    tb(s, ML + 3.75, yy - 0.02, 7.6, 0.78, d, 12.5, False, INK_SOFT, line=1.65)
-    yy += 1.16
+tb(s, ML, BODY_Y + 0.06, 5.2, 0.30, "v1 · 没有信息层", 12.5, True, INK_FAINT, spacing=2)
+hair(s, ML, BODY_Y + 0.42, 5.2, LINE)
+tb(s, ML, BODY_Y + 0.58, 5.2, 2.9,
+   "鲁迅：学外语的意义，绝不仅仅在于翻译与写作……\n\n"
+   "乔布斯：我同意鲁迅的观点。\n\n"
+   "→ 两个立场最互斥的人，第一轮就合流。",
+   12.5, False, INK_SOFT, line=1.85)
 
-hair(s, ML, 6.52, CW)
-tb(s, ML, 6.64, CW, 0.30, "《测试说明》里逐条记录了这些边界，连同触发条件。",
-   10.5, False, INK_FAINT)
+rect(s, ML + 5.55, BODY_Y + 0.05, 0.012, 3.90, LINE)
+
+XR = ML + 5.95
+tb(s, XR, BODY_Y + 0.06, 5.2, 0.30, "v2 · 有信息层", 12.5, True, RED, spacing=2)
+hair(s, XR, BODY_Y + 0.42, 5.2, RED, 2)
+tb(s, XR, BODY_Y + 0.58, 5.2, 2.9,
+   "鲁迅（收到悄悄话）：乔布斯那套「追随内心」，我怀疑是幸存者偏差——\n\n"
+   "乔布斯（被点名）：你说得对，我不是一个人做成的。\n\n"
+   "→ 桌上有人揣着话，有人被点了名。",
+   12.5, False, INK, line=1.85)
+
+tb(s, ML, 5.98, CW, 0.30,
+   "差别不在人格写得多像，在于这几个人掌握的信息不再相同。", 12, False, INK_FAINT)
 foot(s)
 
 # ============================================================
-# 12 收尾
+# 15 五、创新与应用｜三点创新
+# ============================================================
+s = new_slide()
+head(s, "13", "五、创新与应用", "三点创新")
+
+INNO = [
+    ("机制创新", "把「信息差」做成可操作的三步",
+     "可见性 → 悄悄话 → 点名对质。\n"
+     "不是让角色更凶，而是改变谁知道什么。"),
+    ("交互创新", "用户从提问者变成信息分配者",
+     "一次私下告知，就能改变整场讨论的走向。\n"
+     "用户做的事情，从「问问题」变成「决定谁掌握什么」。"),
+    ("工程创新", "信息裁剪在服务端完成",
+     "按接收者裁剪上下文，不可见的内容根本不进 prompt；\n"
+     "悄悄话不写日志、不参与联网检索。"),
+]
+for i, (tag, name, body) in enumerate(INNO):
+    y = BODY_Y + 0.08 + i * 1.44
+    rect(s, ML, y + 0.04, 0.055, 0.92, RED)
+    tb(s, ML + 0.26, y, 1.1, 0.26, tag, 10.5, True, RED, spacing=1.6)
+    tb(s, ML + 1.45, y - 0.05, 5.6, 0.36, name, 16, True, INK, font=SERIF, spacing=0.8)
+    tb(s, ML + 1.45, y + 0.40, 9.6, 0.62, body, 11.5, False, INK_SOFT, line=1.7)
+
+tb(s, ML, 6.44, CW, 0.32,
+   "三点合起来回答一个问题：为什么这些角色能吵起来，而不是互相附和。", 12, False, INK_FAINT)
+foot(s)
+
+# ============================================================
+# 16 五、创新与应用｜应用场景
+# ============================================================
+s = new_slide()
+head(s, "14", "五、创新与应用", "应用场景：把无序讨论变成可练习的结构")
+
+SCENE = [
+    ("课堂小组研讨", "发言有次序，观点有记录。\n老师能看见谁在什么时候改变了立场。"),
+    ("英语辩论与口语训练", "立场由人格给定，不靠临场想。\n可以先私下「通气」，练接招。"),
+    ("议题讨论与写作构思", "先把分歧摆出来，再决定自己站哪边。\n比一上来就找论据更接近真实思考。"),
+]
+cw2 = (CW - 0.50) / 3
+for i, (name, body) in enumerate(SCENE):
+    x = ML + i * (cw2 + 0.25)
+    rect(s, x, BODY_Y + 0.10, cw2, 2.02, CARD, LINE)
+    tb(s, x + 0.26, BODY_Y + 0.34, 0.36, 0.26, f"0{i+1}", 10.5, True, RED)
+    tb(s, x + 0.26, BODY_Y + 0.66, cw2 - 0.5, 0.62, name, 15, True, INK, font=SERIF, line=1.5)
+    tb(s, x + 0.26, BODY_Y + 1.40, cw2 - 0.5, 0.90, body, 10.5, False, INK_SOFT, line=1.7)
+
+rect(s, ML, 4.78, 0.055, 1.02, RED)
+tb(s, ML + 0.26, 4.82, CW - 0.3, 0.96,
+   "为什么这些场景成立：门外谈不是一个聊天玩具，是一张有规则的桌子。\n"
+   "规则固定下来，才能反复练习；反复练习，才谈得上训练。",
+   13, False, INK, line=1.8)
+foot(s)
+
+# ============================================================
+# 17 六、在线体验｜扫码体验 · 感谢聆听
 # ============================================================
 s = new_slide()
 rect(s, 0, 0, W, 0.10, RED)
-tb(s, ML, 1.20, 4.0, 0.28, "在线体验", 11.5, True, RED, spacing=3)
-tb(s, ML, 1.72, 7.6, 0.90, "outgate.chat", 58, True, INK, spacing=1)
-hair(s, ML, 2.95, 3.2, RED, 3)
-tb(s, ML, 3.28, 7.0, 1.2,
-   "现在就可以打开。免费、无需注册，手机上也能用。\n选择一个议题，请两三位入席，然后私下对其中一个人说点什么。",
-   15, False, INK_SOFT, line=1.85)
+tb(s, ML, 1.10, 4.0, 0.28, "15  六、在线体验", 11.5, True, RED, spacing=1.8)
+if _HAVE_DISPLAY:
+    display(s, ML, 1.55, "现在就能打开。", 62, spacing=0.06, max_w=8.4)
+else:
+    tb(s, ML, 1.65, 8.0, 0.95, "现在就能打开。", 58, True, INK, font=SERIF, spacing=2)
+hair(s, ML, 3.10, 3.2, RED, 3)
+tb(s, ML, 3.42, 7.4, 1.2,
+   "outgate.chat　免费、无需注册，手机上也能用。\n"
+   "选择一个议题，请两三位入席，然后私下对其中一个人说点什么。",
+   14, False, INK_SOFT, line=1.85)
 
 qr = "/tmp/qr_clean.png"
 if os.path.exists(qr):
-    s.shapes.add_picture(qr, Inches(9.85), Inches(1.55), Inches(2.35), Inches(2.35))
-    tb(s, 9.85, 4.02, 2.35, 0.26, "扫码直接进", 10, False, INK_FAINT, align=PP_ALIGN.CENTER)
+    s.shapes.add_picture(qr, Inches(10.10), Inches(1.45), Inches(2.10), Inches(2.10))
+    tb(s, 10.10, 3.66, 2.10, 0.26, "扫码直接进", 10, False, INK_FAINT, align=PP_ALIGN.CENTER)
 
-tb(s, ML, 5.35, 7.4, 1.1,
+tb(s, ML, 5.35, 7.4, 1.0,
    "冯思涵 · 张耀羽　哈尔滨金融学院\n指导教师：胡芳驰 · 霍镜宇　　作品编号：375993",
    12, False, INK_SOFT, line=1.9)
+if _HAVE_DISPLAY:
+    display(s, ML, 6.42, "感谢聆听", 30, spacing=0.10)
+else:
+    tb(s, ML, 6.46, 4.0, 0.42, "感谢聆听", 30, True, INK, font=SERIF, spacing=4)
 foot(s)
 
 # ============================================================
-if USE_TRANSITIONS:
-    for _sl in _pending_transitions:
-        add_fade(_sl)
-
 out = os.path.join(HERE, "答辩PPT.pptx")
 prs.save(out)
 print("已生成:", out, "| 页数:", len(prs.slides._sldIdLst))
