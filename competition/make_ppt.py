@@ -46,6 +46,7 @@ prs.slide_width = Inches(W)
 prs.slide_height = Inches(H)
 BLANK = prs.slide_layouts[6]
 _page = {"n": 0}
+_pending_transitions = []
 
 
 def _strip_style(shape):
@@ -61,6 +62,7 @@ def _strip_style(shape):
 def new_slide():
     s = prs.slides.add_slide(BLANK)
     _page["n"] += 1
+    _pending_transitions.append(s)
     bgs = s.shapes.add_shape(MSO_SHAPE.RECTANGLE, 0, 0, prs.slide_width, prs.slide_height)
     bgs.fill.solid(); bgs.fill.fore_color.rgb = PAPER
     bgs.line.fill.background(); bgs.shadow.inherit = False
@@ -186,6 +188,50 @@ def display(slide, x, y, text, pt, color=INK, spacing=0.04, max_w=None, align="l
 
 SH = "screenshots"
 
+
+# ---------- 幻灯片切换：淡入（低风险的那一层动画）----------
+# 逐元素入场动画要手写 <p:timing>，而渲染器不执行动画、本机无法验证，
+# 一份坏掉的 XML 会让 PowerPoint 弹「需要修复」——那个代价太大。
+# 所以只加切换效果：结构简单、位置固定（cSld → clrMapOvr → transition）。
+def add_fade(slide, spd="fast"):
+    from pptx.oxml.ns import qn
+    from lxml import etree
+    sld = slide._element
+    old = sld.find(qn("p:transition"))
+    if old is not None:
+        sld.remove(old)
+    tr = etree.SubElement(sld, qn("p:transition"))
+    tr.set("spd", spd)
+    etree.SubElement(tr, qn("p:fade"))
+
+
+
+
+# ---------- 截图裁切：整页截图缩到幻灯片上字只有 4px，必须裁到关键区域 ----------
+_SHOT_CROPS = {
+    "04-圆桌辩论-公开交锋.png":   (330, 296, 1224, 727),
+    "05-悄悄话消息-仅一人可见.png": (340, 92, 1222, 530),
+    "06-点名对质-当众摊牌.png":   (340, 92, 1222, 620),
+    "03-主持人收尾-拆穿伪共识.png": (338, 56, 1222, 532),
+}
+
+
+def shot(relpath):
+    """返回裁切后的临时路径；没有裁切规则就用原图。"""
+    import tempfile
+    name = os.path.basename(relpath)
+    box = _SHOT_CROPS.get(name)
+    if not box:
+        return relpath
+    src = os.path.join(HERE, relpath)
+    out = os.path.join(tempfile.gettempdir(), "shot_" + name)
+    im = Image.open(src).convert("RGB")
+    x0, y0, x1, y1 = box
+    im.crop((max(0, x0), max(0, y0), min(im.width, x1), min(im.height, y1))).save(out)
+    return out
+
+
+
 # ============================================================
 # 01 封面
 # ============================================================
@@ -260,47 +306,11 @@ tb(s, XR, BODY_Y + 4.54, 5.55, 0.30,
 foot(s)
 
 # ============================================================
-# 03 起点（v1 的创意本身）
-# ============================================================
-s = new_slide()
-head(s, "03 · 起点", "一次只能跟一个人聊")
-
-tb(s, ML, BODY_Y + 0.04, 5.55, 4.5,
-   "最初只是想找个能真正交流的 AI。问「我该不该放弃这个专业」，\n"
-   "回答是「这取决于你的兴趣和目标」——聊完，疑问还在原处。\n\n"
-   "后来在 GitHub 上看到，有人把名人整理成可对话的人格包。\n"
-   "接进去才发现：这些角色并不好说话。\n\n"
-   "但一次只能跟一个人，本质上还是我问、他答。\n"
-   "我更好奇的是他们彼此之间的分歧——\n"
-   "把鲁迅和乔布斯放在一起，立场几乎不可能调和。\n\n"
-   "于是做了圆桌：几位依次发言，后说的人能看到前面说了什么。",
-   13, False, INK_SOFT, line=1.86)
-
-# 右侧：引文 + 版本标注
-rect(s, 7.05, BODY_Y + 0.08, 0.055, 1.60, RED)
-tb(s, 7.35, BODY_Y + 0.16, 4.9, 1.0,
-   "「凭什么认为\n退学是一条路。」", 20, False, INK, font=SERIF, line=1.6)
-tb(s, 7.35, BODY_Y + 1.18, 4.9, 0.62,
-   "问鲁迅该不该退学，他没有分析利弊，而是反问。\n这种被追问的感觉，比被安慰更有用。",
-   11.5, False, INK_FAINT, line=1.7)
-
-hair(s, 7.05, 4.95, 4.9, LINE)
-tb(s, 7.05, 5.08, 4.9, 0.70,
-   "「选个位子，抛一个问题，看他们吵起来。」", 12.5, True, INK, line=1.6)
-tb(s, 7.05, 5.72, 4.9, 0.26, "—— 第一版的项目介绍", 10, False, INK_FAINT)
-
-hair(s, 7.05, 6.06, 4.9, LINE)
-tb(s, 7.05, 6.16, 4.9, 0.62,
-   "2026-08-24 首次提交　·　v1 已做出：\n圆桌　·　火候三档（随口 / 较真 / 上头）　·　人物志",
-   10.5, False, INK_FAINT, line=1.7)
-foot(s)
-
-# ============================================================
-# 04 人物库
+# 03 人物库
 # ============================================================
 NAMES = ["鲁迅", "哈耶克", "凯恩斯", "柏拉图", "孔子", "马克思", "乔布斯", "马斯克", "尼采", "福柯", "苏格拉底", "维特根斯坦", "爱因斯坦", "图灵", "黄仁勋", "巴菲特", "达利欧", "波伏娃", "亚里士多德", "亚当·斯密", "康德", "达尔文", "罗素", "奥威尔", "加缪", "马丁·路德·金", "福尔摩斯", "梵高", "薛定谔", "丘吉尔", "爱丽丝", "牛顿", "叔本华", "莎士比亚"]
 s = new_slide()
-head(s, "04 · 人物", "把这些散落的人格，收成一份名单")
+head(s, "03 · 人物", "把这些散落的人格，收成一份名单")
 
 tb(s, ML, BODY_Y + 0.04, 4.35, 3.6,
    "桌上的思想者不是我们凭空造的。\n\n"
@@ -333,6 +343,42 @@ tb(s, XR, YR + 0.52 + 7 * 0.42 + 0.10, 6.6, 0.30,
 foot(s)
 
 # ============================================================
+# 04 起点（v1 的创意本身）
+# ============================================================
+s = new_slide()
+head(s, "04 · 起点", "一次只能跟一个人聊")
+
+tb(s, ML, BODY_Y + 0.04, 5.55, 4.5,
+   "最初只是想找个能真正交流的 AI。问「我该不该放弃这个专业」，\n"
+   "回答是「这取决于你的兴趣和目标」——聊完，疑问还在原处。\n\n"
+   "后来在 GitHub 上看到，有人把名人整理成可对话的人格包。\n"
+   "接进去才发现：这些角色并不好说话。\n\n"
+   "但一次只能跟一个人，本质上还是我问、他答。\n"
+   "我更好奇的是他们彼此之间的分歧——\n"
+   "把鲁迅和乔布斯放在一起，立场几乎不可能调和。\n\n"
+   "于是做了圆桌：几位依次发言，后说的人能看到前面说了什么。",
+   13, False, INK_SOFT, line=1.86)
+
+# 右侧：引文 + 版本标注
+rect(s, 7.05, BODY_Y + 0.08, 0.055, 1.60, RED)
+tb(s, 7.35, BODY_Y + 0.16, 4.9, 1.0,
+   "「凭什么认为\n退学是一条路。」", 20, False, INK, font=SERIF, line=1.6)
+tb(s, 7.35, BODY_Y + 1.18, 4.9, 0.62,
+   "问鲁迅该不该退学，他没有分析利弊，而是反问。\n这种被追问的感觉，比被安慰更有用。",
+   11.5, False, INK_FAINT, line=1.7)
+
+hair(s, 7.05, 4.95, 4.9, LINE)
+tb(s, 7.05, 5.08, 4.9, 0.70,
+   "「选个位子，抛一个问题，看他们吵起来。」", 12.5, True, INK, line=1.6)
+tb(s, 7.05, 5.72, 4.9, 0.26, "—— 第一版的项目介绍", 10, False, INK_FAINT)
+
+hair(s, 7.05, 6.06, 4.9, LINE)
+tb(s, 7.05, 6.16, 4.9, 0.62,
+   "2026-08-24 首次提交　·　v1 已做出：\n圆桌　·　火候三档（随口 / 较真 / 上头）　·　人物志",
+   10.5, False, INK_FAINT, line=1.7)
+foot(s)
+
+# ============================================================
 # 05 问题
 # ============================================================
 s = new_slide()
@@ -352,8 +398,8 @@ rect(s, ML, 5.22, 0.055, 1.05, RED)
 tb(s, ML + 0.26, 5.30, 5.5, 0.92,
    "「我同意鲁迅的观点。」\n——立场最互斥的两人，第一轮就合流。",
    17, False, INK, line=1.85)
-pic(s, f"{SH}/04-圆桌辩论-公开交锋.png", 6.78, BODY_Y + 0.06, w=5.62)
-tb(s, 6.78, BODY_Y + 0.06 + 5.62 * 727 / 1316 + 0.10, 5.62, 0.26,
+pic(s, shot(f"{SH}/04-圆桌辩论-公开交锋.png"), 6.78, BODY_Y + 0.06, w=5.62)
+tb(s, 6.78, BODY_Y + 0.06 + 5.62 * (727-296) / (1224-330) + 0.10, 5.62, 0.26,
    "v1 实测截图 · 加了「别和稀泥」也没用", 9.5, False, INK_FAINT)
 foot(s)
 
@@ -447,14 +493,15 @@ for kicker, title, body, quote, img, cap in MECH_SLIDES:
     rect(s, ML, BODY_Y + 2.58, 0.055, 1.05, RED)
     tb(s, ML + 0.24, BODY_Y + 2.64, 4.85, 1.0, quote, 12.5, False, INK, line=1.7)
 
-    path = os.path.join(HERE, img)
+    img2 = shot(img)
+    path = os.path.join(HERE, img2)
     iw, ih = Image.open(path).size
     maxw, maxh = 5.75, 4.20
     w_ = min(maxw, maxh * iw / ih)
     h_ = w_ * ih / iw
     px = ML + CW - w_  # 右对齐到内容右边界
     py = BODY_Y + 0.02 + (maxh - h_) / 2
-    pic(s, img, px, py, w=w_)
+    pic(s, img2, px, py, w=w_)
     tb(s, px, py + h_ + 0.10, w_, 0.26, cap, 9.5, False, INK_FAINT)
     foot(s)
 
@@ -579,6 +626,9 @@ tb(s, ML, 5.35, 7.4, 1.1,
 foot(s)
 
 # ============================================================
+for _sl in _pending_transitions:
+    add_fade(_sl)
+
 out = os.path.join(HERE, "答辩PPT.pptx")
 prs.save(out)
 print("已生成:", out, "| 页数:", len(prs.slides._sldIdLst))
