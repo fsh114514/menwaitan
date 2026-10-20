@@ -289,7 +289,7 @@ tb(s, ML, BODY_Y + 0.04, 4.35, 3.6,
 # 右侧：34 个名字的名单（证据）
 XR, YR = 5.75, BODY_Y + 0.02
 tb(s, XR, YR, 6.6, 0.28,
-   f"站内人格 {len(NAMES)} 位（6 位内置 + {len(NAMES)-6} 位导入，名单和代码一起开源）",
+   f"站内人格 {len(NAMES)} 位（3 位内置 + {len(NAMES)-3} 位开源社区导入）",
    10.5, False, INK_FAINT, spacing=0.6)
 hair(s, XR, YR + 0.36, 6.62, LINE)
 
@@ -300,7 +300,7 @@ for i, nm in enumerate(NAMES):
     x = XR + c * cw
     y = YR + 0.52 + r * 0.42
     tb(s, x, y, cw - 0.06, 0.30, nm, 11,
-       False, INK if i < 6 else INK_SOFT, line=1.2)
+       False, INK if i < 3 else INK_SOFT, line=1.2)
 
 tb(s, XR, YR + 0.52 + 7 * 0.42 + 0.10, 6.6, 0.30,
    "深色为内置，浅色为开源社区导入。", 9.5, False, INK_FAINT)
