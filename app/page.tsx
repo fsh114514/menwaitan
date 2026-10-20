@@ -132,11 +132,12 @@ const I18N = {
     ph: "抛出一个议题，让思想家们交锋…",
     enter: "入席 →",
     entered: "已入席",
-    wsSub: "粘贴一个蒸馏人格格式的 GitHub 仓库地址（仓库根目录含 SKILL.md），即可导入为可对话角色。",
+    wsSub: "站内已有几十位人物。想再添新的，可以从下面的现成仓库挑一个，也可以贴一个你自己的。",
     wsImport: "导入",
     wsImporting: "导入中…",
-    wsRec: "更多人物 · 站外现成（点一下填入链接，再点导入）：",
-    wsRecHint: "以下人物站内还没有，点按钮填入链接即可导入。想淘更多，去合集页逛一逛。",
+    wsRec: "更多人物 · 站外现成（点一下，自动填进下面的输入框）",
+    wsRecHint: "以下人物站内还没有。想淘更多，去合集页逛一逛。",
+    wsOwn: "自己导入一个人物（仓库根目录需含 SKILL.md）",
     wsOrg: "nuwa-skills 组织",
     wsOrgUrl: "https://github.com/nuwa-skills",
     wsGallery: "合集页",
@@ -155,12 +156,12 @@ const I18N = {
     creditTag: "开源训练人格",
     creditLine: "本页人物的人格，由开源社区开发者精心训练而成（SKILL.md 蒸馏人格）——非本站生成",
     aboutLede: "门外谈——请古今思想者入席，就你的议题，各执一词，当面交锋。",
-    a1: "是什么",
-    a1d: "一个与「蒸馏人格」思想家对话、辩论的网站：马克思、鲁迅、哈耶克……或任何你想请进来的人。",
-    a2: "怎么玩",
-    a2d: "选一位（或几位）人物 → 对谈或圆桌辩论 → 抛出一个议题，看他们各执一词。创意工坊可导入任意新角色。",
-    a3: "人格来源",
-    a3d: "角色人格与人物介绍由开源蒸馏人格社区生成：人格蒸馏自各项目的 SKILL.md，介绍内容摘自各项目 README（版权归原作者所有）——向各位作者致谢。",
+    a1: "是个什么网站",
+    a1d: "门外谈是一张给思想者摆的桌子。你抛出一个议题，请几位古今人物入席，看他们当场各执一词。他们看得见彼此说过的话，也可以被单独告知一些别人不知道的事。",
+    a2: "它想解决什么",
+    a2d: "大多数 AI 对话给你的是「一个平均答案」——顺着你的话说，替你把犹豫抚平。这不是能力问题：所有角色共享同一份上下文时，几轮之内必然互相附和。门外谈从信息分配这件事上动手，而不是把人格写得更凶。",
+    a3: "信息层是什么",
+    a3d: "一条发言可以只让某一位看到。你可以私下对其中一个人说话，桌上其他人的上下文里根本没有这句。被私下告知的人往往会在下一轮把这句带到台面上，当众点名对方——讨论于是从轮流发言，变成有暗流的博弈。",
     note: "免责声明：本网站角色对话由 AI 基于公开资料生成，不代表任何真实人物本人观点；内容仅供思想交流。",
     whatsNew: "近日更新",
     viewAll: "查看全部 →",
@@ -191,8 +192,12 @@ const I18N = {
     personasTitle: "人物志",
     wsTitle: "请新人入席",
     aboutName: "门外谈",
-    a4: "致谢",
-    a4d: "角色人格蒸馏自开源社区项目：dot-skill（colleague-skill）、女娲.skill（awesome-nuwa），以及鲁迅.skill、哈耶克.skill、凯恩斯.skill 等——向各位作者致谢。",
+    a4: "讨论开始打太极时",
+    a4d: "系统会估算每一轮到底说出多少新东西（字符 2-gram 重叠率）。判定开始互相附和，就强制每位发言者提一个反对意见；仍然没新意，由主持人「门外谈」亲自出面，当场拆穿这场伪共识。",
+    a5: "人物从哪里来",
+    a5d: "站内现有 35 位人物，人格设定取自开源社区以 SKILL.md 形式蒸馏的既有项目。作者做的是筛选、接入、排序与逐位重新锚定，不是从零创作。第三方素材的来源与授权情况，在参赛材料《原创性与知识产权声明》中逐项列明。",
+    a6: "技术、边界与致谢",
+    a6d: "Web 应用，Next.js 与多家模型接口，默认免费通道 + 自带 API Key。「讨论是否趋同」用字符重叠率估算，是个便宜的近似，会漏判也会误判；主持人收尾的质量取决于模型本身。这些局限写在参赛材料《测试说明》里，没打算藏。人格蒸馏自 dot-skill、女娲.skill 等开源项目——向各位作者致谢。",
     setTitle: "设置",
     setKey: "API Key（选填，用自己的）",
     setProvider: "选择服务商",
@@ -217,20 +222,27 @@ const I18N = {
     sceneTag: "交锋",
     sceneDesc: { casual: "两三句，先碰个面", serious: "认真辩，有来有往", heated: "放开打，不设限" },
     modeTag: "模式",
+    roundTag: "轮次",
     modeHelp: "对谈 = 和思想者单独聊；圆桌 = 多位思想者轮流交锋",
     sceneHelp: "交锋 = 回答的长短火候：随口很短、较真适中、上头放开。气氛上来时会自动升级",
     back: "返回人物志",
     guideTitle: "使用教程",
     guideLede: "从零开始，一步步带你玩转门外谈。",
     guide: [
-      { n: "壹", t: "选人物", b: "在「人物志」或左侧人物列表里点选角色。选 1 位 = 单人对谈；选 2 位以上 = 圆桌辩论。" },
-      { n: "贰", t: "提问", b: "在输入框写下你的问题，点「发言」或按回车。回答会一个字一个字地冒出来——别急，这是 AI 在边想边说。" },
-      { n: "叁", t: "切换语言", b: "右上角「EN / 中」一键切换全站中英文。" },
-      { n: "肆", t: "用自己的 API Key（可选）", b: "不填也能用（走站点默认）。想用自己的：在任意支持 OpenAI 兼容接口的服务商注册（如 DeepSeek、Moonshot Kimi、智谱、通义、OpenRouter 等）；在它的控制台创建并复制 API Key（一般 sk- 开头）；回到本站「设置」，把 Key 粘贴到「API Key」栏；「Base URL」和「模型」填服务商给你的地址和模型名（每家不同，看它的控制台或文档）；点「保存」。举例：DeepSeek 填 https://api.deepseek.com + deepseek-chat；Kimi 填 https://api.moonshot.cn + moonshot-v1-8k。Key 只存在你自己的浏览器本地，不会上传服务器。" },
-      { n: "伍", t: "导入新人物", b: "在「创意工坊」粘贴一个 GitHub 仓库链接，点「导入」，几秒后新人物就出现在人物志。要求：仓库根目录必须有一个 SKILL.md 文件——这是「蒸馏人格」的标准格式。想找现成人物？去 GitHub 搜蒸馏人格 skill 仓库，比如鲁迅、哈耶克、康德等。" },
-      { n: "陆", t: "常见问题", b: "没反应？① 检查设置里 API Key / Base URL / 模型是否填对（注意别多空格）；② 清空 Key 试试站点默认；③ 刷新页面重来。导入失败？确认链接是 GitHub 仓库地址，且根目录有 SKILL.md。" },
+      { n: "壹", t: "选人入席", b: "在「人物志」点卡片，或在左侧人物列表里点。选 1 位 = 单人对谈；选 2 位以上 = 圆桌辩论。已入席的卡片会排到前面，可以拖动调整顺序（手机上长按拖）。" },
+      { n: "贰", t: "选模式：对谈还是圆桌", b: "「对谈」是只跟一个人聊，像访谈；「圆桌」是几个人轮流发言，后说的人能看到前面说了什么，像一场会。桌上只有 1 个人时，圆桌没有意义，切回对谈更顺。" },
+      { n: "叁", t: "提问、打断、停下", b: "写下问题，点「发言」或按回车。回答会一个字一个字冒出来——那是 AI 在边想边说，不是卡住了。想让它停，点输入框旁的「停止」；直接打一个新问题再回车＝插话，上一段会被打断但已说的内容保留。" },
+      { n: "肆", t: "调火候：随口 / 较真 / 上头", b: "这一档控制回答的长短。「随口」两三句，先碰个面；「较真」认真辩，有来有往；「上头」放开打，不设限。聊到兴头上会自动升级，也可以手动锁住。" },
+      { n: "伍", t: "悄悄话：只让一个人看见", b: "点输入框左边的「私下说」，从在座的人里选一位。你说的话只有他看得到——桌上其他人的上下文里根本没有这句。选定后按钮会变红并显示对方名字，上方出现一条状态栏提醒你「正在私下对 X 说话」。这是这个作品最特别的地方，值得试。" },
+      { n: "陆", t: "然后他会当众摊牌", b: "收到悄悄话的人，往往会在下一轮把这句带到台面上，当众点名对方。被点名的人不知道情报从哪来，只能正面接。别担心，这不是你操作错了——信息不对称本来就是这个作品在讲的事。" },
+      { n: "柒", t: "讨论开始打太极的时候", b: "如果几个人开始互相附和、几轮下来没说出新东西，系统会先强制每位发言者提一个反对意见。要是仍然没新意，主持人「门外谈」会亲自出面，当场拆穿这场伪共识。" },
+      { n: "捌", t: "回看与历史", b: "聊天往上翻不会被强制拉回底部，点「回到最新」一键跳回。点「历史」可以切换以前的对话，不会丢。" },
+      { n: "玖", t: "创意工坊：再请几个进来", b: "站内还不够？在「创意工坊」点一个现成仓库，或粘贴你自己的 GitHub 仓库地址（根目录需有 SKILL.md，这是「蒸馏人格」的标准格式），几秒后新面孔就出现在人物志。" },
+      { n: "拾", t: "中英切换", b: "右上角「EN / 中」一键切换全站中英文，包括人物名与界面文案。" },
+      { n: "拾壹", t: "自带 API Key（可选）", b: "不填也能用，走站点默认通道。想用自己的：在任意支持 OpenAI 兼容接口的服务商（DeepSeek、Kimi、智谱、通义、OpenRouter 等）注册并创建 Key；回到「设置」，把 Key、Base URL、模型名填好，点保存。Key 只存在你自己的浏览器本地，不会上传服务器。" },
+      { n: "拾贰", t: "常见问题", b: "没反应？先检查设置里的 Key / Base URL / 模型有没有填错（注意别多空格），再清空试试站点默认。导入失败？确认粘贴的是 GitHub 仓库地址，且仓库根目录有 SKILL.md。" },
     ],
-    nums: ["壹", "贰", "叁", "肆"],
+    nums: ["壹", "贰", "叁", "肆", "伍", "陆"],
   },
   en: {
     mastL: "Outgate Chat · Vol. 1",
@@ -271,11 +283,12 @@ const I18N = {
     ph: "Pose a question for the thinkers…",
     enter: "Seat →",
     entered: "Seated",
-    wsSub: "Paste a distilled-persona GitHub repo URL (SKILL.md at root) to import a new character.",
+    wsSub: "The site already has dozens of personas. To add one, pick a ready-made repo below or paste your own.",
     wsImport: "Import",
     wsImporting: "Importing…",
-    wsRec: "More personas · ready-made repos (click to fill, then Import):",
-    wsRecHint: "None of these are in the site yet — click a button to fill the link and import. For more, browse the collections.",
+    wsRec: "More personas · ready-made repos (click to fill the box below)",
+    wsRecHint: "None of these are in the site yet. For more, browse the collections.",
+    wsOwn: "Import your own (SKILL.md must sit at the repo root)",
     wsOrg: "nuwa-skills org",
     wsOrgUrl: "https://github.com/nuwa-skills",
     wsGallery: "the gallery",
@@ -295,12 +308,12 @@ const I18N = {
     creditLine: "Every persona here is carefully trained by open-source developers (SKILL.md distilled personas) — not generated by this site",
     
     aboutLede: "Outgate Chat — invite thinkers across time to the table, each holding their position, debating face to face.",
-    a1: "What",
-    a1d: "A place to talk and debate with distilled thinkers: Marx, Lu Xun, Hayek… or anyone you wish to bring in.",
-    a2: "How",
-    a2d: "Pick one or several thinkers → talk one-on-one or round-table debate → pose a question and watch them clash. The Workshop imports any new character.",
-    a3: "Origins",
-    a3d: "Personas and intros come from the open-source distilled-persona community: personas are distilled from each project SKILL.md, intros are quoted from each project README (copyright to the original authors) — thanks to all the authors.",
+    a1: "What this is",
+    a1d: "Outgate Chat is a table set for thinkers. Pose a question, seat a few figures from across history, and watch them take it apart on the spot. They can see what the others said — and they can be told something only one of them knows.",
+    a2: "What it tries to fix",
+    a2d: "Most AI conversations hand you an averaged answer: agreeable, frictionless, and quietly on your side. That is not a capability problem — when every role shares one context, they converge within a few turns. This project works on how information is distributed instead of making the personas sound tougher.",
+    a3: "The information layer",
+    a3d: "A message can be visible to exactly one speaker. Whisper to someone and the others do not have it in their context at all. Whoever you told will often bring it to the table next turn and name the other person directly — so turn-taking becomes a game with undercurrents.",
     note: "Disclaimer: character dialogues are AI-generated from public materials and do not represent the views of any real person; for thought exchange only.",
     whatsNew: "What's new",
     viewAll: "View all →",
@@ -331,8 +344,12 @@ const I18N = {
     personasTitle: "Gallery",
     wsTitle: "Invite new voices",
     aboutName: "Outgate Chat",
-    a4: "Thanks",
-    a4d: "Personas are distilled from open-source community projects: dot-skill (colleague-skill), Nuwa.skill (awesome-nuwa), and Zhang Xuefeng.skill, Feng Ge, Mao Xuan.skill, Lu Xun.skill, Hayek.skill, Keynes.skill — thanks to all the authors.",
+    a4: "When the table starts agreeing with itself",
+    a4d: "The system estimates how much new ground each round actually covers (character 2-gram overlap). Once it judges that the table is echoing itself, every speaker is forced to raise an objection. If it still adds nothing, the host steps in and calls the false consensus out.",
+    a5: "Where the personas come from",
+    a5d: "There are 35 figures in the roster, with their personas taken from open-source projects distilled as SKILL.md files. The author's work is selection, integration, ordering and re-anchoring — not creation from scratch. Sources and licensing are itemised in the originality statement submitted with this entry.",
+    a6: "Stack, limits and thanks",
+    a6d: "A web app on Next.js with multiple model backends: a free default channel plus bring-your-own-key. Novelty is estimated by character overlap — a cheap approximation that both misses and misfires. Host wrap-up quality depends on the model. These limits are written down in the test notes rather than hidden. Personas distilled from dot-skill, nuwa.skill and other open-source projects — thanks to every author.",
     setTitle: "Settings",
     setKey: "API Key (optional — use your own)",
     setProvider: "Provider",
@@ -354,23 +371,31 @@ const I18N = {
     histMsgs: "messages",
     sceneLabel: { casual: "Casual", serious: "Serious", heated: "Heated" },
     sceneHint: "Casual · Serious · Heated — auto-escalates as things heat up",
-    sceneTag: "Clash",
-    sceneDesc: { casual: "Two lines, feel the room", serious: "Real debate, back and forth", heated: "No limits, go all out" },
-    modeTag: "Mode",
-    modeHelp: "One-on-One = talk with a thinker; Round Table = several thinkers take turns clashing",
-    sceneHelp: "Clash = how long answers are: Casual is short, Serious is measured, Heated lets loose. It auto-escalates as the heat rises",
-    back: "Back to gallery",
-    guideTitle: "Quick Guide",
-    guideLede: "A step-by-step walkthrough, from zero to hero.",
-    guide: [
-      { n: "01", t: "Pick thinkers", b: "Click characters in the Gallery or the left list. One = one-on-one chat; two or more = round-table debate." },
-      { n: "02", t: "Ask", b: "Type your question and hit Speak or Enter. Answers stream out word by word — the AI is thinking out loud, so let it finish." },
-      { n: "03", t: "Language", b: "Toggle EN / 中 at the top right to switch the whole site between English and Chinese." },
-      { n: "04", t: "Use your own API key (optional)", b: "It works without one (site default). To use yours: sign up with any provider offering an OpenAI-compatible API (e.g. DeepSeek, Moonshot Kimi, Zhipu, Qwen, OpenRouter); create and copy an API key in its console (usually starts with sk-); open Settings here, paste it into API Key; fill in the Base URL and Model your provider gives you (each differs — see its console or docs); hit Save. Example: DeepSeek = https://api.deepseek.com + deepseek-chat; Kimi = https://api.moonshot.cn + moonshot-v1-8k. The key stays only in your browser." },
-      { n: "05", t: "Import characters", b: "Paste a GitHub repo URL in the Workshop and hit Import. The new character appears in seconds. The repo root must contain a SKILL.md file (the distilled-persona standard). Search GitHub for distilled-persona skills such as Zhang Xuefeng, Lu Xun, Hayek." },
-      { n: "06", t: "Troubleshooting", b: "No response? Check API Key / Base URL / Model in Settings (watch for stray spaces), or clear the key to use the site default. Import failed? Make sure it is a GitHub repo URL with SKILL.md at the root." },
+        guide: [
+      { n: "1", t: "Seat the thinkers", b: "Click a card in Gallery, or a name in the left list. One = a one-on-one talk; two or more = round table. Seated cards move to the front; drag to reorder (long-press on touch)." },
+      { n: "2", t: "Pick a mode", b: "One-on-one is an interview. Round table is a meeting: each speaker goes in turn and can see what was said before. With only one person seated, round table is pointless." },
+      { n: "3", t: "Ask, interrupt, stop", b: "Type your question, hit Speak or Enter. Answers stream in character by character — that is the model thinking aloud, not a hang. Hit Stop to cut it off; typing a new question and pressing Enter interrupts and keeps what was already said." },
+      { n: "4", t: "Set the temperature", b: "Casual keeps it to a couple of sentences. Serious argues properly. Heated holds nothing back. It escalates on its own when the room gets warm." },
+      { n: "5", t: "Whisper: visible to one person only", b: "Click Whisper at the left of the input bar and pick someone at the table. What you say reaches that person alone — the others do not have it in their context at all. The button turns red with their name, and a status line reminds you that you are speaking privately." },
+      { n: "6", t: "Then they call the other out in public", b: "Whoever you told will often bring it to the table next turn and name the other person directly. That person has no idea where it came from and has to answer. This is by design, not a bug." },
+      { n: "7", t: "When the table starts agreeing with itself", b: "If the speakers begin echoing each other, every one of them is forced to raise an objection. If it still adds nothing new, the host steps in and calls the false consensus out." },
+      { n: "8", t: "Scrolling back and history", b: "Scroll up freely — you are not yanked back to the bottom. Hit Back to latest to return. Past conversations live under History." },
+      { n: "9", t: "Workshop: invite more voices", b: "Pick a ready-made repo or paste your own GitHub URL (SKILL.md must sit at the repo root). A few seconds later the new face shows up in the Gallery." },
+      { n: "10", t: "Switch language", b: "EN / 中 at the top right switches the whole site, including persona names." },
+      { n: "11", t: "Bring your own API key (optional)", b: "It works without one. To use your own, create a key at any OpenAI-compatible provider, then open Settings and fill in Key, Base URL and model. The key stays in your browser and is never uploaded." },
+      { n: "12", t: "Troubleshooting", b: "Nothing happening? Check the key, base URL and model in Settings for typos or stray spaces, then try clearing the key to fall back to the site default. Import failing? Make sure the URL is a GitHub repo with SKILL.md at its root." },
+
     ],
-    nums: ["01", "02", "03", "04"],
+    back: "Back to Gallery",
+    guideTitle: "Guide",
+    guideLede: "Start from zero — everything you need to run a table.",
+    modeTag: "Mode",
+    modeHelp: "One-on-one = talk to a single thinker; Round table = several thinkers take turns",
+    roundTag: "Rounds",
+    sceneTag: "Heat",
+    sceneHelp: "Heat = how long answers run: Casual is brief, Serious is measured, Heated holds nothing back. It escalates on its own as the room warms up",
+    sceneDesc: { casual: "A line or two, just to say hello", serious: "A proper argument, back and forth", heated: "No limits, let it rip" },
+    nums: ["01", "02", "03", "04", "05", "06"],
   },
 };
 
@@ -1112,7 +1137,7 @@ export default function RevolutionPreview() {
         </header>
 
         <section className="rv-hero">
-          <div className="rv-hero-art" aria-hidden="true"><TableScene /></div>
+          <div className="rv-hero-ghost" aria-hidden="true">{lang === "zh" ? "辩" : "F"}</div>
           <div className="rv-hero-top">
             <div>
               <h1 className="rv-brand">{(lang === "zh" ? "门外谈" : "Outgate Chat").split("").map((ch, i) => (<span key={i} className="rv-brand-char" style={{ animationDelay: (0.08 * i + 0.15) + "s" }}>{ch}</span>))}</h1>
@@ -1187,7 +1212,8 @@ export default function RevolutionPreview() {
 
         {tab === "debate" && (
           <section className="rv-panel">
-            <div className="rv-section-head"><span className="no">{t.tab1}</span><span className="tt">{t.tab1}</span></div>
+            <div className="rv-section-head">
+<span className="no">{t.tab1}</span><span className="tt">{t.tab1}</span></div>
             <div className="rv-main">
               <aside ref={avatarsRef} className={"rv-avatars" + (mini ? " mini" : compact ? " compact" : "")}>
               <p className="rv-av-label">{t.avLabel}</p>
@@ -1260,10 +1286,13 @@ export default function RevolutionPreview() {
                 </div>
               </div>
               {mode === "debate" && (
-                <div className="rv-rounds">
-                  {[1, 2, 3, 4].map((n) => (
-                    <button key={n} className={rounds === n ? "active" : ""} onClick={() => setRounds(n)}>{n}</button>
-                  ))}
+                <div className="rv-set-row">
+                  <span className="rv-set-tag">{t.roundTag}</span>
+                  <div className="rv-rounds">
+                    {[1, 2, 3, 4].map((n) => (
+                      <button key={n} className={rounds === n ? "active" : ""} onClick={() => setRounds(n)} title={lang === "zh" ? `每人各说 ${n} 轮` : `${n} turn${n > 1 ? "s" : ""} each`}>{n}</button>
+                    ))}
+                  </div>
                 </div>
               )}
             </aside>
@@ -1299,9 +1328,7 @@ export default function RevolutionPreview() {
               ) : (
                 <div className="rv-chat-wrap">
                 <div className="rv-chat-body" ref={chatBodyRef} onScroll={handleChatScroll}>
-                {messages.length <= 1 && (
-                  <div className="rv-chat-empty-art" aria-hidden="true"><TableScene /></div>
-                )}
+
                   {memeNote && (
                     <div className="rv-meme-note">{lang === "zh" ? "注：据网络检索，" : "Note (web): "}{memeNote}</div>
                   )}
@@ -1497,14 +1524,6 @@ export default function RevolutionPreview() {
           <section className="rv-panel rv-workshop">
             <div className="rv-section-head"><span className="no">{t.tab3}</span><span className="tt">{t.wsTitle}</span></div>
             <p className="rv-sub">{t.wsSub}</p>
-            <div className="rv-ws-row">
-              <input value={importUrl} onChange={(e) => setImportUrl(e.target.value)} placeholder="https://github.com/owner/repo" />
-              <div className="rv-send">
-                <ClickSpark sparkColor="#fff" sparkSize={8} sparkRadius={20} sparkCount={6}>
-                  <button className="rv-btn" onClick={doImport} disabled={importing}>{importing ? t.wsImporting : t.wsImport}</button>
-                </ClickSpark>
-              </div>
-            </div>
             <div className="rv-ws-recs">
               <p className="rv-ws-recs-label">{t.wsRec}</p>
               <div className="rv-ws-recs-list">
@@ -1518,6 +1537,15 @@ export default function RevolutionPreview() {
               </div>
               <p className="rv-ws-recs-hint">{t.wsRecHint} <a href={t.wsGalleryUrl} target="_blank" rel="noreferrer">{t.wsGallery} ↗</a> · <a href={t.wsOrgUrl} target="_blank" rel="noreferrer">{t.wsOrg} ↗</a></p>
             </div>
+            <p className="rv-ws-recs-label rv-ws-own">{t.wsOwn}</p>
+            <div className="rv-ws-row">
+              <input value={importUrl} onChange={(e) => setImportUrl(e.target.value)} placeholder="https://github.com/owner/repo" />
+              <div className="rv-send">
+                <ClickSpark sparkColor="#fff" sparkSize={8} sparkRadius={20} sparkCount={6}>
+                  <button className="rv-btn" onClick={doImport} disabled={importing}>{importing ? t.wsImporting : t.wsImport}</button>
+                </ClickSpark>
+              </div>
+            </div>
             {importMsg && <p className="rv-ws-status">{importMsg}</p>}
           </section>
         )}
@@ -1526,13 +1554,24 @@ export default function RevolutionPreview() {
           <section className="rv-panel rv-guide">
             <div className="rv-section-head"><span className="no">{t.tabGuide}</span><span className="tt">{t.guideTitle}</span></div>
             <p className="rv-about-lede">{t.guideLede}</p>
+            <div className="rv-guide-wrap">
             <div className="rv-guide-list">
               {t.guide.map((g, i) => (
-                <div className="rv-guide-item" key={i}>
+                <div className="rv-guide-item" key={i} id={"guide-" + i}>
                   <span className="no">{g.n}</span>
                   <div><b>{g.t}</b><p>{g.b}</p></div>
                 </div>
               ))}
+            </div>
+            <nav className="rv-guide-toc" aria-label={lang === "zh" ? "教程目录" : "Guide contents"}>
+              <p className="rv-guide-toc-label">{lang === "zh" ? "目录" : "Contents"}</p>
+              {t.guide.map((g, i) => (
+                <a key={i} href={"#guide-" + i} onClick={(e) => {
+                  e.preventDefault();
+                  document.getElementById("guide-" + i)?.scrollIntoView({ behavior: "smooth", block: "center" });
+                }}><i>{g.n}</i>{g.t}</a>
+              ))}
+            </nav>
             </div>
           </section>
         )}
@@ -1540,12 +1579,18 @@ export default function RevolutionPreview() {
         {tab === "about" && (
           <section className="rv-panel rv-about">
             <div className="rv-section-head"><span className="no">{t.tab4}</span><span className="tt">{t.aboutName}</span></div>
+            <figure className="rv-about-art">
+              <img src="/art/disputation.jpg" alt="一群人在争论——十九世纪炭笔速写" loading="lazy" />
+              <figcaption>{lang === "zh" ? "争论 · 十九世纪炭笔速写 · 公有领域" : "A Disputation · 19th-c. sketch · public domain"}</figcaption>
+            </figure>
             <p className="rv-about-lede">{t.aboutLede}</p>
             <div className="rv-about-grid">
               <div className="rv-about-item"><span className="no">{t.nums[0]}</span><b>{t.a1}</b><p>{t.a1d}</p></div>
               <div className="rv-about-item"><span className="no">{t.nums[1]}</span><b>{t.a2}</b><p>{t.a2d}</p></div>
               <div className="rv-about-item"><span className="no">{t.nums[2]}</span><b>{t.a3}</b><p>{t.a3d}</p></div>
               <div className="rv-about-item"><span className="no">{t.nums[3]}</span><b>{t.a4}</b><p>{t.a4d}</p></div>
+              <div className="rv-about-item"><span className="no">{t.nums[4]}</span><b>{t.a5}</b><p>{t.a5d}</p></div>
+              <div className="rv-about-item"><span className="no">{t.nums[5]}</span><b>{t.a6}</b><p>{t.a6d}</p></div>
             </div>
             <p className="rv-about-note">{t.note}</p>
             <div className="rv-changelog">

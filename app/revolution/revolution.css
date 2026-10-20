@@ -41,8 +41,10 @@ html, body { overflow-x: clip; }
   --paper-2: #eae2cf;
   --card: #f9f5ea;
   --ink: #17120d;
-  --ink-soft: rgba(23, 18, 13, 0.6);
-  --ink-faint: rgba(23, 18, 13, 0.38);
+  /* 2026-10-19：这一层才是真正生效的调色板（.rv-shell 带 data-variant="b"）。
+     原来这里 0.6 / 0.38，宋体小字压上去就发虚——改 :root 没用，必须改这里。 */
+  --ink-soft: rgba(23, 18, 13, 0.8);
+  --ink-faint: rgba(23, 18, 13, 0.64);
   --red: #a3272c;
   --red-deep: #7e1c21;
   --gold: #a8862f;
@@ -1519,8 +1521,8 @@ html, body { overflow-x: clip; }
    原来 --ink-faint 只有 38% 不透明度，对纸底对比度 2.41（WCAG 正文要 4.5）。
    宋体横画细，小字再压淡就彻底糊了。这里把浓度提上来。 */
 :root {
-  --ink-soft: rgba(23, 18, 13, 0.78);
-  --ink-faint: rgba(23, 18, 13, 0.62);
+  --ink-soft: rgba(23, 18, 13, 0.8);
+  --ink-faint: rgba(23, 18, 13, 0.64);
   --font-ui: -apple-system, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", system-ui, sans-serif;
 }
 
@@ -1612,10 +1614,10 @@ html, body { overflow-x: clip; }
 }
 .rv-av-empty-art {
   width: 100%;
-  max-width: 240px;
-  margin: 0 auto 12px;
+  max-width: 232px;
+  margin: 0 auto 14px;
   color: var(--ink);
-  opacity: 0.5;
+  opacity: 0.72;
 }
 .rv-av-empty-art svg { width: 100%; height: auto; display: block; }
 .rv-av-empty p {
@@ -1643,7 +1645,8 @@ html, body { overflow-x: clip; }
   animation: rvInvite 2.4s ease-in-out infinite;
 }
 .rv-av-empty .rv-av-go:hover { transform: translateY(-1px); box-shadow: 0 4px 14px rgba(163, 39, 44, 0.28); animation-play-state: paused; }
-.rv-av-empty .rv-av-go::after { content: "→"; margin-left: 8px; }
+/* 文案里已带 →，这里再加就成了两个箭头 */
+.rv-av-empty .rv-av-go::after { content: none; }
 @keyframes rvInvite {
   0%, 100% { box-shadow: 0 0 0 0 rgba(163, 39, 44, 0.4); }
   55% { box-shadow: 0 0 0 7px rgba(163, 39, 44, 0); }
@@ -1754,3 +1757,216 @@ html, body { overflow-x: clip; }
 }
 .rv-chat-empty-art svg { width: 100%; height: auto; display: block; }
 .rv-chat-body { position: relative; }
+
+/* 模式卡片在 .rv-set-row（flex wrap）里会被挤到 92px，强制占满一行 */
+.rv-mode-cards { flex: 1 1 100%; }
+/* 工坊：自己导入那一块的小标题 */
+.rv-ws-own { margin-top: var(--s-5); }
+
+/* 主提示三步：原来有一条横线只到 34em，比标题短一截，看着像没对齐 → 去掉横线，做成一行 */
+/* 首屏三步：原来紧贴按钮下方，压得慌，下面又空一大片。
+   改成一条独立的「带」：一道细线拉起，靠下站住，和标题左缘对齐。 */
+/* 首屏三步：原来紧贴按钮下方，压得慌，下面又空一大片。
+   改成一条独立的「带」：一道细线拉起、整体下移，和标题左缘对齐。 */
+.rv-hero-steps {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: clamp(20px, 2.8vw, 38px);
+  max-width: none;
+  margin-top: clamp(34px, 4.4vw, 58px);
+  padding-top: 18px;
+  border-top: 1px solid var(--line);
+  border-bottom: none;
+}
+.rv-hero-steps li {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0;
+  font-size: 0.84rem;
+  letter-spacing: 0.01em;
+  color: var(--ink-soft);
+}
+.rv-hero-steps li i {
+  font-size: 0.95rem;
+  margin: 0;
+}
+.rv-hero-steps li + li {
+  border-left: none;
+  padding-left: 0;
+  margin-left: 0;
+}
+/* 箭头是下一项的 ::before —— 容器 gap 负责它前面的空，li 内部 gap 负责它后面的空 */
+.rv-hero-steps li + li::before {
+  content: "→";
+  margin-right: 2px;
+  color: var(--ink-faint);
+  font-size: 0.8rem;
+  line-height: 1;
+}
+
+/* 剪影版插画：不描边，改为整体淡入 + 轻微上浮 */
+.rv-hero-art { opacity: 0.16; }
+.ts-draw .ts-figures { animation: tsFade 1.1s var(--ease-out) both; }
+.ts-draw .ts-figures > *:nth-child(1) { animation-delay: 0.05s; }
+.ts-draw .ts-figures > *:nth-child(2) { animation-delay: 0.18s; }
+.ts-draw .ts-figures > *:nth-child(3) { animation-delay: 0.31s; }
+.ts-draw .ts-table-line { animation: tsFade 1s 0.35s var(--ease-out) both; }
+@keyframes tsFade {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: none; }
+}
+.rv-av-empty-art { opacity: 0.72; }
+
+/* 插画挪到关于页：右上角一张淡的圆桌俯视图 */
+.rv-about-art {
+  float: right;
+  width: clamp(170px, 19vw, 240px);
+  margin: 4px 8px 22px 34px;
+  color: var(--ink);
+  opacity: 0.42;
+  pointer-events: none;
+}
+.rv-about-art svg { width: 100%; height: auto; display: block; }
+@media (max-width: 760px) {
+  .rv-about-art { float: none; width: 150px; margin: 0 auto 18px; }
+}
+.rv-hero-art { display: none; }   /* 首屏不再用插画，恢复「辩」水印 */
+
+/* 关于页插图：公有领域版画，做成淡墨印在纸上的效果 */
+.rv-about-art {
+  float: right;
+  width: clamp(230px, 26vw, 340px);
+  margin: 6px 6px 24px 34px;
+  padding: 0;
+}
+.rv-about-art img {
+  width: 100%;
+  height: auto;
+  display: block;
+  opacity: 0.62;
+  mix-blend-mode: multiply;
+  filter: contrast(1.06);
+}
+.rv-about-art figcaption {
+  margin-top: 7px;
+  font-family: var(--font-ui);
+  font-size: 0.66rem;
+  letter-spacing: 0.02em;
+  color: var(--ink-faint);
+  text-align: right;
+  line-height: 1.5;
+}
+@media (max-width: 760px) {
+  .rv-about-art { float: none; width: 100%; max-width: 340px; margin: 0 auto 22px; }
+  .rv-about-art figcaption { text-align: center; }
+}
+
+/* 关于页与教程页：原来 max-width: 46em（约 736px），在宽屏上右边一大片空 */
+.rv-about { max-width: 76em; }
+.rv-guide { max-width: 72em; }
+@media (min-width: 900px) {
+  .rv-about-grid { grid-template-columns: 1fr 1fr; align-items: start; }
+}
+/* 关于页插图在宽版下靠右，不再压住正文 */
+@media (min-width: 1100px) {
+  .rv-about-art { width: clamp(260px, 22vw, 330px); margin-right: 0; }
+}
+/* 教程：条目本身加宽，正文行宽控制在可读范围 */
+.rv-guide-list { max-width: 52em; }
+.rv-guide-item p { max-width: 46em; }
+
+/* 教程页：左侧正文 + 右侧粘性目录，填掉右半屏的空白 */
+.rv-guide-wrap {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 210px;
+  gap: clamp(28px, 4vw, 64px);
+  align-items: start;
+  margin-top: var(--s-5);
+}
+.rv-guide-wrap .rv-guide-list { margin-top: 0; }
+.rv-guide-toc {
+  position: sticky;
+  top: 24px;
+  border-left: 1px solid var(--line);
+  padding-left: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+}
+.rv-guide-toc-label {
+  font-family: var(--font-ui);
+  font-size: 0.7rem;
+  letter-spacing: 0.14em;
+  color: var(--ink-faint);
+  margin: 0 0 4px;
+}
+.rv-guide-toc a {
+  display: flex;
+  gap: 8px;
+  align-items: baseline;
+  font-family: var(--font-ui);
+  font-size: 0.8rem;
+  line-height: 1.5;
+  color: var(--ink-soft);
+  text-decoration: none;
+  transition: color 0.18s;
+}
+.rv-guide-toc a:hover { color: var(--red); }
+.rv-guide-toc i {
+  font-style: normal;
+  font-family: var(--font-serif);
+  font-size: 0.72rem;
+  color: var(--red);
+  flex: none;
+  min-width: 1.6em;
+}
+@media (max-width: 900px) {
+  .rv-guide-wrap { grid-template-columns: 1fr; }
+  .rv-guide-toc { position: static; border-left: none; padding-left: 0;
+                  border-top: 1px solid var(--line); padding-top: 16px; }
+}
+
+/* ---------- 空状态插画：入场动画 ----------
+   座位逐个亮起 → 空位开始呼吸 → 悄悄话的虚线缓缓流动。
+   只在小尺寸的空状态里放，所以动画可以慢一点、明显一点。 */
+.ts-draw .ts-seat {
+  animation: tsSeatIn 0.55s var(--ease-out) both;
+}
+@keyframes tsSeatIn {
+  from { opacity: 0; transform: scale(0.4); }
+  to   { opacity: var(--seat-op, 1); transform: scale(1); }
+}
+.ts-draw .ts-table-line,
+.ts-draw .ts-things {
+  animation: tsFadeIn 0.7s var(--ease-out) both;
+}
+@keyframes tsFadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+.ts-draw .ts-seat-pulse {
+  transform-origin: center;
+  transform-box: fill-box;
+  animation: tsSeatPulse 2.4s ease-out 0.9s infinite;
+}
+@keyframes tsSeatPulse {
+  0%   { transform: scale(1);   opacity: 0.7; }
+  70%  { transform: scale(2.1); opacity: 0; }
+  100% { transform: scale(2.1); opacity: 0; }
+}
+.ts-draw .ts-whisper {
+  stroke-dashoffset: 0;
+  animation: tsWhisper 3.2s linear 1s infinite;
+}
+@keyframes tsWhisper {
+  from { stroke-dashoffset: 0; }
+  to   { stroke-dashoffset: -30; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .ts-draw .ts-seat,
+  .ts-draw .ts-table-line,
+  .ts-draw .ts-things,
+  .ts-draw .ts-seat-pulse,
+  .ts-draw .ts-whisper { animation: none !important; }
+}
