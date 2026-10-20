@@ -296,7 +296,7 @@ for i, (k, v) in enumerate(PROBS):
     y = BODY_Y + 0.10 + i * 1.22
     tb(s, XR, y, 0.36, 0.28, f"0{i+1}", 11, True, RED)
     tb(s, XR + 0.48, y - 0.06, 1.4, 0.34, k, 17, True, INK, font=SERIF, spacing=2)
-    tb(s, XR + 2.05, y, 4.3, 0.30, v, 12, False, INK_SOFT)
+    tb(s, XR + 2.05, y, 3.74, 0.30, v, 12, False, INK_SOFT)
     if i < 2:
         hair(s, XR, y + 0.86, 4.9, LINE)
 
@@ -404,16 +404,18 @@ rect(s, ML, 6.34, 0.055, 0.40, RED)
 tb(s, ML + 0.24, 6.38, 5.2, 0.36,
    "所以他不顺着你说话——因为他本来就有立场。", 12, True, INK, line=1.5)
 
+# WPS 的行高比 LibreOffice 大约 10%，这里必须留足余量：
+# 字号降到 9.5、行距 1.42，并去掉两处空行，卡片高度不变。
 XR = 6.85
-rect(s, XR, BODY_Y + 0.02, 5.55, 4.28, CARD, LINE)
-tb(s, XR + 0.30, BODY_Y + 0.24, 4.95, 3.80,
+rect(s, XR, BODY_Y + 0.02, 5.55, 4.22, CARD, LINE)
+tb(s, XR + 0.30, BODY_Y + 0.26, 4.95, 3.55,
    "---\nname: luxun\n---\n\n"
-   "# 鲁迅 · 人物志\n\n"
+   "# 鲁迅 · 人物志\n"
    "你就是鲁迅本人，不是任何人的视角替身，\n更不是写作工具。\n\n"
    "## 思想根基\n批判精神 · 国民性分析 · 文学救国\n\n"
    "## 写作风格指南\n语言特征 · 修辞技法 · 结构模式 · 意象体系",
-   10.5, False, INK_SOFT, line=1.55)
-tb(s, XR, BODY_Y + 4.40, 5.55, 0.28,
+   9.5, False, INK_SOFT, line=1.42)
+tb(s, XR, BODY_Y + 4.36, 5.55, 0.28,
    "鲁迅那份 SKILL.md 的真实开头 · 站内 34 份、合计约 40 万字节", 9.5, False, INK_FAINT)
 foot(s)
 
