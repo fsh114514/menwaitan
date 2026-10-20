@@ -1614,10 +1614,10 @@ html, body { overflow-x: clip; }
 }
 .rv-av-empty-art {
   width: 100%;
-  max-width: 240px;
-  margin: 0 auto 12px;
+  max-width: 232px;
+  margin: 0 auto 14px;
   color: var(--ink);
-  opacity: 0.5;
+  opacity: 0.72;
 }
 .rv-av-empty-art svg { width: 100%; height: auto; display: block; }
 .rv-av-empty p {
@@ -1645,7 +1645,8 @@ html, body { overflow-x: clip; }
   animation: rvInvite 2.4s ease-in-out infinite;
 }
 .rv-av-empty .rv-av-go:hover { transform: translateY(-1px); box-shadow: 0 4px 14px rgba(163, 39, 44, 0.28); animation-play-state: paused; }
-.rv-av-empty .rv-av-go::after { content: "→"; margin-left: 8px; }
+/* 文案里已带 →，这里再加就成了两个箭头 */
+.rv-av-empty .rv-av-go::after { content: none; }
 @keyframes rvInvite {
   0%, 100% { box-shadow: 0 0 0 0 rgba(163, 39, 44, 0.4); }
   55% { box-shadow: 0 0 0 7px rgba(163, 39, 44, 0); }
@@ -1817,7 +1818,7 @@ html, body { overflow-x: clip; }
   from { opacity: 0; transform: translateY(6px); }
   to { opacity: 1; transform: none; }
 }
-.rv-av-empty-art { opacity: 0.42; }
+.rv-av-empty-art { opacity: 0.72; }
 
 /* 插画挪到关于页：右上角一张淡的圆桌俯视图 */
 .rv-about-art {
@@ -1926,4 +1927,46 @@ html, body { overflow-x: clip; }
   .rv-guide-wrap { grid-template-columns: 1fr; }
   .rv-guide-toc { position: static; border-left: none; padding-left: 0;
                   border-top: 1px solid var(--line); padding-top: 16px; }
+}
+
+/* ---------- 空状态插画：入场动画 ----------
+   座位逐个亮起 → 空位开始呼吸 → 悄悄话的虚线缓缓流动。
+   只在小尺寸的空状态里放，所以动画可以慢一点、明显一点。 */
+.ts-draw .ts-seat {
+  animation: tsSeatIn 0.55s var(--ease-out) both;
+}
+@keyframes tsSeatIn {
+  from { opacity: 0; transform: scale(0.4); }
+  to   { opacity: var(--seat-op, 1); transform: scale(1); }
+}
+.ts-draw .ts-table-line,
+.ts-draw .ts-things {
+  animation: tsFadeIn 0.7s var(--ease-out) both;
+}
+@keyframes tsFadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+.ts-draw .ts-seat-pulse {
+  transform-origin: center;
+  transform-box: fill-box;
+  animation: tsSeatPulse 2.4s ease-out 0.9s infinite;
+}
+@keyframes tsSeatPulse {
+  0%   { transform: scale(1);   opacity: 0.7; }
+  70%  { transform: scale(2.1); opacity: 0; }
+  100% { transform: scale(2.1); opacity: 0; }
+}
+.ts-draw .ts-whisper {
+  stroke-dashoffset: 0;
+  animation: tsWhisper 3.2s linear 1s infinite;
+}
+@keyframes tsWhisper {
+  from { stroke-dashoffset: 0; }
+  to   { stroke-dashoffset: -30; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .ts-draw .ts-seat,
+  .ts-draw .ts-table-line,
+  .ts-draw .ts-things,
+  .ts-draw .ts-seat-pulse,
+  .ts-draw .ts-whisper { animation: none !important; }
 }

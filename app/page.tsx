@@ -1328,9 +1328,7 @@ export default function RevolutionPreview() {
               ) : (
                 <div className="rv-chat-wrap">
                 <div className="rv-chat-body" ref={chatBodyRef} onScroll={handleChatScroll}>
-                {messages.length <= 1 && (
-                  <div className="rv-chat-empty-art" aria-hidden="true"><TableScene /></div>
-                )}
+
                   {memeNote && (
                     <div className="rv-meme-note">{lang === "zh" ? "注：据网络检索，" : "Note (web): "}{memeNote}</div>
                   )}
