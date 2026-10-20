@@ -47,6 +47,7 @@ prs.slide_height = Inches(H)
 BLANK = prs.slide_layouts[6]
 _page = {"n": 0}
 _pending_transitions = []
+USE_TRANSITIONS = False   # 淡入看久了像在等它，作者说影响浏览；改成硬切
 
 
 def _strip_style(shape):
@@ -347,7 +348,7 @@ foot(s)
 # 04 界面
 # ============================================================
 s = new_slide()
-head(s, "04 · 界面", "新文化运动时期的报纸，做成一网页")
+head(s, "04 · 界面", "一张报纸的版式，做成一网页")
 
 IW = 5.58
 IH = IW * 727 / 1316
@@ -360,7 +361,7 @@ tb(s, ML + CW - IW, BODY_Y + 0.02 + IH + 0.10, IW, 0.28,
 
 hair(s, ML, 6.10, CW)
 NOTES = [
-    ("纸墨红三色", "纸 #F4EFE3 · 墨 #17120D · 红 #A3272C，以这三色为主"),
+    ("纸墨红三色", "纸 #F4EFE3 · 墨 #17120D · 红 #A3272C"),
     ("版头", "得意黑大字刊名（自托管）＋竖排小字，模拟报纸版头"),
     ("双语", "全站中英一键切换，人物名与文案同步"),
 ]
@@ -694,8 +695,9 @@ tb(s, ML, 5.35, 7.4, 1.1,
 foot(s)
 
 # ============================================================
-for _sl in _pending_transitions:
-    add_fade(_sl)
+if USE_TRANSITIONS:
+    for _sl in _pending_transitions:
+        add_fade(_sl)
 
 out = os.path.join(HERE, "答辩PPT.pptx")
 prs.save(out)
