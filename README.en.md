@@ -17,7 +17,7 @@
 ## Features
 
 - **Information layer (v2)** — visibility / whisper / call-out / novelty / host wrap-up, five mechanisms forming one chain
-- **Roster of thinkers** — 35 personas, one SKILL.md each, distilled by the open-source community
+- **Roster of thinkers** — 34 personas, one SKILL.md each, distilled by the open-source community
 - **One-on-one or round table** — chat solo, or pit several thinkers against each other in turns
 - **Scene system** — Casual / Serious / Heated control answer length & tone, with auto-escalation
 - **Streaming replies** — SSE with a typewriter effect
