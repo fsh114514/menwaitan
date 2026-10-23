@@ -95,19 +95,19 @@ def hair(slide, x, y, w, color=LINE, h=1):
     return rect(slide, x, y, w, h / 96, color)
 
 
-def head(slide, note, conclusion, csize=30):
-    """版头（指导老师两轮意见的结果）：
-    · 不写阿拉伯数字序号
-    · 红字＝这一页的结论，放大到最显眼，它是主角
-    · 黑色小字＝备注，再缩小，只交代章节归属与本页讲什么"""
+def head(slide, title, conclusion, tsize=28):
+    """版头（指导老师三轮意见收敛后的样子）：
+    · 不带阿拉伯数字序号
+    · 前面这行带中文数字（一、/二、…）的，是主标题——放大、黑色
+    · 红字是这一页的结论，缩小作导语，放在主标题下面"""
     hair(slide, ML, HEAD_RULE_Y, CW)
-    rect(slide, ML, 0.44, 0.075, 0.56, RED)
+    rect(slide, ML, 0.38, 0.075, 0.54, RED)
     if _HAVE_DISPLAY:
-        display(slide, ML + 0.30, 0.42, conclusion, csize, color=RED, max_w=CW - 0.40)
+        display(slide, ML + 0.30, 0.36, title, tsize, color=INK, max_w=CW - 0.42)
     else:
-        tb(slide, ML + 0.30, 0.44, CW - 0.40, 0.56, conclusion, csize, True, RED,
+        tb(slide, ML + 0.30, 0.38, CW - 0.42, 0.56, title, tsize, True, INK,
            font=SERIF, spacing=1.0, line=1.0)
-    tb(slide, ML + 0.32, 1.14, CW - 0.40, 0.24, note, 8.5, False, INK_SOFT, spacing=0.6)
+    tb(slide, ML + 0.32, 1.12, CW - 0.42, 0.26, conclusion, 13, True, RED, spacing=0.8)
 
 
 def foot(slide):
